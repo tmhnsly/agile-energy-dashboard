@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@radix-ui/colors": "^3.0.0",
@@ -16,11 +18,20 @@
     "sass": "^1.97.3"
   },
   "devDependencies": {
+    "@storybook/addon-vitest": "^10.2.7",
+    "@storybook/nextjs-vite": "^10.2.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "typescript": "^5"
+    "eslint-plugin-storybook": "^10.2.7",
+    "storybook": "^10.2.7",
+    "typescript": "^5",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18",
+    "playwright": "^1.58.2",
+    "@vitest/browser-playwright": "^4.0.18",
+    "@vitest/coverage-v8": "^4.0.18"
   }
 }
