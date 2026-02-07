@@ -1,0 +1,47 @@
+.button {
+  display: inline-block;
+  cursor: pointer;
+  border: 0;
+  border-radius: 3em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.primary {
+  background-color: var(--accent-solid);
+  color: var(--accent-on-solid);
+
+  &:hover {
+    background-color: var(--accent-solid-hover);
+  }
+}
+
+.secondary {
+  background-color: transparent;
+  box-shadow: var(--mono-border) 0px 0px 0px 1px inset;
+  color: var(--mono-text);
+
+  &:hover {
+    background-color: var(--mono-bg-hover);
+  }
+}
+
+.small {
+  padding: 10px 16px;
+  font-size: 12px;
+}
+
+.medium {
+  padding: 11px 20px;
+  font-size: 14px;
+}
+
+.large {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
