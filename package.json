@@ -17,21 +17,27 @@
     "react-dom": "19.2.3",
     "sass": "^1.97.3"
   },
+  "pnpm": {
+    "overrides": {
+      "vite-tsconfig-paths": "~4.3.2"
+    }
+  },
   "devDependencies": {
+    "@storybook/addon-docs": "^10.2.7",
     "@storybook/addon-vitest": "^10.2.7",
     "@storybook/nextjs-vite": "^10.2.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/browser-playwright": "^4.0.18",
+    "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "eslint-plugin-storybook": "^10.2.7",
+    "playwright": "^1.58.2",
     "storybook": "^10.2.7",
     "typescript": "^5",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18",
-    "playwright": "^1.58.2",
-    "@vitest/browser-playwright": "^4.0.18",
-    "@vitest/coverage-v8": "^4.0.18"
+    "vite": "^6.4.1",
+    "vitest": "^4.0.18"
   }
 }

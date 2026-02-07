@@ -1,4 +1,5 @@
-@import "./theme/radix";
+@use "./theme/colors";
+@use "./theme/spacing";
 
-@import "./app/reset";
-@import "./app/body";
+@use "./app/reset";
+@use "./app/body";

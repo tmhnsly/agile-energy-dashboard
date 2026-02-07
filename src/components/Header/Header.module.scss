@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--mono-border-subtle);
-  padding: 15px 20px;
+  padding: var(--space-3) var(--gutter);
 }
 
 .header svg {
@@ -14,18 +14,18 @@
 .header h1 {
   display: inline-block;
   vertical-align: top;
-  margin: 6px 0 6px 10px;
+  margin: var(--space-1) 0 var(--space-1) var(--space-2);
   font-weight: 700;
-  font-size: 20px;
+  font-size: var(--text-xl);
   line-height: 1;
 }
 
 .header button + button {
-  margin-left: 10px;
+  margin-left: var(--space-2);
 }
 
 .welcome {
-  margin-right: 10px;
+  margin-right: var(--space-2);
   color: var(--mono-text-low-contrast);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }

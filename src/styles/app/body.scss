@@ -23,10 +23,3 @@ a {
   color: inherit;
   text-decoration: none;
 }
-
-/* Lets native controls render appropriately in dark mode */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}

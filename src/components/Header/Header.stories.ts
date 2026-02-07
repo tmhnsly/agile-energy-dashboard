@@ -5,7 +5,7 @@ import { fn } from 'storybook/test';
 import { Header } from './Header';
 
 const meta = {
-  title: 'Example/Header',
+  title: 'Components/Header',
   component: Header,
   parameters: {
     layout: 'fullscreen',

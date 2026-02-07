@@ -1,0 +1,131 @@
+/* =================================================================
+ * Light — Radix raw values on :root, .light, .light-theme
+ * ================================================================= */
+@use "@radix-ui/colors/slate.css";
+@use "@radix-ui/colors/blue.css";
+@use "@radix-ui/colors/red.css";
+@use "@radix-ui/colors/teal.css";
+@use "@radix-ui/colors/amber.css";
+@use "@radix-ui/colors/indigo.css";
+
+/* =================================================================
+ * Dark — Radix raw values on .dark, .dark-theme (+ P3 support)
+ * ================================================================= */
+@use "@radix-ui/colors/slate-dark.css";
+@use "@radix-ui/colors/blue-dark.css";
+@use "@radix-ui/colors/red-dark.css";
+@use "@radix-ui/colors/teal-dark.css";
+@use "@radix-ui/colors/amber-dark.css";
+@use "@radix-ui/colors/indigo-dark.css";
+
+/* =================================================================
+ * Semantic token layer
+ *
+ * These reference the raw steps via var() so they resolve
+ * correctly in both light and dark modes automatically.
+ *
+ * Radix scale steps:
+ *  1  App background            2  Subtle background
+ *  3  UI element background     4  Hovered UI element background
+ *  5  Active / selected         6  Subtle borders (non-interactive)
+ *  7  Interactive borders       8  Hovered interactive borders
+ *  9  Solid backgrounds        10  Hovered solid backgrounds
+ * 11  Low-contrast text        12  High-contrast text
+ * ================================================================= */
+:root {
+  /* Mono (Slate) */
+  --mono-app-bg: var(--slate-1);
+  --mono-subtle-bg: var(--slate-2);
+  --mono-bg: var(--slate-3);
+  --mono-bg-hover: var(--slate-4);
+  --mono-bg-active: var(--slate-5);
+  --mono-border-subtle: var(--slate-6);
+  --mono-border: var(--slate-7);
+  --mono-border-hover: var(--slate-8);
+  --mono-solid: var(--slate-9);
+  --mono-solid-hover: var(--slate-10);
+  --mono-text-low-contrast: var(--slate-11);
+  --mono-text: var(--slate-12);
+
+  /* Accent (Blue) */
+  --accent-app-bg: var(--blue-1);
+  --accent-subtle-bg: var(--blue-2);
+  --accent-bg: var(--blue-3);
+  --accent-bg-hover: var(--blue-4);
+  --accent-bg-active: var(--blue-5);
+  --accent-border-subtle: var(--blue-6);
+  --accent-border: var(--blue-7);
+  --accent-border-hover: var(--blue-8);
+  --accent-solid: var(--blue-9);
+  --accent-solid-hover: var(--blue-10);
+  --accent-text-low-contrast: var(--blue-11);
+  --accent-text: var(--blue-12);
+  --accent-on-solid: #fff;
+
+  /* Error (red) */
+  --error-app-bg: var(--red-1);
+  --error-subtle-bg: var(--red-2);
+  --error-bg: var(--red-3);
+  --error-bg-hover: var(--red-4);
+  --error-bg-active: var(--red-5);
+  --error-border-subtle: var(--red-6);
+  --error-border: var(--red-7);
+  --error-border-hover: var(--red-8);
+  --error-solid: var(--red-9);
+  --error-solid-hover: var(--red-10);
+  --error-text-low-contrast: var(--red-11);
+  --error-text: var(--red-12);
+  --error-on-solid: #fff;
+
+  /* Success (Teal) */
+  --success-app-bg: var(--teal-1);
+  --success-subtle-bg: var(--teal-2);
+  --success-bg: var(--teal-3);
+  --success-bg-hover: var(--teal-4);
+  --success-bg-active: var(--teal-5);
+  --success-border-subtle: var(--teal-6);
+  --success-border: var(--teal-7);
+  --success-border-hover: var(--teal-8);
+  --success-solid: var(--teal-9);
+  --success-solid-hover: var(--teal-10);
+  --success-text-low-contrast: var(--teal-11);
+  --success-text: var(--teal-12);
+  --success-on-solid: #fff;
+
+  /* Warning (Amber) — dark foreground on solid 9/10 */
+  --warning-app-bg: var(--amber-1);
+  --warning-subtle-bg: var(--amber-2);
+  --warning-bg: var(--amber-3);
+  --warning-bg-hover: var(--amber-4);
+  --warning-bg-active: var(--amber-5);
+  --warning-border-subtle: var(--amber-6);
+  --warning-border: var(--amber-7);
+  --warning-border-hover: var(--amber-8);
+  --warning-solid: var(--amber-9);
+  --warning-solid-hover: var(--amber-10);
+  --warning-text-low-contrast: var(--amber-11);
+  --warning-text: var(--amber-12);
+  --warning-on-solid: #21201c;
+
+  /* Info (Indigo) */
+  --info-app-bg: var(--indigo-1);
+  --info-subtle-bg: var(--indigo-2);
+  --info-bg: var(--indigo-3);
+  --info-bg-hover: var(--indigo-4);
+  --info-bg-active: var(--indigo-5);
+  --info-border-subtle: var(--indigo-6);
+  --info-border: var(--indigo-7);
+  --info-border-hover: var(--indigo-8);
+  --info-solid: var(--indigo-9);
+  --info-solid-hover: var(--indigo-10);
+  --info-text-low-contrast: var(--indigo-11);
+  --info-text: var(--indigo-12);
+  --info-on-solid: #fff;
+
+  /* Focus ring */
+  --focus-ring: var(--blue-8);
+
+  /* App-level aliases */
+  --app-bg: var(--slate-1);
+  --app-text: var(--slate-12);
+}

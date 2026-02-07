@@ -1,47 +1,126 @@
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   cursor: pointer;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 3em;
   font-weight: 700;
   line-height: 1;
-}
 
-.primary {
-  background-color: var(--accent-solid);
-  color: var(--accent-on-solid);
+  --_bg: var(--accent-bg);
+  --_bg-hover: var(--accent-bg-hover);
+  --_bg-active: var(--accent-bg-active);
+  --_border: var(--accent-border);
+  --_border-hover: var(--accent-border-hover);
+  --_solid: var(--accent-solid);
+  --_solid-hover: var(--accent-solid-hover);
+  --_text-lc: var(--accent-text-low-contrast);
+  --_on-solid: var(--accent-on-solid);
 
-  &:hover {
-    background-color: var(--accent-solid-hover);
+  &[data-color="error"] {
+    --_bg: var(--error-bg);
+    --_bg-hover: var(--error-bg-hover);
+    --_bg-active: var(--error-bg-active);
+    --_border: var(--error-border);
+    --_border-hover: var(--error-border-hover);
+    --_solid: var(--error-solid);
+    --_solid-hover: var(--error-solid-hover);
+    --_text-lc: var(--error-text-low-contrast);
+    --_on-solid: var(--error-on-solid);
   }
-}
 
-.secondary {
-  background-color: transparent;
-  box-shadow: var(--mono-border) 0px 0px 0px 1px inset;
-  color: var(--mono-text);
-
-  &:hover {
-    background-color: var(--mono-bg-hover);
+  &[data-color="success"] {
+    --_bg: var(--success-bg);
+    --_bg-hover: var(--success-bg-hover);
+    --_bg-active: var(--success-bg-active);
+    --_border: var(--success-border);
+    --_border-hover: var(--success-border-hover);
+    --_solid: var(--success-solid);
+    --_solid-hover: var(--success-solid-hover);
+    --_text-lc: var(--success-text-low-contrast);
+    --_on-solid: var(--success-on-solid);
   }
-}
 
-.small {
-  padding: 10px 16px;
-  font-size: 12px;
-}
+  &[data-color="warning"] {
+    --_bg: var(--warning-bg);
+    --_bg-hover: var(--warning-bg-hover);
+    --_bg-active: var(--warning-bg-active);
+    --_border: var(--warning-border);
+    --_border-hover: var(--warning-border-hover);
+    --_solid: var(--warning-solid);
+    --_solid-hover: var(--warning-solid-hover);
+    --_text-lc: var(--warning-text-low-contrast);
+    --_on-solid: var(--warning-on-solid);
+  }
 
-.medium {
-  padding: 11px 20px;
-  font-size: 14px;
-}
+  &[data-color="info"] {
+    --_bg: var(--info-bg);
+    --_bg-hover: var(--info-bg-hover);
+    --_bg-active: var(--info-bg-active);
+    --_border: var(--info-border);
+    --_border-hover: var(--info-border-hover);
+    --_solid: var(--info-solid);
+    --_solid-hover: var(--info-solid-hover);
+    --_text-lc: var(--info-text-low-contrast);
+    --_on-solid: var(--info-on-solid);
+  }
 
-.large {
-  padding: 12px 24px;
-  font-size: 16px;
-}
+  &[data-variant="solid"] {
+    background-color: var(--_solid);
+    color: var(--_on-solid);
 
-.button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+    &:hover { background-color: var(--_solid-hover); }
+    &:active { background-color: var(--_solid); }
+  }
+
+  &[data-variant="soft"] {
+    background-color: var(--_bg);
+    color: var(--_text-lc);
+
+    &:hover { background-color: var(--_bg-hover); }
+    &:active { background-color: var(--_bg-active); }
+  }
+
+  &[data-variant="outline"] {
+    background-color: transparent;
+    border-color: var(--_border);
+    color: var(--_text-lc);
+
+    &:hover {
+      background-color: var(--_bg);
+      border-color: var(--_border-hover);
+    }
+
+    &:active { background-color: var(--_bg-hover); }
+  }
+
+  &[data-variant="ghost"] {
+    background-color: transparent;
+    color: var(--_text-lc);
+
+    &:hover { background-color: var(--_bg); }
+    &:active { background-color: var(--_bg-hover); }
+  }
+
+  &[data-size="small"] {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+
+  &[data-size="medium"] {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  &[data-size="large"] {
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-base);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }

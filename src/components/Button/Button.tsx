@@ -1,28 +1,35 @@
 import styles from './Button.module.scss';
 
+export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
+export type ButtonColor = 'accent' | 'error' | 'success' | 'warning' | 'info';
+
 export interface ButtonProps {
-  /** Is this the principal call to action on the page? */
-  primary?: boolean;
+  /** Visual weight of the button */
+  variant?: ButtonVariant;
   /** How large should the button be? */
   size?: 'small' | 'medium' | 'large';
+  /** Which color scale to use */
+  color?: ButtonColor;
   /** Button contents */
   label: string;
   /** Optional click handler */
   onClick?: () => void;
 }
 
-/** Primary UI component for user interaction */
 export const Button = ({
-  primary = false,
+  variant = 'solid',
   size = 'medium',
+  color = 'accent',
   label,
   ...props
 }: ButtonProps) => {
-  const mode = primary ? styles.primary : styles.secondary;
   return (
     <button
       type="button"
-      className={`${styles.button} ${styles[size]} ${mode}`}
+      className={styles.button}
+      data-variant={variant}
+      data-size={size}
+      data-color={color}
       {...props}
     >
       {label}

@@ -1,0 +1,4 @@
+/* Dark background only for the story canvas in docs */
+html.dark .docs-story {
+  background: var(--mono-app-bg);
+}

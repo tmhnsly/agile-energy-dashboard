@@ -5,41 +5,84 @@ import { fn } from 'storybook/test';
 import { Button } from './Button';
 
 const meta = {
-  title: 'Example/Button',
+  title: 'Components/Button',
   component: Button,
   parameters: {
     layout: 'centered',
+    docs: { controls: { disable: true } },
   },
-  argTypes: {},
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['solid', 'soft', 'outline', 'ghost'],
+    },
+    color: {
+      control: 'select',
+      options: ['accent', 'error', 'success', 'warning', 'info'],
+    },
+  },
   args: { onClick: fn() },
 } satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {
+export const Solid: Story = {
   args: {
-    primary: true,
+    variant: 'solid',
     label: 'Button',
   },
 };
 
-export const Secondary: Story = {
+export const Soft: Story = {
   args: {
+    variant: 'soft',
     label: 'Button',
   },
 };
 
-export const Large: Story = {
+export const Outline: Story = {
   args: {
-    size: 'large',
+    variant: 'outline',
     label: 'Button',
   },
 };
 
-export const Small: Story = {
+export const Ghost: Story = {
   args: {
-    size: 'small',
+    variant: 'ghost',
     label: 'Button',
+  },
+};
+
+export const Error: Story = {
+  args: {
+    variant: 'solid',
+    color: 'error',
+    label: 'Delete',
+  },
+};
+
+export const Success: Story = {
+  args: {
+    variant: 'solid',
+    color: 'success',
+    label: 'Confirm',
+  },
+};
+
+export const Warning: Story = {
+  args: {
+    variant: 'solid',
+    color: 'warning',
+    label: 'Caution',
+  },
+};
+
+export const Info: Story = {
+  args: {
+    variant: 'solid',
+    color: 'info',
+    label: 'Details',
   },
 };
