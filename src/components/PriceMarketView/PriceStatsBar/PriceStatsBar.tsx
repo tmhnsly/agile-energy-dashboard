@@ -12,24 +12,20 @@ export interface PriceStatsBarProps {
 export const PriceStatsBar = memo(function PriceStatsBar({ stats }: PriceStatsBarProps) {
   return (
     <div className={styles.statsRow}>
-      {stats.min && (
-        <StatCard
-          label="Low"
-          value={formatPricePerKwh(stats.min.price)}
-          subValue={formatTime(stats.min.ts)}
-          icon={<TbTriangleInvertedFilled />}
-          tone="positive"
-        />
-      )}
-      {stats.max && (
-        <StatCard
-          label="High"
-          value={formatPricePerKwh(stats.max.price)}
-          subValue={formatTime(stats.max.ts)}
-          icon={<TbTriangleFilled />}
-          tone="negative"
-        />
-      )}
+      <StatCard
+        label="Low"
+        value={stats.min ? formatPricePerKwh(stats.min.price) : '—'}
+        subValue={stats.min ? formatTime(stats.min.ts) : '\u00A0'}
+        icon={<TbTriangleInvertedFilled />}
+        tone="positive"
+      />
+      <StatCard
+        label="High"
+        value={stats.max ? formatPricePerKwh(stats.max.price) : '—'}
+        subValue={stats.max ? formatTime(stats.max.ts) : '\u00A0'}
+        icon={<TbTriangleFilled />}
+        tone="negative"
+      />
     </div>
   );
 });

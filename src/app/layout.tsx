@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
+import { Navbar } from "@/components/Layout";
 
 export const metadata: Metadata = {
   title: "Shuffle Energy Tech Test",
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar title="Shuffle Energy" />
+          {children}
+        </Providers>
       </body>
     </html>
   );

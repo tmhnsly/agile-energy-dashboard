@@ -1,11 +1,33 @@
 import { PriceMarketView } from "@/components/PriceMarketView";
+import { Section, Container } from "@/components/Layout";
+import { BentoGrid, BentoCard } from "@/components/Bento";
 import styles from "./page.module.scss";
 
 export default function Home() {
   return (
     <main className={styles.page}>
-      <h1 className={styles.heading}>Shuffle Energy</h1>
-      <PriceMarketView />
+      <Section>
+        <Container>
+          <h1 className={styles.heading}>Shuffle Energy</h1>
+          <BentoGrid>
+            <div className={styles.mainTile}>
+              <PriceMarketView />
+            </div>
+            <BentoCard>
+              <h3 className={styles.tileTitle}>Coming Soon</h3>
+              <p className={styles.tileText}>
+                Additional dashboard features will appear here.
+              </p>
+            </BentoCard>
+            <BentoCard>
+              <h3 className={styles.tileTitle}>Notifications</h3>
+              <p className={styles.tileText}>
+                Price alerts and flex event notifications.
+              </p>
+            </BentoCard>
+          </BentoGrid>
+        </Container>
+      </Section>
     </main>
   );
 }

@@ -1,19 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
+import type { ChartSeries, ChartBand } from '@/types/chart';
 import { useMarketData } from '@/hooks/useMarketData';
 import { usePriceRange } from '@/hooks/usePriceRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
-import { formatDateTime } from '@/utils/format';
+import { formatDateTime, formatPricePerKwh } from '@/utils/format';
 import { Spinner } from '@/components/Spinner/Spinner';
 import { Button } from '@/components/Button/Button';
-import { TimeSeriesChart } from './TimeSeriesChart/TimeSeriesChart';
+import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
-import { ChartLegend } from '@/components/Chart/ChartLegend/ChartLegend';
-import { QuickRangeBar } from '@/components/Chart/QuickRangeBar/QuickRangeBar';
 import styles from './PriceMarketView.module.scss';
+
+function formatYTickWithUnit(v: number): string {
+  return `${Number(v).toFixed(0)}p`;
+}
 
 export interface PriceMarketViewProps {
   /** Supply data directly (e.g. in Storybook). When provided, skips fetching. */
@@ -42,6 +45,23 @@ export const PriceMarketView = ({
   const displayRange = previewRange ?? activeRange;
   const stats = usePriceStats(prices, displayRange);
 
+  const chartSeries: ChartSeries[] = useMemo(() => [{
+    id: 'price',
+    label: 'Price (inc. VAT)',
+    data: prices.map(p => ({ ts: p.ts, value: p.price })),
+    tone: 'accent' as const,
+  }], [prices]);
+
+  const chartBands: ChartBand[] = useMemo(() =>
+    flexEvents.map(e => ({
+      id: e.id,
+      startTs: e.startTs,
+      endTs: e.endTs,
+      label: e.label,
+      tone: 'warning' as const,
+    })),
+  [flexEvents]);
+
   if (isLoading) {
     return (
       <div className={styles.wrapper}>
@@ -64,31 +84,31 @@ export const PriceMarketView = ({
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.cardHeader}>
-        <div className={styles.headerTop}>
-          <div>
-            <h2 className={styles.title}>Price &amp; Market View</h2>
-            <div className={styles.rangeSummary}>
-              {formatDateTime(displayRange.fromTs)} &ndash;{' '}
-              {formatDateTime(displayRange.toTs)}
-            </div>
+      <div className={styles.headerTop}>
+        <div>
+          <h2 className={styles.title}>Price &amp; Market View</h2>
+          <div className={styles.rangeSummary}>
+            {formatDateTime(displayRange.fromTs)} &ndash;{' '}
+            {formatDateTime(displayRange.toTs)}
           </div>
-          <PriceStatsBar stats={stats} />
         </div>
+        <PriceStatsBar stats={stats} />
       </div>
 
       <div className={styles.chartArea}>
         <ParentSize debounceTime={0}>
           {({ width, height }) => (
             <TimeSeriesChart
-              points={prices}
-              flexEvents={flexEvents}
+              series={chartSeries}
+              bands={chartBands}
               fullRange={fullRange}
               activeRange={activeRange}
               onRangeChange={setRange}
               onRangePreview={setPreviewRange}
               width={width}
               height={height}
+              formatYTick={formatYTickWithUnit}
+              formatTooltipValue={formatPricePerKwh}
             />
           )}
         </ParentSize>

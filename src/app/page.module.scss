@@ -1,17 +1,8 @@
+@use 'mixins/breakpoints' as bp;
+
 .page {
-  background-color: var(--mono-app-bg);
   min-height: 100dvh;
-  padding: var(--space-4);
-  max-width: 960px;
-  margin: 0 auto;
-
-  @media (min-width: 640px) {
-    padding: var(--gutter);
-  }
-
-  @media (min-width: 1024px) {
-    padding: var(--section-gap) var(--gutter);
-  }
+  background-color: var(--mono-app-bg);
 }
 
 .heading {
@@ -20,7 +11,25 @@
   color: var(--mono-text);
   margin: 0 0 var(--space-6) 0;
 
-  @media (min-width: 640px) {
+  @include bp.tablet {
     font-size: var(--text-3xl);
   }
+}
+
+.mainTile {
+  grid-column: 1 / -1;
+}
+
+.tileTitle {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--mono-text);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.tileText {
+  font-size: var(--text-sm);
+  color: var(--mono-text-low-contrast);
+  margin: 0;
+  line-height: 1.5;
 }

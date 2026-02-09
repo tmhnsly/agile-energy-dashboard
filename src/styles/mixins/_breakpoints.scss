@@ -1,12 +1,12 @@
-// Breakpoint values (mobile-first)
-$_tablet: 640px;
-$_desktop: 1024px;
+// Breakpoints — mobile-first, min-width only.
+// Usage: @use 'mixins/breakpoints' as bp; then @include bp.tablet { ... }
+//
+// mobile:  < 768px  (default styles, no mixin needed — or use @include mobile for max-width targeting)
+// tablet:  >= 768px
+// desktop: >= 1280px
+$_tablet: 768px;
+$_desktop: 1280px;
 
-// Mobile only (max-width, targeting small screens)
-@mixin mobile { @media (max-width: #{$_tablet - 0.02px}) { @content; } }
-
-// Tablet and up (min-width: 640px)
-@mixin tablet { @media (min-width: $_tablet) { @content; } }
-
-// Desktop and up (min-width: 1024px)
+@mixin mobile  { @media (max-width: 767px) { @content; } }
+@mixin tablet  { @media (min-width: $_tablet) { @content; } }
 @mixin desktop { @media (min-width: $_desktop) { @content; } }

@@ -1,0 +1,46 @@
+@use 'mixins/breakpoints' as bp;
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: color-mix(in srgb, var(--mono-app-bg) 80%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--mono-border-subtle);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  width: 100%;
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+
+  @include bp.tablet {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  @include bp.desktop {
+    padding-left: var(--space-10);
+    padding-right: var(--space-10);
+  }
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--mono-text);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

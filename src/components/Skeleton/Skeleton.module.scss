@@ -1,0 +1,52 @@
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--mono-subtle-bg) 25%,
+    var(--mono-bg) 50%,
+    var(--mono-subtle-bg) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  &[data-radius='none'] {
+    border-radius: 0;
+  }
+
+  &[data-radius='small'] {
+    border-radius: 4px;
+  }
+
+  &[data-radius='medium'] {
+    border-radius: 8px;
+  }
+
+  &[data-radius='full'] {
+    border-radius: 50%;
+  }
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--card-padding);
+  border-radius: 8px;
+  border: 1px solid var(--mono-border-subtle);
+  background-color: var(--mono-app-bg);
+}

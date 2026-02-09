@@ -30,50 +30,43 @@
   letter-spacing: 0.02em;
 }
 
-/* Flex event bands — pointer-events: none so only the interaction overlay handles events */
-.eventBand {
-  fill: var(--warning-bg);
+/* Bands — pointer-events: none so only the interaction overlay handles events */
+.band {
   opacity: 0.18;
   pointer-events: none;
 }
 
-.eventBandHover {
-  fill: var(--warning-bg);
+.bandHover {
   opacity: 0.3;
   pointer-events: none;
 }
 
-.eventBandSelected {
-  fill: var(--warning-bg-hover);
+.bandSelected {
   opacity: 0.38;
   pointer-events: none;
 }
 
-.eventBandEdge {
-  stroke: var(--warning-border);
+.bandEdge {
   stroke-width: 1.5;
   opacity: 0.4;
   pointer-events: none;
 }
 
-.eventBandEdgeHover {
-  stroke: var(--warning-border);
+.bandEdgeHover {
   stroke-width: 1.5;
   opacity: 0.6;
   pointer-events: none;
 }
 
-.eventBandEdgeSelected {
-  stroke: var(--warning-border-hover);
+.bandEdgeSelected {
   stroke-width: 1.5;
   opacity: 0.8;
   pointer-events: none;
 }
 
-/* Price line */
-.priceLine {
+/* Series line */
+.seriesLine {
   fill: none;
-  stroke: var(--accent-solid);
   stroke-width: 2;
 }
 
@@ -171,14 +164,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-.tooltipPrice {
+.tooltipValue {
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--mono-text);
   font-variant-numeric: tabular-nums;
 }
 
-.tooltipFlex {
+.tooltipBand {
   display: flex;
   align-items: center;
   gap: var(--space-1);
@@ -188,7 +181,7 @@
   text-transform: capitalize;
 }
 
-.tooltipFlexBadge {
+.tooltipBandBadge {
   display: inline-block;
   padding: 1px var(--space-1);
   font-size: 9px;

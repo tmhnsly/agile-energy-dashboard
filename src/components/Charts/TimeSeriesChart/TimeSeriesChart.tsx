@@ -7,13 +7,13 @@ import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
 import { localPoint } from '@visx/event';
-import { useTooltip, TooltipWithBounds } from '@visx/tooltip';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { startOfDay, addDays } from 'date-fns';
 import { UTCDate } from '@date-fns/utc';
-import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
+import type { TimeRange } from '@/types/energy';
+import type { ChartSeries, ChartBand, ChartDataPoint } from '@/types/chart';
 import {
   formatTime,
-  formatPricePerKwh,
   formatDayShort,
   formatDateTime,
   formatDuration,
@@ -29,10 +29,17 @@ const MIN_SEL_PX = 10;
 const MIN_DOMAIN_MS = 60_000; // 1 min
 const CLICK_THRESHOLD_PX = 3;
 const HALF_HOUR_MS = 30 * 60 * 1000;
+const CHAR_WIDTH_PX = 7.5; // approximate character width at text-sm
+const AXIS_LABEL_PAD = 12; // padding between widest label and plot area
 
-function getMargin(width: number) {
-  const left = width < 480 ? 40 : 56;
-  return { top: 20, right: 12, bottom: 40, left };
+export type ChartMargin = { top: number; right: number; bottom: number; left: number };
+
+/**
+ * Estimate the pixel width of a string at the chart's label font size.
+ * Used to auto-compute the left margin from the widest y-axis tick label.
+ */
+function estimateTextWidth(text: string): number {
+  return text.length * CHAR_WIDTH_PX;
 }
 
 function clamp(val: number, min: number, max: number) {
@@ -57,13 +64,39 @@ const AXIS_LEFT_TICK_LABEL_PROPS = {
   dy: '0.33em',
 };
 
+function defaultFormatYTick(v: number): string {
+  return String(v);
+}
+
+const TONE_STROKE: Record<string, string> = {
+  accent: 'var(--accent-solid)',
+  positive: 'var(--success-solid)',
+  negative: 'var(--error-solid)',
+  warning: 'var(--warning-solid)',
+};
+
+const BAND_TONE_FILL: Record<string, { bg: string; border: string; bgHover: string; borderHover: string }> = {
+  warning: {
+    bg: 'var(--warning-bg)',
+    border: 'var(--warning-border)',
+    bgHover: 'var(--warning-bg-hover)',
+    borderHover: 'var(--warning-border-hover)',
+  },
+  accent: {
+    bg: 'var(--accent-bg)',
+    border: 'var(--accent-border)',
+    bgHover: 'var(--accent-bg-hover)',
+    borderHover: 'var(--accent-border-hover)',
+  },
+};
+
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 
 export interface TimeSeriesChartProps {
-  points: PricePoint[];
-  flexEvents: FlexEvent[];
+  series: ChartSeries[];
+  bands?: ChartBand[];
   fullRange: TimeRange;
   activeRange: TimeRange;
   onRangeChange: (range: TimeRange) => void;
@@ -71,11 +104,24 @@ export interface TimeSeriesChartProps {
   onRangePreview?: (range: TimeRange | null) => void;
   width: number;
   height: number;
+  /** Override chart margins. Left margin auto-sizes from y-axis labels if omitted. */
+  margin?: Partial<ChartMargin>;
+  /** Format y-axis tick labels. Default: `String(v)` */
+  formatYTick?: (value: number) => string;
+  /** Format x-axis tick labels. Default: HH:mm */
+  formatXTick?: (ts: number) => string;
+  /** Format value for tooltip display. Default: `v => v.toFixed(1)` */
+  formatTooltipValue?: (value: number) => string;
+  /** Accessible label for the chart SVG. */
+  ariaLabel?: string;
+  /** Show min/max markers on the primary series. Default: true */
+  showMinMaxMarkers?: boolean;
 }
 
 interface TooltipData {
-  point: PricePoint;
-  inFlexEvent: FlexEvent | null;
+  ts: number;
+  values: Array<{ seriesId: string; label: string; value: number; tone?: string }>;
+  inBand: ChartBand | null;
 }
 
 interface DragState {
@@ -91,14 +137,20 @@ interface DragState {
 /* ------------------------------------------------------------------ */
 
 export const TimeSeriesChart = ({
-  points,
-  flexEvents,
+  series,
+  bands = [],
   fullRange,
   activeRange,
   onRangeChange,
   onRangePreview,
   width,
   height,
+  margin: marginProp,
+  formatYTick: formatYTickProp,
+  formatXTick: formatXTickProp,
+  formatTooltipValue: formatTooltipValueProp,
+  ariaLabel = 'Time series chart',
+  showMinMaxMarkers = true,
 }: TimeSeriesChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const overlayRef = useRef<SVGRectElement>(null);
@@ -113,6 +165,16 @@ export const TimeSeriesChart = ({
   useEffect(() => {
     onRangePreviewRef.current = onRangePreview;
   }, [onRangePreview]);
+
+  /* ---- formatters (stable refs to avoid re-render cascades) ---- */
+  const fmtYTickRef = useRef(formatYTickProp);
+  useEffect(() => { fmtYTickRef.current = formatYTickProp; }, [formatYTickProp]);
+  const fmtYTick = useCallback(
+    (v: number) => (fmtYTickRef.current ?? defaultFormatYTick)(v),
+    [],
+  );
+  const fmtXTick = formatXTickProp ?? formatTime;
+  const fmtTooltipValue = formatTooltipValueProp ?? ((v: number) => v.toFixed(1));
 
   /* Cursor lives in a ref — updated via DOM to skip per-move rerenders. */
   const cursorRef = useRef('crosshair');
@@ -135,7 +197,48 @@ export const TimeSeriesChart = ({
     tooltipTop,
   } = useTooltip<TooltipData>();
 
-  const margin = useMemo(() => getMargin(width), [width]);
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    detectBounds: true,
+    scroll: true,
+  });
+
+  /* ---- primary data (first series) ---- */
+  const primaryData = useMemo(() => series[0]?.data ?? [], [series]);
+
+  /* ---- auto-sized margins ---- */
+
+  // Compute y-axis domain across ALL series
+  const yDomain: [number, number] = useMemo(() => {
+    let hasData = false;
+    let minV = Infinity;
+    let maxV = -Infinity;
+    for (const s of series) {
+      for (const d of s.data) {
+        hasData = true;
+        if (d.value < minV) minV = d.value;
+        if (d.value > maxV) maxV = d.value;
+      }
+    }
+    if (!hasData) return [0, 100];
+    const pad = (maxV - minV) * 0.1 || 5;
+    return [minV - pad, maxV + pad];
+  }, [series]);
+
+  // Auto-compute left margin from the widest y-axis label
+  const autoLeftMargin = useMemo(() => {
+    const tempScale = scaleLinear({ domain: yDomain, range: [100, 0], nice: true });
+    const ticks = tempScale.ticks(5);
+    const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmtYTick(t))));
+    return Math.ceil(maxWidth + AXIS_LABEL_PAD);
+  }, [yDomain, fmtYTick]);
+
+  const margin: ChartMargin = useMemo(() => ({
+    top: marginProp?.top ?? 12,
+    right: marginProp?.right ?? 4,
+    bottom: marginProp?.bottom ?? 28,
+    left: marginProp?.left ?? autoLeftMargin,
+  }), [marginProp, autoLeftMargin]);
+
   const innerWidth = Math.max(0, width - margin.left - margin.right);
   const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
@@ -160,42 +263,29 @@ export const TimeSeriesChart = ({
     [fullRange, innerWidth],
   );
 
-  const yScale = useMemo(() => {
-    if (points.length === 0)
-      return scaleLinear({ domain: [0, 100], range: [innerHeight, 0] });
-    let minP = points[0].price;
-    let maxP = points[0].price;
-    for (let i = 1; i < points.length; i++) {
-      const p = points[i].price;
-      if (p < minP) minP = p;
-      if (p > maxP) maxP = p;
-    }
-    const pad = (maxP - minP) * 0.1 || 5;
-    return scaleLinear({
-      domain: [minP - pad, maxP + pad],
-      range: [innerHeight, 0],
-      nice: true,
-    });
-  }, [points, innerHeight]);
+  const yScale = useMemo(
+    () => scaleLinear({ domain: yDomain, range: [innerHeight, 0], nice: true }),
+    [yDomain, innerHeight],
+  );
 
   const yTicks = useMemo(() => yScale.ticks(5), [yScale]);
 
   /* ---- derived data ---- */
 
-  const visibleFlexEvents = useMemo(
+  const visibleBands = useMemo(
     () =>
-      flexEvents.filter(
-        (e) => e.endTs >= fullRange.fromTs && e.startTs <= fullRange.toTs,
+      bands.filter(
+        (b) => b.endTs >= fullRange.fromTs && b.startTs <= fullRange.toTs,
       ),
-    [flexEvents, fullRange],
+    [bands, fullRange],
   );
 
-  const selectedEventId = useMemo(() => {
-    const m = visibleFlexEvents.find(
-      (e) => e.startTs === activeRange.fromTs && e.endTs === activeRange.toTs,
+  const selectedBandId = useMemo(() => {
+    const m = visibleBands.find(
+      (b) => b.startTs === activeRange.fromTs && b.endTs === activeRange.toTs,
     );
     return m?.id ?? null;
-  }, [visibleFlexEvents, activeRange]);
+  }, [visibleBands, activeRange]);
 
   const dayBoundaries = useMemo(() => {
     const boundaries: number[] = [];
@@ -218,19 +308,20 @@ export const TimeSeriesChart = ({
   const isDragging = localDragRange !== null;
 
   const displayStats = useMemo(() => {
-    const start = lowerBound(points, displayRange.fromTs);
-    const end = upperBound(points, displayRange.toTs);
+    if (!showMinMaxMarkers) return { min: null as ChartDataPoint | null, max: null as ChartDataPoint | null };
+    const start = lowerBound(primaryData, displayRange.fromTs);
+    const end = upperBound(primaryData, displayRange.toTs);
     if (start >= end)
-      return { min: null as PricePoint | null, max: null as PricePoint | null };
-    let min = points[start];
-    let max = points[start];
+      return { min: null as ChartDataPoint | null, max: null as ChartDataPoint | null };
+    let min = primaryData[start];
+    let max = primaryData[start];
     for (let i = start + 1; i < end; i++) {
-      const p = points[i];
-      if (p.price < min.price) min = p;
-      if (p.price > max.price) max = p;
+      const p = primaryData[i];
+      if (p.value < min.value) min = p;
+      if (p.value > max.value) max = p;
     }
     return { min, max };
-  }, [points, displayRange]);
+  }, [primaryData, displayRange, showMinMaxMarkers]);
 
   /* ---- pointer helpers ---- */
 
@@ -261,28 +352,40 @@ export const TimeSeriesChart = ({
 
   const showTooltipForX = useCallback(
     (x: number) => {
-      if (points.length === 0) return;
+      if (primaryData.length === 0) return;
       const ts = xScale.invert(x).getTime();
-      const idx = bisectNearest(points, ts);
+      const idx = bisectNearest(primaryData, ts);
       if (idx < 0) return;
-      const closest = points[idx];
+      const closest = primaryData[idx];
 
-      const inFlexEvent =
-        visibleFlexEvents.find(
-          (e) => closest.ts >= e.startTs && closest.ts <= e.endTs,
+      // Build values from all series
+      const values = series.map((s) => {
+        const sIdx = bisectNearest(s.data, closest.ts);
+        const point = sIdx >= 0 ? s.data[sIdx] : null;
+        return {
+          seriesId: s.id,
+          label: s.label,
+          value: point?.value ?? 0,
+          tone: s.tone,
+        };
+      });
+
+      const inBand =
+        visibleBands.find(
+          (b) => closest.ts >= b.startTs && closest.ts <= b.endTs,
         ) ?? null;
 
       showTooltip({
-        tooltipData: { point: closest, inFlexEvent },
+        tooltipData: { ts: closest.ts, values, inBand },
         tooltipLeft: xScale(new Date(closest.ts)) + margin.left,
-        tooltipTop: yScale(closest.price) + margin.top,
+        tooltipTop: yScale(closest.value) + margin.top,
       });
     },
-    [points, xScale, yScale, visibleFlexEvents, showTooltip, margin],
+    [primaryData, series, xScale, yScale, visibleBands, showTooltip, margin],
   );
 
   const showTooltipForXRef = useRef(showTooltipForX);
-  showTooltipForXRef.current = showTooltipForX;
+  useEffect(() => { showTooltipForXRef.current = showTooltipForX; }, [showTooltipForX]);
 
   /* ---- pointer event handlers ---- */
 
@@ -348,12 +451,12 @@ export const TimeSeriesChart = ({
 
         const hoverType = getDragType(x);
 
-        // Only detect flex-band hover when NOT over selection handles / region
+        // Only detect band hover when NOT over selection handles / region
         let bandId: string | null = null;
         if (hoverType === 'new') {
           const ts = xScale.invert(x).getTime();
-          const band = visibleFlexEvents.find(
-            (ev) => ts >= ev.startTs && ts <= ev.endTs,
+          const band = visibleBands.find(
+            (b) => ts >= b.startTs && ts <= b.endTs,
           );
           bandId = band?.id ?? null;
         }
@@ -444,7 +547,7 @@ export const TimeSeriesChart = ({
       getDragType,
       updateCursor,
       xScale,
-      visibleFlexEvents,
+      visibleBands,
       fullRange,
     ],
   );
@@ -465,17 +568,17 @@ export const TimeSeriesChart = ({
       }
 
       if (Math.abs(x - drag.originX) < CLICK_THRESHOLD_PX) {
-        // Click (not drag) — only select a flex event if one was hit
+        // Click (not drag) — only select a band if one was hit
         if (drag.type === 'new') {
           const clickTs = xScale.invert(x).getTime();
-          const hitEvents = visibleFlexEvents.filter(
-            (ev) => clickTs >= ev.startTs && clickTs <= ev.endTs,
+          const hitBands = visibleBands.filter(
+            (b) => clickTs >= b.startTs && clickTs <= b.endTs,
           );
-          if (hitEvents.length > 0) {
-            const event = hitEvents.reduce((a, b) =>
+          if (hitBands.length > 0) {
+            const band = hitBands.reduce((a, b) =>
               a.endTs - a.startTs < b.endTs - b.startTs ? a : b,
             );
-            onRangeChange({ fromTs: event.startTs, toTs: event.endTs });
+            onRangeChange({ fromTs: band.startTs, toTs: band.endTs });
           }
           // Otherwise do nothing — use the Reset button for full-range reset
         }
@@ -504,7 +607,7 @@ export const TimeSeriesChart = ({
       pendingDragRange.current = null;
       onRangePreviewRef.current?.(null);
     },
-    [getChartX, xScale, visibleFlexEvents, onRangeChange, fullRange, updateCursor],
+    [getChartX, xScale, visibleBands, onRangeChange, fullRange, updateCursor],
   );
 
   const handlePointerCancel = useCallback(
@@ -557,13 +660,13 @@ export const TimeSeriesChart = ({
   /* ---- render ---- */
 
   return (
-    <div className={styles.container}>
+    <div ref={containerRef} className={styles.container}>
       <svg
         ref={svgRef}
         width={width}
         height={height}
         role="img"
-        aria-label="Energy price time series chart"
+        aria-label={ariaLabel}
         style={{ touchAction: 'none' }}
       >
         <Group left={margin.left} top={margin.top}>
@@ -616,30 +719,32 @@ export const TimeSeriesChart = ({
             );
           })}
 
-          {/* 3 — Flex event bands (soft fill + thin left edge) */}
-          {visibleFlexEvents.map((e) => {
-            const x0 = Math.max(0, xScale(new Date(e.startTs)));
-            const x1 = Math.min(innerWidth, xScale(new Date(e.endTs)));
-            const isSelected = e.id === selectedEventId;
-            const isHovered = e.id === hoveredBandId;
+          {/* 3 — Bands */}
+          {visibleBands.map((b) => {
+            const x0 = Math.max(0, xScale(new Date(b.startTs)));
+            const x1 = Math.min(innerWidth, xScale(new Date(b.endTs)));
+            const isSelected = b.id === selectedBandId;
+            const isHovered = b.id === hoveredBandId;
+            const tone = BAND_TONE_FILL[b.tone ?? 'warning'] ?? BAND_TONE_FILL.warning;
             const bandClass = isSelected
-              ? styles.eventBandSelected
+              ? styles.bandSelected
               : isHovered
-                ? styles.eventBandHover
-                : styles.eventBand;
+                ? styles.bandHover
+                : styles.band;
             const edgeClass = isSelected
-              ? styles.eventBandEdgeSelected
+              ? styles.bandEdgeSelected
               : isHovered
-                ? styles.eventBandEdgeHover
-                : styles.eventBandEdge;
+                ? styles.bandEdgeHover
+                : styles.bandEdge;
             return (
-              <g key={e.id}>
+              <g key={b.id}>
                 <rect
                   x={x0}
                   y={0}
                   width={Math.max(0, x1 - x0)}
                   height={innerHeight}
                   className={bandClass}
+                  style={{ fill: isSelected ? tone.bgHover : tone.bg }}
                 />
                 <line
                   x1={x0}
@@ -647,6 +752,7 @@ export const TimeSeriesChart = ({
                   x2={x0}
                   y2={innerHeight}
                   className={edgeClass}
+                  style={{ stroke: isSelected ? tone.borderHover : tone.border }}
                 />
                 <line
                   x1={x1}
@@ -654,52 +760,60 @@ export const TimeSeriesChart = ({
                   x2={x1}
                   y2={innerHeight}
                   className={edgeClass}
+                  style={{ stroke: isSelected ? tone.borderHover : tone.border }}
                 />
               </g>
             );
           })}
 
-          {/* 4 — Price line */}
-          <LinePath
-            data={points}
-            x={(d) => xScale(new Date(d.ts))}
-            y={(d) => yScale(d.price)}
-            curve={curveMonotoneX}
-            className={styles.priceLine}
-          />
+          {/* 4 — Series lines */}
+          {series.map((s) => {
+            const stroke = TONE_STROKE[s.tone ?? 'accent'] ?? TONE_STROKE.accent;
+            return (
+              <LinePath
+                key={s.id}
+                data={s.data}
+                x={(d) => xScale(new Date(d.ts))}
+                y={(d) => yScale(d.value)}
+                curve={curveMonotoneX}
+                className={styles.seriesLine}
+                style={{ stroke }}
+              />
+            );
+          })}
 
           {/* 5 — Min / Max markers (live during drag) */}
-          {displayStats.min && (
+          {showMinMaxMarkers && displayStats.min && (
             <g>
               <circle
                 cx={xScale(new Date(displayStats.min.ts))}
-                cy={yScale(displayStats.min.price)}
+                cy={yScale(displayStats.min.value)}
                 r={4}
                 className={styles.minMarker}
               />
               <text
                 x={xScale(new Date(displayStats.min.ts))}
-                y={yScale(displayStats.min.price) + 16}
+                y={yScale(displayStats.min.value) + 16}
                 className={styles.minMaxLabel}
               >
-                {formatPricePerKwh(displayStats.min.price)}
+                {fmtTooltipValue(displayStats.min.value)}
               </text>
             </g>
           )}
-          {displayStats.max && (
+          {showMinMaxMarkers && displayStats.max && (
             <g>
               <circle
                 cx={xScale(new Date(displayStats.max.ts))}
-                cy={yScale(displayStats.max.price)}
+                cy={yScale(displayStats.max.value)}
                 r={4}
                 className={styles.maxMarker}
               />
               <text
                 x={xScale(new Date(displayStats.max.ts))}
-                y={yScale(displayStats.max.price) - 10}
+                y={yScale(displayStats.max.value) - 10}
                 className={styles.maxMaxLabel}
               >
-                {formatPricePerKwh(displayStats.max.price)}
+                {fmtTooltipValue(displayStats.max.value)}
               </text>
             </g>
           )}
@@ -756,7 +870,7 @@ export const TimeSeriesChart = ({
             top={innerHeight}
             scale={xScale}
             numTicks={Math.min(8, Math.floor(innerWidth / 80))}
-            tickFormat={(d) => formatTime((d as Date).getTime())}
+            tickFormat={(d) => fmtXTick((d as Date).getTime())}
             stroke="var(--mono-border-subtle)"
             tickStroke="var(--mono-border-subtle)"
             tickLabelProps={AXIS_BOTTOM_TICK_LABEL_PROPS}
@@ -764,7 +878,7 @@ export const TimeSeriesChart = ({
           <AxisLeft
             scale={yScale}
             numTicks={5}
-            tickFormat={(v) => `${Number(v).toFixed(0)}p`}
+            tickFormat={(v) => fmtYTick(Number(v))}
             stroke="var(--mono-border-subtle)"
             tickStroke="var(--mono-border-subtle)"
             tickLabelProps={AXIS_LEFT_TICK_LABEL_PROPS}
@@ -774,15 +888,15 @@ export const TimeSeriesChart = ({
           {tooltipOpen && tooltipData && !isDragging && (
             <>
               <line
-                x1={xScale(new Date(tooltipData.point.ts))}
+                x1={xScale(new Date(tooltipData.ts))}
                 y1={0}
-                x2={xScale(new Date(tooltipData.point.ts))}
+                x2={xScale(new Date(tooltipData.ts))}
                 y2={innerHeight}
                 className={styles.crosshair}
               />
               <circle
-                cx={xScale(new Date(tooltipData.point.ts))}
-                cy={yScale(tooltipData.point.price)}
+                cx={xScale(new Date(tooltipData.ts))}
+                cy={yScale(tooltipData.values[0]?.value ?? 0)}
                 r={4}
                 className={styles.tooltipDot}
               />
@@ -810,24 +924,28 @@ export const TimeSeriesChart = ({
 
       {/* Tooltip */}
       {tooltipOpen && tooltipData && !isDragging && (
-        <TooltipWithBounds
+        <TooltipInPortal
           left={tooltipLeft}
           top={tooltipTop}
           className={styles.tooltip}
         >
           <div className={styles.tooltipTime}>
-            {formatDateTime(tooltipData.point.ts)}
+            {formatDateTime(tooltipData.ts)}
           </div>
-          <div className={styles.tooltipPrice}>
-            {formatPricePerKwh(tooltipData.point.price)}
-          </div>
-          {tooltipData.inFlexEvent && (
-            <div className={styles.tooltipFlex}>
-              <span className={styles.tooltipFlexBadge}>Flex</span>
-              {tooltipData.inFlexEvent.label}
+          {tooltipData.values.map((v) => (
+            <div key={v.seriesId} className={styles.tooltipValue}>
+              {fmtTooltipValue(v.value)}
+            </div>
+          ))}
+          {tooltipData.inBand && (
+            <div className={styles.tooltipBand}>
+              <span className={styles.tooltipBandBadge}>
+                {tooltipData.inBand.tone === 'accent' ? 'Event' : 'Flex'}
+              </span>
+              {tooltipData.inBand.label}
             </div>
           )}
-        </TooltipWithBounds>
+        </TooltipInPortal>
       )}
 
       {/* Drag range pill */}

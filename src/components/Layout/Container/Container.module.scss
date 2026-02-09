@@ -1,0 +1,20 @@
+@use 'mixins/breakpoints' as bp;
+
+.container {
+  width: 100%;
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+
+  @include bp.tablet {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  @include bp.desktop {
+    padding-left: var(--space-10);
+    padding-right: var(--space-10);
+  }
+}

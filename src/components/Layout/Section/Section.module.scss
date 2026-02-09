@@ -1,0 +1,45 @@
+@use 'mixins/breakpoints' as bp;
+
+.section {
+  width: 100%;
+
+  // --- Variants ---
+  &[data-variant='surface'] {
+    background-color: var(--mono-subtle-bg);
+  }
+
+  &[data-variant='contrast'] {
+    background-color: var(--mono-bg);
+  }
+
+  // --- Sizes (mobile / tablet+) ---
+  &[data-size='small'] {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
+
+    @include bp.tablet {
+      padding-top: var(--space-8);
+      padding-bottom: var(--space-8);
+    }
+  }
+
+  &[data-size='medium'] {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+
+    @include bp.tablet {
+      padding-top: var(--space-12);
+      padding-bottom: var(--space-12);
+    }
+  }
+
+  &[data-size='large'] {
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
+
+    @include bp.tablet {
+      padding-top: var(--space-16);
+      padding-bottom: var(--space-16);
+    }
+  }
+}

@@ -7,6 +7,21 @@
   border: 1px solid var(--mono-border-subtle);
   border-radius: 8px;
   min-width: 100px;
+
+  &[data-tone="positive"] {
+    border-color: var(--success-border);
+    background-color: var(--success-bg);
+  }
+
+  &[data-tone="negative"] {
+    border-color: var(--error-border);
+    background-color: var(--error-bg);
+  }
+
+  &[data-tone="accent"] {
+    border-color: var(--accent-border);
+    background-color: var(--accent-bg);
+  }
 }
 
 .header {

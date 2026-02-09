@@ -1,0 +1,24 @@
+@use 'mixins/breakpoints' as bp;
+
+.card {
+  background-color: var(--mono-app-bg);
+  border: 1px solid var(--mono-border-subtle);
+  border-radius: 12px;
+  padding: var(--card-padding);
+
+  &[data-span='2'] {
+    @include bp.tablet {
+      grid-column: span 2;
+    }
+  }
+
+  &[data-span='3'] {
+    @include bp.tablet {
+      grid-column: span 2;
+    }
+
+    @include bp.desktop {
+      grid-column: span 3;
+    }
+  }
+}

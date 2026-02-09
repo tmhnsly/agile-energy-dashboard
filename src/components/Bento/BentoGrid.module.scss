@@ -1,0 +1,15 @@
+@use 'mixins/breakpoints' as bp;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @include bp.tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp.desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
