@@ -4,41 +4,31 @@ import { useState, useMemo } from 'react';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
-import { useMarketData } from '@/hooks/useMarketData';
 import { usePriceRange } from '@/hooks/usePriceRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
 import { formatDateTime, formatPricePerKwh } from '@/utils/format';
-import { Spinner } from '@/components/Spinner/Spinner';
 import { Button } from '@/components/Button/Button';
 import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
-import styles from './PriceMarketView.module.scss';
+import styles from './MarketPricePanel.module.scss';
 
 function formatYTickWithUnit(v: number): string {
   return `${Number(v).toFixed(0)}p`;
 }
 
-export interface PriceMarketViewProps {
-  /** Supply data directly (e.g. in Storybook). When provided, skips fetching. */
-  prices?: PricePoint[];
-  flexEvents?: FlexEvent[];
+export interface MarketPricePanelProps {
+  prices: PricePoint[];
+  flexEvents: FlexEvent[];
 }
 
-export const PriceMarketView = ({
-  prices: propPrices,
-  flexEvents: propFlexEvents,
-}: PriceMarketViewProps) => {
-  const marketData = useMarketData();
-
-  const prices =
-    propPrices ?? (marketData.status === 'ready' ? marketData.prices : []);
-  const flexEvents =
-    propFlexEvents ??
-    (marketData.status === 'ready' ? marketData.flexEvents : []);
-
-  const isLoading = !propPrices && marketData.status === 'loading';
-  const isError = !propPrices && marketData.status === 'error';
-
+/**
+ * Pure presentation panel — receives resolved data via props.
+ * Loading and error states are owned by the parent tile wrapper.
+ */
+export const MarketPricePanel = ({
+  prices,
+  flexEvents,
+}: MarketPricePanelProps) => {
   const { fullRange, activeRange, isCustomRange, setRange, resetRange } =
     usePriceRange(prices);
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
@@ -62,31 +52,11 @@ export const PriceMarketView = ({
     })),
   [flexEvents]);
 
-  if (isLoading) {
-    return (
-      <div className={styles.wrapper}>
-        <div className={styles.loading}>
-          <Spinner size="large" label="Loading market data" />
-        </div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className={styles.wrapper}>
-        <div className={styles.error}>
-          Failed to load market data. Please try again later.
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.content}>
       <div className={styles.headerTop}>
-        <div>
-          <h2 className={styles.title}>Price &amp; Market View</h2>
+        <div className={styles.headerGroup}>
+          <h2 className={styles.title}>Market Price</h2>
           <div className={styles.rangeSummary}>
             {formatDateTime(displayRange.fromTs)} &ndash;{' '}
             {formatDateTime(displayRange.toTs)}
@@ -117,7 +87,7 @@ export const PriceMarketView = ({
       <div className={styles.chartFooter}>
         <ChartLegend />
         <Button
-          label="Reset range"
+          label="Reset"
           variant="soft"
           color="warning"
           size="small"

@@ -1,5 +1,7 @@
-@use "./theme/colors";
-@use "./theme/spacing";
+@use "app/reset";
+@use "app/body";
 
-@use "./app/reset";
-@use "./app/body";
+@use "theme/colors";
+@use "theme/spacing";
+@use "theme/typography";
+@use "theme/radius";

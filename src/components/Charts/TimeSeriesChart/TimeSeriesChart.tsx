@@ -970,11 +970,13 @@ export const TimeSeriesChart = ({
           <div className={styles.tooltipTime}>
             {formatDateTime(tooltipData.ts)}
           </div>
-          {tooltipData.values.map((v) => (
-            <div key={v.seriesId} className={styles.tooltipValue}>
-              {fmtTooltipValue(v.value)}
-            </div>
-          ))}
+          <div className={styles.tooltipValues}>
+            {tooltipData.values.map((v) => (
+              <div key={v.seriesId} className={styles.tooltipValue}>
+                {fmtTooltipValue(v.value)}
+              </div>
+            ))}
+          </div>
           {tooltipData.inBand && (
             <div className={styles.tooltipBand}>
               <span className={styles.tooltipBandBadge}>

@@ -1,4 +1,5 @@
-@use "mixins/container" as ctr;
+@use "mixins/container" as container;
+@use "mixins/typography" as type;
 
 .navbar {
   $blur-amount: 4px;
@@ -12,20 +13,15 @@
 }
 
 .inner {
+  @include container.content;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 56px;
-  width: 100%;
-  max-width: 1120px;
-  margin-left: auto;
-  margin-right: auto;
-  @include ctr.gutters;
 }
 
 .title {
-  font-size: var(--text-lg);
-  font-weight: 700;
+  @include type.typography(card-title);
   color: var(--mono-text);
 }
 

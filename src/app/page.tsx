@@ -1,4 +1,4 @@
-import { PriceMarketView } from "@/components/PriceMarketView";
+import { MarketPriceTile } from "@/components/MarketPricePanel";
 import { Section, Container } from "@/components/Layout";
 import { BentoGrid, BentoCard } from "@/components/Bento";
 import styles from "./page.module.scss";
@@ -10,9 +10,7 @@ export default function Home() {
         <Container>
           <h1 className={styles.heading}>Dashboard</h1>
           <BentoGrid>
-            <div className={styles.mainTile}>
-              <PriceMarketView />
-            </div>
+            <MarketPriceTile />
             <BentoCard>
               <h3 className={styles.tileTitle}>Coming Soon</h3>
               <p className={styles.tileText}>

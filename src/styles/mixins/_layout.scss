@@ -1,0 +1,15 @@
+// Layout composition mixins — stack (vertical) and cluster (horizontal).
+// Usage: @use 'mixins/layout' as layout;
+
+@mixin stack($gap: var(--stack-gap)) {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+}
+
+@mixin cluster($gap: var(--cluster-gap), $wrap: wrap, $align: center) {
+  display: flex;
+  flex-wrap: $wrap;
+  align-items: $align;
+  gap: $gap;
+}

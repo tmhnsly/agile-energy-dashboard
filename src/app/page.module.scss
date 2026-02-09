@@ -1,4 +1,5 @@
 @use 'mixins/breakpoints' as bp;
+@use 'mixins/typography' as type;
 
 .page {
   min-height: 100dvh;
@@ -6,30 +7,19 @@
 }
 
 .heading {
-  font-size: var(--text-2xl);
-  font-weight: 700;
+  @include type.typography(page-title);
   color: var(--mono-text);
   margin: 0 0 var(--space-6) 0;
-
-  @include bp.tablet {
-    font-size: var(--text-3xl);
-  }
-}
-
-.mainTile {
-  grid-column: 1 / -1;
 }
 
 .tileTitle {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  @include type.typography(card-title);
   color: var(--mono-text);
   margin: 0 0 var(--space-2) 0;
 }
 
 .tileText {
-  font-size: var(--text-sm);
+  @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   margin: 0;
-  line-height: 1.5;
 }

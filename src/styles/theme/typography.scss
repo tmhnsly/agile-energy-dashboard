@@ -1,0 +1,29 @@
+:root {
+  /* font families — resolve to next/font variables when available, fall back to named fonts */
+  --font-heading: var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif);
+  --font-body: var(--font-inter, "Inter", system-ui, sans-serif);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.25;
+  --leading-normal: 1.45;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --tracking-tight: -0.015em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.04em;
+
+  /* temporary alias — used by non-target components (Button, Spinner) */
+  --text-base: var(--text-md);
+}

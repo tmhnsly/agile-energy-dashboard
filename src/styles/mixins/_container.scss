@@ -1,19 +1,22 @@
-// Shared container gutter mixin — single source of truth for horizontal padding.
-// Usage: @use 'mixins/container' as ctr; then @include ctr.gutters;
+// Container layout mixins — gutters, content constraint, full-bleed.
+// Usage: @use 'mixins/container' as container;
 //
-// Mobile:  --space-4  (16px) — comfortable thumb-friendly margins
-// Tablet:  --space-6  (24px) — generous but not wasteful
-// Desktop: --space-6  (24px) — max-width already constrains; light breathing room near breakpoint
-@use "mixins/breakpoints" as bp;
+// Gutters read from --gutter-x (responsive via media query in spacing.scss).
+// Content max-width reads from --content-max.
+
+@mixin fullBleed {
+  width: 100%;
+}
 
 @mixin gutters {
-  $gutter-mobile: var(--space-1);
-  padding-left: $gutter-mobile;
-  padding-right: $gutter-mobile;
+  padding-left: var(--gutter-x);
+  padding-right: var(--gutter-x);
+}
 
-  @include bp.tablet {
-    $gutter-tablet: var(--space-8);
-    padding-left: $gutter-tablet;
-    padding-right: $gutter-tablet;
-  }
+@mixin content($max: var(--content-max)) {
+  width: 100%;
+  max-width: #{$max};
+  margin-left: auto;
+  margin-right: auto;
+  @include gutters;
 }

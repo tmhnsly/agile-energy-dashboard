@@ -1,7 +1,27 @@
 import type { Metadata } from "next";
+import { Inter, Space_Grotesk, Young_Serif } from "next/font/google";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Layout";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const youngSerif = Young_Serif({
+  subsets: ["latin"],
+  variable: "--font-young-serif",
+  display: "swap",
+  weight: "400",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Shuffle Energy Tech Test",
@@ -15,7 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${spaceGrotesk.variable} ${youngSerif.variable}`}
+    >
       <body>
         <Providers>
           <Navbar title="Shuffle Energy" />

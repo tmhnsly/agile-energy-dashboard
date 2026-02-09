@@ -3,8 +3,12 @@
 .card {
   background-color: var(--mono-app-bg);
   border: 1px solid var(--mono-border-subtle);
-  border-radius: 12px;
-  padding: var(--card-padding);
+  border-radius: var(--radius-md);
+  padding: var(--card-padding-compact);
+
+  @include bp.tablet {
+    padding: var(--card-padding);
+  }
 
   &[data-span='2'] {
     @include bp.tablet {
@@ -21,4 +25,23 @@
       grid-column: span 3;
     }
   }
+}
+
+/* Default skeleton fallback — single shimmer block filling the card body */
+.skelFallback {
+  height: 6rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--mono-subtle-bg) 25%,
+    var(--mono-bg) 50%,
+    var(--mono-subtle-bg) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }

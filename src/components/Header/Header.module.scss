@@ -1,3 +1,5 @@
+@use 'mixins/typography' as type;
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -12,11 +14,10 @@
 }
 
 .header h1 {
+  @include type.typography(card-title);
   display: inline-block;
   vertical-align: top;
   margin: var(--space-1) 0 var(--space-1) var(--space-2);
-  font-weight: 700;
-  font-size: var(--text-xl);
   line-height: 1;
 }
 
@@ -25,7 +26,7 @@
 }
 
 .welcome {
+  @include type.typography(meta);
   margin-right: var(--space-2);
   color: var(--mono-text-low-contrast);
-  font-size: var(--text-sm);
 }

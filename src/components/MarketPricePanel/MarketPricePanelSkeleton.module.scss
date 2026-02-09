@@ -1,0 +1,48 @@
+@use 'mixins/breakpoints' as breakpoint;
+@use 'mixins/layout' as layout;
+
+/* Mirrors MarketPricePanel.module.scss layout exactly so dimensions match */
+
+.layout {
+  @include layout.stack(var(--card-gap));
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  @include breakpoint.tablet {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--card-gap);
+  }
+}
+
+.headerText {
+  @include layout.stack(var(--card-header-gap));
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.chart {
+  overflow: hidden;
+  height: 240px;
+
+  @include breakpoint.tablet {
+    height: 300px;
+  }
+
+  @include breakpoint.desktop {
+    height: 380px;
+  }
+}
+
+.footer {
+  @include layout.cluster(var(--chart-footer-gap));
+  justify-content: space-between;
+}

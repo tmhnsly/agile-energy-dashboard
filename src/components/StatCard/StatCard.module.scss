@@ -1,11 +1,12 @@
+@use 'mixins/typography' as type;
+@use 'mixins/layout' as layout;
+
 .card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-3);
+  @include layout.stack(var(--statcard-gap));
+  padding: var(--statcard-padding-y) var(--statcard-padding-x);
   background-color: var(--mono-subtle-bg);
   border: 1px solid var(--mono-border-subtle);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   min-width: 100px;
 
   &[data-tone="positive"] {
@@ -33,7 +34,7 @@
 .icon {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: var(--text-xs);
   line-height: 1;
 
   .card[data-tone="positive"] & {
@@ -54,23 +55,19 @@
 }
 
 .label {
-  font-size: 11px;
-  font-weight: 500;
+  @include type.typography(label);
   color: var(--mono-text-low-contrast);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .value {
-  font-size: var(--text-lg);
-  font-weight: 700;
+  @include type.typography(number);
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
   color: var(--mono-text);
 }
 
 .subValue {
-  font-size: 11px;
+  @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
 }

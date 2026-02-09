@@ -1,0 +1,86 @@
+// Typography preset mixin — enforce consistent text roles across components.
+// Usage: @use 'mixins/typography' as type; then @include type.typography(card-title);
+//
+// Each preset defines size, leading, weight, tracking, and family.
+// Family maps: heading → --font-heading, body → --font-body.
+@use "sass:map";
+
+$_typography: (
+  page-title: (
+    size: var(--text-3xl),
+    leading: var(--leading-tight),
+    weight: var(--weight-semibold),
+    tracking: var(--tracking-tight),
+    family: var(--font-heading),
+  ),
+  card-title: (
+    size: var(--text-lg),
+    leading: var(--leading-snug),
+    weight: var(--weight-semibold),
+    tracking: var(--tracking-tight),
+    family: var(--font-heading),
+  ),
+  meta: (
+    size: var(--text-sm),
+    leading: var(--leading-normal),
+    weight: var(--weight-medium),
+    tracking: var(--tracking-normal),
+    family: var(--font-body),
+  ),
+  body: (
+    size: var(--text-md),
+    leading: var(--leading-normal),
+    weight: var(--weight-regular),
+    tracking: var(--tracking-normal),
+    family: var(--font-body),
+  ),
+  label: (
+    size: var(--text-xs),
+    leading: var(--leading-snug),
+    weight: var(--weight-semibold),
+    tracking: var(--tracking-wide),
+    family: var(--font-heading),
+  ),
+  button: (
+    size: var(--text-sm),
+    leading: var(--leading-snug),
+    weight: var(--weight-medium),
+    tracking: var(--tracking-normal),
+    family: var(--font-body),
+  ),
+  number: (
+    size: var(--text-2xl),
+    leading: var(--leading-tight),
+    weight: var(--weight-semibold),
+    tracking: var(--tracking-tight),
+    family: var(--font-heading),
+  ),
+  tooltip-date: (
+    size: var(--text-sm),
+    leading: var(--leading-snug),
+    weight: var(--weight-medium),
+    tracking: var(--tracking-normal),
+    family: var(--font-body),
+  ),
+  tooltip-value: (
+    size: var(--text-xl),
+    leading: var(--leading-tight),
+    weight: var(--weight-semibold),
+    tracking: var(--tracking-tight),
+    family: var(--font-heading),
+  ),
+);
+
+@mixin typography($preset) {
+  $p: map.get($_typography, $preset);
+
+  @if $p == null {
+    @error "Unknown typography preset: #{$preset}";
+  }
+
+  font-family: map.get($p, family);
+  font-size: map.get($p, size);
+  line-height: map.get($p, leading);
+  font-weight: map.get($p, weight);
+  letter-spacing: map.get($p, tracking);
+}

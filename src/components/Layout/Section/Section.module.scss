@@ -1,9 +1,9 @@
+@use 'mixins/container' as container;
 @use 'mixins/breakpoints' as bp;
 
 .section {
-  width: 100%;
+  @include container.fullBleed;
 
-  // --- Variants ---
   &[data-variant='surface'] {
     background-color: var(--mono-subtle-bg);
   }
@@ -12,34 +12,27 @@
     background-color: var(--mono-bg);
   }
 
-  // --- Sizes (mobile / tablet+) ---
   &[data-size='small'] {
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-6);
+    padding-block: var(--space-6);
 
     @include bp.tablet {
-      padding-top: var(--space-8);
-      padding-bottom: var(--space-8);
+      padding-block: var(--space-8);
     }
   }
 
   &[data-size='medium'] {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-8);
+    padding-block: var(--space-8);
 
     @include bp.tablet {
-      padding-top: var(--space-12);
-      padding-bottom: var(--space-12);
+      padding-block: var(--section-gap);
     }
   }
 
   &[data-size='large'] {
-    padding-top: var(--space-12);
-    padding-bottom: var(--space-12);
+    padding-block: var(--section-gap);
 
     @include bp.tablet {
-      padding-top: var(--space-16);
-      padding-bottom: var(--space-16);
+      padding-block: var(--space-16);
     }
   }
 }

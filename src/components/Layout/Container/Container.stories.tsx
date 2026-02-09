@@ -26,6 +26,19 @@ export const Default: Story = {
   },
 };
 
+export const AsSection: Story = {
+  args: {
+    as: 'section',
+    children: (
+      <div style={{ padding: 'var(--space-4)', background: 'var(--mono-subtle-bg)' }}>
+        <p style={{ color: 'var(--mono-text)' }}>
+          Renders as a {'<section>'} element for semantic HTML.
+        </p>
+      </div>
+    ),
+  },
+};
+
 export const WithBackground: Story = {
   args: { children: null },
   render: () => (
