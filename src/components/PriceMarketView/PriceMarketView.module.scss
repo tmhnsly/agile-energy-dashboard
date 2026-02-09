@@ -9,6 +9,7 @@
   border: 1px solid var(--mono-border-subtle);
   border-radius: 12px;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 
   @include breakpoint.tablet {
@@ -56,6 +57,7 @@
 }
 
 .chartArea {
+  overflow: hidden;
   height: 240px;
 
   @include breakpoint.tablet {

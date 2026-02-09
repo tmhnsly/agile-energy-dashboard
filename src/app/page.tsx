@@ -6,9 +6,9 @@ import styles from "./page.module.scss";
 export default function Home() {
   return (
     <main className={styles.page}>
-      <Section>
+      <Section variant="surface">
         <Container>
-          <h1 className={styles.heading}>Shuffle Energy</h1>
+          <h1 className={styles.heading}>Dashboard</h1>
           <BentoGrid>
             <div className={styles.mainTile}>
               <PriceMarketView />

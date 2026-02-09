@@ -96,7 +96,7 @@ export const PriceMarketView = ({
       </div>
 
       <div className={styles.chartArea}>
-        <ParentSize debounceTime={0}>
+        <ParentSize debounceTime={50}>
           {({ width, height }) => (
             <TimeSeriesChart
               series={chartSeries}

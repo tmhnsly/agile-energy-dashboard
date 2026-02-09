@@ -25,12 +25,49 @@ import styles from './TimeSeriesChart.module.scss';
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
+// Interaction thresholds
 const MIN_SEL_PX = 10;
-const MIN_DOMAIN_MS = 60_000; // 1 min
 const CLICK_THRESHOLD_PX = 3;
-const HALF_HOUR_MS = 30 * 60 * 1000;
-const CHAR_WIDTH_PX = 7.5; // approximate character width at text-sm
-const AXIS_LABEL_PAD = 12; // padding between widest label and plot area
+
+// Time constants
+const MIN_DOMAIN_MS = 60_000;
+const HALF_HOUR_MS = 30 * 60_000;
+
+// Axis layout
+const CHAR_WIDTH_PX = 7.5;
+const AXIS_LABEL_PAD = 12;
+const Y_TICK_COUNT = 5;
+const MAX_X_TICKS = 8;
+const X_TICK_MIN_SPACING_PX = 80;
+const TEMP_SCALE_RANGE: [number, number] = [100, 0];
+
+// Chart margins (defaults when not overridden)
+const DEFAULT_MARGIN_TOP = 12;
+const DEFAULT_MARGIN_RIGHT = 4;
+const DEFAULT_MARGIN_BOTTOM = 28;
+
+// Responsive handle sizing
+const MOBILE_WIDTH_THRESHOLD = 480;
+const HANDLE_HIT_WIDTH_MOBILE = 24;
+const HANDLE_HIT_WIDTH_DESKTOP = 16;
+
+// Drag pill positioning
+const PILL_EDGE_PAD = 80;
+const PILL_TOP_OFFSET = 8;
+
+// Selection handle geometry
+const HANDLE_CAP_MAX_HEIGHT = 36;
+const HANDLE_CAP_HEIGHT_RATIO = 0.3;
+const HANDLE_CAP_WIDTH = 6;
+const GRIP_NUB_GAP = 5;
+const GRIP_NUB_RADIUS = 1.2;
+const HANDLE_CAP_RADIUS = 3;
+const HANDLE_HIT_RECT_HALF = 16;
+
+// Marker geometry
+const MARKER_RADIUS = 4;
+const MIN_LABEL_OFFSET_Y = 16;
+const MAX_LABEL_OFFSET_Y = 10;
 
 export type ChartMargin = { top: number; right: number; bottom: number; left: number };
 
@@ -226,23 +263,24 @@ export const TimeSeriesChart = ({
 
   // Auto-compute left margin from the widest y-axis label
   const autoLeftMargin = useMemo(() => {
-    const tempScale = scaleLinear({ domain: yDomain, range: [100, 0], nice: true });
-    const ticks = tempScale.ticks(5);
-    const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmtYTick(t))));
+    const fmt = formatYTickProp ?? defaultFormatYTick;
+    const tempScale = scaleLinear({ domain: yDomain, range: TEMP_SCALE_RANGE, nice: true });
+    const ticks = tempScale.ticks(Y_TICK_COUNT);
+    const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmt(t))));
     return Math.ceil(maxWidth + AXIS_LABEL_PAD);
-  }, [yDomain, fmtYTick]);
+  }, [yDomain, formatYTickProp]);
 
   const margin: ChartMargin = useMemo(() => ({
-    top: marginProp?.top ?? 12,
-    right: marginProp?.right ?? 4,
-    bottom: marginProp?.bottom ?? 28,
+    top: marginProp?.top ?? DEFAULT_MARGIN_TOP,
+    right: marginProp?.right ?? DEFAULT_MARGIN_RIGHT,
+    bottom: marginProp?.bottom ?? DEFAULT_MARGIN_BOTTOM,
     left: marginProp?.left ?? autoLeftMargin,
   }), [marginProp, autoLeftMargin]);
 
   const innerWidth = Math.max(0, width - margin.left - margin.right);
   const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
-  const handleHitWidth = width < 480 ? 24 : 16;
+  const handleHitWidth = width < MOBILE_WIDTH_THRESHOLD ? HANDLE_HIT_WIDTH_MOBILE : HANDLE_HIT_WIDTH_DESKTOP;
 
   /* ---- Cleanup RAF on unmount ---- */
   useEffect(() => {
@@ -268,7 +306,7 @@ export const TimeSeriesChart = ({
     [yDomain, innerHeight],
   );
 
-  const yTicks = useMemo(() => yScale.ticks(5), [yScale]);
+  const yTicks = useMemo(() => yScale.ticks(Y_TICK_COUNT), [yScale]);
 
   /* ---- derived data ---- */
 
@@ -644,8 +682,8 @@ export const TimeSeriesChart = ({
   /* ---- pill position ---- */
 
   const pillLeft = margin.left + (displaySelLeftX + displaySelRightX) / 2;
-  const pillLeftClamped = clamp(pillLeft, 80, width - 80);
-  const pillTop = margin.top + 8;
+  const pillLeftClamped = clamp(pillLeft, PILL_EDGE_PAD, width - PILL_EDGE_PAD);
+  const pillTop = margin.top + PILL_TOP_OFFSET;
   const pillFromTs = isDragging
     ? snapToHalfHour(displayRange.fromTs)
     : displayRange.fromTs;
@@ -788,12 +826,12 @@ export const TimeSeriesChart = ({
               <circle
                 cx={xScale(new Date(displayStats.min.ts))}
                 cy={yScale(displayStats.min.value)}
-                r={4}
+                r={MARKER_RADIUS}
                 className={styles.minMarker}
               />
               <text
                 x={xScale(new Date(displayStats.min.ts))}
-                y={yScale(displayStats.min.value) + 16}
+                y={yScale(displayStats.min.value) + MIN_LABEL_OFFSET_Y}
                 className={styles.minMaxLabel}
               >
                 {fmtTooltipValue(displayStats.min.value)}
@@ -805,12 +843,12 @@ export const TimeSeriesChart = ({
               <circle
                 cx={xScale(new Date(displayStats.max.ts))}
                 cy={yScale(displayStats.max.value)}
-                r={4}
+                r={MARKER_RADIUS}
                 className={styles.maxMarker}
               />
               <text
                 x={xScale(new Date(displayStats.max.ts))}
-                y={yScale(displayStats.max.value) - 10}
+                y={yScale(displayStats.max.value) - MAX_LABEL_OFFSET_Y}
                 className={styles.maxMaxLabel}
               >
                 {fmtTooltipValue(displayStats.max.value)}
@@ -869,7 +907,7 @@ export const TimeSeriesChart = ({
           <AxisBottom
             top={innerHeight}
             scale={xScale}
-            numTicks={Math.min(8, Math.floor(innerWidth / 80))}
+            numTicks={Math.min(MAX_X_TICKS, Math.floor(innerWidth / X_TICK_MIN_SPACING_PX))}
             tickFormat={(d) => fmtXTick((d as Date).getTime())}
             stroke="var(--mono-border-subtle)"
             tickStroke="var(--mono-border-subtle)"
@@ -877,7 +915,7 @@ export const TimeSeriesChart = ({
           />
           <AxisLeft
             scale={yScale}
-            numTicks={5}
+            numTicks={Y_TICK_COUNT}
             tickFormat={(v) => fmtYTick(Number(v))}
             stroke="var(--mono-border-subtle)"
             tickStroke="var(--mono-border-subtle)"
@@ -897,7 +935,7 @@ export const TimeSeriesChart = ({
               <circle
                 cx={xScale(new Date(tooltipData.ts))}
                 cy={yScale(tooltipData.values[0]?.value ?? 0)}
-                r={4}
+                r={MARKER_RADIUS}
                 className={styles.tooltipDot}
               />
             </>
@@ -971,37 +1009,35 @@ export const TimeSeriesChart = ({
 /* ------------------------------------------------------------------ */
 
 const SelectionHandle = memo(function SelectionHandle({ x, height }: { x: number; height: number }) {
-  const capH = Math.min(36, height * 0.3);
+  const capH = Math.min(HANDLE_CAP_MAX_HEIGHT, height * HANDLE_CAP_HEIGHT_RATIO);
   const capY = (height - capH) / 2;
-  const capW = 6;
-  const gripGap = 5;
   const gripMid = capY + capH / 2;
 
   return (
     <g>
       {/* Invisible hit area */}
-      <rect x={x - 16} y={0} width={32} height={height} fill="transparent" />
+      <rect x={x - HANDLE_HIT_RECT_HALF} y={0} width={HANDLE_HIT_RECT_HALF * 2} height={height} fill="transparent" />
       {/* End cap */}
       <rect
-        x={x - capW / 2}
+        x={x - HANDLE_CAP_WIDTH / 2}
         y={capY}
-        width={capW}
+        width={HANDLE_CAP_WIDTH}
         height={capH}
-        rx={3}
+        rx={HANDLE_CAP_RADIUS}
         className={styles.selectionCap}
       />
       {/* Grip nubs (dots) */}
       <circle
         cx={x}
-        cy={gripMid - gripGap}
-        r={1.2}
+        cy={gripMid - GRIP_NUB_GAP}
+        r={GRIP_NUB_RADIUS}
         className={styles.gripNub}
       />
-      <circle cx={x} cy={gripMid} r={1.2} className={styles.gripNub} />
+      <circle cx={x} cy={gripMid} r={GRIP_NUB_RADIUS} className={styles.gripNub} />
       <circle
         cx={x}
-        cy={gripMid + gripGap}
-        r={1.2}
+        cy={gripMid + GRIP_NUB_GAP}
+        r={GRIP_NUB_RADIUS}
         className={styles.gripNub}
       />
     </g>
