@@ -1,4 +1,4 @@
-import { PriceMarketView } from "@/components/PriceMarket";
+import { PriceMarketView } from "@/components/PriceMarketView";
 import styles from "./page.module.scss";
 
 export default function Home() {

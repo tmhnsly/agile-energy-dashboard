@@ -1,3 +1,5 @@
+@use 'mixins/breakpoints' as breakpoint;
+
 .wrapper {
   padding: var(--space-4);
   background-color: var(--mono-app-bg);
@@ -6,16 +8,26 @@
   width: 100%;
   box-sizing: border-box;
 
-  @media (min-width: 640px) {
+  @include breakpoint.tablet {
     padding: var(--card-padding);
   }
 }
 
 .cardHeader {
+  margin-bottom: var(--space-4);
+}
+
+.headerTop {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+
+  @include breakpoint.tablet {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
 }
 
 .title {
@@ -24,7 +36,7 @@
   color: var(--mono-text);
   margin: 0;
 
-  @media (min-width: 640px) {
+  @include breakpoint.tablet {
     font-size: var(--text-xl);
   }
 }
@@ -33,47 +45,26 @@
   font-size: var(--text-xs);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
+  margin-top: var(--space-1);
 }
 
 .chartFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.resetButton {
-  all: unset;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--warning-text-low-contrast);
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--warning-border-subtle);
-  border-radius: 6px;
-  background-color: var(--warning-bg);
-  transition: background-color 150ms ease, opacity 150ms ease;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
-    pointer-events: none;
-  }
-
-  &:hover {
-    background-color: var(--warning-bg-hover);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .chartArea {
-  min-height: 280px;
+  height: 240px;
 
-  @media (min-width: 768px) {
-    min-height: 400px;
+  @include breakpoint.tablet {
+    height: 300px;
+  }
+
+  @include breakpoint.desktop {
+    height: 380px;
   }
 }
 
@@ -85,7 +76,7 @@
   min-height: 200px;
   font-size: var(--text-sm);
 
-  @media (min-width: 768px) {
+  @include breakpoint.desktop {
     min-height: 300px;
   }
 }

@@ -1,0 +1,12 @@
+// Breakpoint values (mobile-first)
+$_tablet: 640px;
+$_desktop: 1024px;
+
+// Mobile only (max-width, targeting small screens)
+@mixin mobile { @media (max-width: #{$_tablet - 0.02px}) { @content; } }
+
+// Tablet and up (min-width: 640px)
+@mixin tablet { @media (min-width: $_tablet) { @content; } }
+
+// Desktop and up (min-width: 1024px)
+@mixin desktop { @media (min-width: $_desktop) { @content; } }

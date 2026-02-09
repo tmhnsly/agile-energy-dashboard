@@ -1,15 +1,16 @@
-import styles from './Legend.module.scss';
+import { memo } from 'react';
+import styles from './ChartLegend.module.scss';
 
-export interface LegendProps {
+export interface ChartLegendProps {
   items?: { label: string; type: 'line' | 'band' }[];
 }
 
-const DEFAULT_ITEMS: LegendProps['items'] = [
+const DEFAULT_ITEMS: ChartLegendProps['items'] = [
   { label: 'Price (inc. VAT)', type: 'line' },
   { label: 'Flex event', type: 'band' },
 ];
 
-export const Legend = ({ items = DEFAULT_ITEMS }: LegendProps) => {
+export const ChartLegend = memo(function ChartLegend({ items = DEFAULT_ITEMS }: ChartLegendProps) {
   return (
     <div className={styles.legend}>
       {items.map((item) => (
@@ -24,4 +25,4 @@ export const Legend = ({ items = DEFAULT_ITEMS }: LegendProps) => {
       ))}
     </div>
   );
-};
+});

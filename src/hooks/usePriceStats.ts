@@ -2,22 +2,23 @@
 
 import { useMemo } from 'react';
 import type { PricePoint, TimeRange, PriceStats } from '@/types/energy';
+import { lowerBound, upperBound } from '@/utils/binarySearch';
 
 export function usePriceStats(
   points: PricePoint[],
   range: TimeRange,
 ): PriceStats {
   return useMemo(() => {
-    const filtered = points.filter(
-      (p) => p.ts >= range.fromTs && p.ts <= range.toTs,
-    );
+    const start = lowerBound(points, range.fromTs);
+    const end = upperBound(points, range.toTs);
 
-    if (filtered.length === 0) return { min: null, max: null };
+    if (start >= end) return { min: null, max: null };
 
-    let min = filtered[0];
-    let max = filtered[0];
+    let min = points[start];
+    let max = points[start];
 
-    for (const p of filtered) {
+    for (let i = start + 1; i < end; i++) {
+      const p = points[i];
       if (p.price < min.price) min = p;
       if (p.price > max.price) max = p;
     }

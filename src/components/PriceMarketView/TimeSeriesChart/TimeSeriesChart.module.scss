@@ -24,44 +24,50 @@
 
 .dayLabel {
   fill: var(--mono-text-low-contrast);
-  font-size: 9px;
+  font-size: var(--text-xs);
   font-weight: 500;
   opacity: 0.5;
   letter-spacing: 0.02em;
 }
 
-/* Flex event bands */
+/* Flex event bands — pointer-events: none so only the interaction overlay handles events */
 .eventBand {
   fill: var(--warning-bg);
   opacity: 0.18;
+  pointer-events: none;
 }
 
 .eventBandHover {
   fill: var(--warning-bg);
   opacity: 0.3;
+  pointer-events: none;
 }
 
 .eventBandSelected {
   fill: var(--warning-bg-hover);
   opacity: 0.38;
+  pointer-events: none;
 }
 
 .eventBandEdge {
   stroke: var(--warning-border);
   stroke-width: 1.5;
   opacity: 0.4;
+  pointer-events: none;
 }
 
 .eventBandEdgeHover {
   stroke: var(--warning-border);
   stroke-width: 1.5;
   opacity: 0.6;
+  pointer-events: none;
 }
 
 .eventBandEdgeSelected {
   stroke: var(--warning-border-hover);
   stroke-width: 1.5;
   opacity: 0.8;
+  pointer-events: none;
 }
 
 /* Price line */
@@ -77,6 +83,7 @@
   stroke: var(--mono-app-bg);
   stroke-width: 2;
   opacity: 0.8;
+  pointer-events: none;
 }
 
 .maxMarker {
@@ -84,15 +91,17 @@
   stroke: var(--mono-app-bg);
   stroke-width: 2;
   opacity: 0.8;
+  pointer-events: none;
 }
 
 .minMaxLabel,
 .maxMaxLabel {
   fill: var(--mono-text-low-contrast);
-  font-size: 9px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-anchor: middle;
   opacity: 0.7;
+  pointer-events: none;
 }
 
 .minMaxLabel {
@@ -103,30 +112,35 @@
   fill: var(--error-text-low-contrast);
 }
 
-/* Selection overlay */
+/* Selection overlay — pointer-events: none; interaction overlay handles all events */
 .dimOverlay {
   fill: var(--mono-app-bg);
   opacity: 0.55;
+  pointer-events: none;
 }
 
 .selectionFill {
   fill: var(--accent-bg);
   opacity: 0.04;
+  pointer-events: none;
 }
 
 .selectionBoundary {
   stroke: var(--accent-border);
   stroke-width: 1.5;
+  pointer-events: none;
 }
 
 .selectionCap {
   fill: var(--accent-solid);
   stroke: var(--mono-app-bg);
   stroke-width: 1;
+  pointer-events: none;
 }
 
 .gripNub {
   fill: var(--accent-on-solid);
+  pointer-events: none;
 }
 
 /* Tooltip */
@@ -152,13 +166,13 @@
 }
 
 .tooltipTime {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
 }
 
 .tooltipPrice {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--mono-text);
   font-variant-numeric: tabular-nums;

@@ -1,3 +1,4 @@
+import path from 'path';
 import type { StorybookConfig } from '@storybook/nextjs-vite';
 
 // NOTE: vite and vite-tsconfig-paths are pinned in package.json (pnpm.overrides).
@@ -18,6 +19,19 @@ const config: StorybookConfig = {
   },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
+  },
+  viteFinal: async (config) => {
+    config.css = {
+      ...config.css,
+      preprocessorOptions: {
+        ...config.css?.preprocessorOptions,
+        scss: {
+          ...config.css?.preprocessorOptions?.scss,
+          loadPaths: [path.join(process.cwd(), 'src', 'styles')],
+        },
+      },
+    };
+    return config;
   },
 };
 export default config;

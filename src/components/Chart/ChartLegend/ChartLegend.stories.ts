@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { Legend } from './Legend';
+import { ChartLegend } from './ChartLegend';
 
 const meta = {
-  title: 'Price Market/Legend',
-  component: Legend,
+  title: 'Charts/ChartLegend',
+  component: ChartLegend,
   parameters: {
     layout: 'centered',
   },
-} satisfies Meta<typeof Legend>;
+} satisfies Meta<typeof ChartLegend>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -1,9 +1,4 @@
-.statsRow {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.statCard {
+.card {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -14,55 +9,52 @@
   min-width: 100px;
 }
 
-.statHeader {
+.header {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
-.statDot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  line-height: 1;
 
-  &[data-color="low"] {
-    background-color: var(--success-solid);
+  .card[data-tone="positive"] & {
+    color: var(--success-solid);
   }
 
-  &[data-color="high"] {
-    background-color: var(--error-solid);
+  .card[data-tone="negative"] & {
+    color: var(--error-solid);
+  }
+
+  .card[data-tone="accent"] & {
+    color: var(--accent-solid);
+  }
+
+  .card[data-tone="neutral"] & {
+    color: var(--mono-text-low-contrast);
   }
 }
 
-.statLabel {
+.label {
   font-size: 11px;
   font-weight: 500;
   color: var(--mono-text-low-contrast);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-
-  &[data-color="low"] {
-    background-color: var(--success-solid);
-  }
 }
 
-.statValue {
+.value {
   font-size: var(--text-lg);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
-}
-
-.statValueLow {
   color: var(--mono-text);
 }
 
-.statValueHigh {
-  color: var(--mono-text);
-}
-
-.statTime {
+.subValue {
   font-size: 11px;
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
