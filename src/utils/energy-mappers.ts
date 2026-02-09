@@ -1,0 +1,212 @@
+import {
+  parseISO,
+  setHours,
+  setMinutes,
+  setSeconds,
+  setMilliseconds,
+  startOfDay,
+  addDays,
+} from 'date-fns';
+import { UTCDate } from '@date-fns/utc';
+import Papa from 'papaparse';
+import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
+
+// ---------------------------------------------------------------------------
+// Agile prices
+// ---------------------------------------------------------------------------
+
+export function mapAgilePrices(rawJson: unknown): PricePoint[] {
+  const items = extractItems(rawJson);
+  const points: PricePoint[] = [];
+
+  for (const item of items) {
+    const ts = parseTimestamp(item);
+    const price = parsePrice(item);
+    if (ts !== null && price !== null) {
+      points.push({ ts, price });
+    }
+  }
+
+  return points.sort((a, b) => a.ts - b.ts);
+}
+
+function extractItems(raw: unknown): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === 'object' && 'results' in raw) {
+    const r = (raw as Record<string, unknown>).results;
+    if (Array.isArray(r)) return r;
+  }
+  return [];
+}
+
+function parseTimestamp(item: unknown): number | null {
+  if (!item || typeof item !== 'object') return null;
+  const rec = item as Record<string, unknown>;
+  const raw = rec.valid_from ?? rec.timestamp ?? rec.time ?? rec.ts;
+  if (typeof raw === 'string') {
+    const d = parseISO(raw);
+    return isNaN(d.getTime()) ? null : d.getTime();
+  }
+  if (typeof raw === 'number') return raw;
+  return null;
+}
+
+function parsePrice(item: unknown): number | null {
+  if (!item || typeof item !== 'object') return null;
+  const rec = item as Record<string, unknown>;
+  const raw = rec.value_inc_vat ?? rec.price ?? rec.value ?? rec.rate;
+  if (typeof raw === 'number') return raw;
+  if (typeof raw === 'string') {
+    const n = parseFloat(raw);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Flexibility events
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps raw flex event JSON into typed FlexEvent objects.
+ * Time-only strings (e.g. "18:00") are treated as daily recurring events
+ * and are expanded for each day that falls within the price data range.
+ */
+export function mapFlexEvents(
+  rawJson: unknown,
+  rangeFromTs: number,
+  rangeToTs: number,
+): FlexEvent[] {
+  const items = extractFlexItems(rawJson);
+  const events: FlexEvent[] = [];
+
+  const firstDay = startOfDay(new UTCDate(rangeFromTs));
+  const lastDay = startOfDay(new UTCDate(rangeToTs));
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!item || typeof item !== 'object') continue;
+    const rec = item as Record<string, unknown>;
+
+    const startRaw = rec.start_time ?? rec.start ?? rec.from;
+    const endRaw = rec.end_time ?? rec.end ?? rec.to;
+    const label =
+      typeof rec.event_type === 'string'
+        ? rec.event_type.replace(/_/g, ' ')
+        : undefined;
+
+    const isTimeOnly =
+      typeof startRaw === 'string' && !startRaw.includes('-');
+
+    if (isTimeOnly) {
+      // Generate an instance for each day in the price data range
+      let day = firstDay;
+      while (day.getTime() <= lastDay.getTime()) {
+        const startTs = anchorTimeToDate(startRaw, day);
+        const endTs = anchorTimeToDate(endRaw, day);
+        if (
+          startTs !== null &&
+          endTs !== null &&
+          endTs > rangeFromTs &&
+          startTs < rangeToTs
+        ) {
+          events.push({
+            id: `flex-${i}-d${day.getTime()}`,
+            startTs,
+            endTs,
+            label,
+          });
+        }
+        day = addDays(day, 1);
+      }
+    } else {
+      const startTs = anchorTimeToDate(startRaw, firstDay);
+      const endTs = anchorTimeToDate(endRaw, firstDay);
+      if (startTs !== null && endTs !== null) {
+        events.push({ id: `flex-${i}`, startTs, endTs, label });
+      }
+    }
+  }
+
+  return events.sort((a, b) => a.startTs - b.startTs);
+}
+
+function extractFlexItems(raw: unknown): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === 'object') {
+    const rec = raw as Record<string, unknown>;
+    const arr =
+      rec.flexibility_opportunities ?? rec.events ?? rec.flexibility_events;
+    if (Array.isArray(arr)) return arr;
+  }
+  return [];
+}
+
+function anchorTimeToDate(
+  raw: unknown,
+  referenceDate: Date,
+): number | null {
+  if (typeof raw === 'number') return raw;
+  if (typeof raw !== 'string') return null;
+
+  // Full ISO string
+  if (raw.includes('-')) {
+    const d = parseISO(raw);
+    return isNaN(d.getTime()) ? null : d.getTime();
+  }
+
+  // Time-only string e.g. "18:00" or "18:30"
+  const match = raw.match(/^(\d{1,2}):(\d{2})$/);
+  if (match) {
+    let d: Date = new UTCDate(referenceDate.getTime());
+    d = setHours(d, parseInt(match[1], 10));
+    d = setMinutes(d, parseInt(match[2], 10));
+    d = setSeconds(d, 0);
+    d = setMilliseconds(d, 0);
+    return d.getTime();
+  }
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Household usage CSV
+// ---------------------------------------------------------------------------
+
+interface CsvRow {
+  Time?: string;
+  Standard_Household?: string;
+  HeatPump_Household?: string;
+  HeatPump_Battery_Household?: string;
+  [key: string]: string | undefined;
+}
+
+export function parseHouseholdUsageCsv(
+  csvText: string,
+  referenceDate: Date,
+): HouseholdUsageRow[] {
+  const { data } = Papa.parse<CsvRow>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
+
+  const rows: HouseholdUsageRow[] = [];
+
+  for (const row of data) {
+    const timeStr = row.Time?.trim();
+    if (!timeStr) continue;
+
+    const ts = anchorTimeToDate(timeStr, referenceDate);
+    if (ts === null) continue;
+
+    const standard = parseFloat(row.Standard_Household ?? '');
+    const heatPump = parseFloat(row.HeatPump_Household ?? '');
+    const heatPumpBattery = parseFloat(row.HeatPump_Battery_Household ?? '');
+
+    if (isNaN(standard) || isNaN(heatPump) || isNaN(heatPumpBattery)) continue;
+
+    rows.push({ ts, standard, heatPump, heatPumpBattery });
+  }
+
+  return rows.sort((a, b) => a.ts - b.ts);
+}

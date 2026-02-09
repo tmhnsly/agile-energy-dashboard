@@ -14,6 +14,8 @@ export interface ButtonProps {
   label: string;
   /** Optional click handler */
   onClick?: () => void;
+  /** Disabled state */
+  disabled?: boolean;
 }
 
 export const Button = ({
@@ -21,6 +23,7 @@ export const Button = ({
   size = 'medium',
   color = 'accent',
   label,
+  disabled,
   ...props
 }: ButtonProps) => {
   return (
@@ -30,6 +33,7 @@ export const Button = ({
       data-variant={variant}
       data-size={size}
       data-color={color}
+      disabled={disabled}
       {...props}
     >
       {label}

@@ -1,3 +1,26 @@
 .page {
   background-color: var(--mono-app-bg);
+  min-height: 100dvh;
+  padding: var(--space-4);
+  max-width: 960px;
+  margin: 0 auto;
+
+  @media (min-width: 640px) {
+    padding: var(--gutter);
+  }
+
+  @media (min-width: 1024px) {
+    padding: var(--section-gap) var(--gutter);
+  }
+}
+
+.heading {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--mono-text);
+  margin: 0 0 var(--space-6) 0;
+
+  @media (min-width: 640px) {
+    font-size: var(--text-3xl);
+  }
 }

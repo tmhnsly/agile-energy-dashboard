@@ -1,5 +1,11 @@
+import { PriceMarketView } from "@/components/PriceMarket";
 import styles from "./page.module.scss";
 
 export default function Home() {
-  return <main className={styles.page}>Shuffle Energy</main>;
+  return (
+    <main className={styles.page}>
+      <h1 className={styles.heading}>Shuffle Energy</h1>
+      <PriceMarketView />
+    </main>
+  );
 }

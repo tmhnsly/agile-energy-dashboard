@@ -1,0 +1,241 @@
+.container {
+  position: relative;
+}
+
+/* Alternating horizontal stripes */
+.stripe {
+  fill: var(--mono-subtle-bg);
+}
+
+/* Horizontal gridlines */
+.gridLine {
+  stroke: var(--mono-border-subtle);
+  stroke-width: 1;
+  opacity: 0.25;
+}
+
+/* Day boundary separators */
+.dayBoundary {
+  stroke: var(--mono-border-subtle);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.35;
+}
+
+.dayLabel {
+  fill: var(--mono-text-low-contrast);
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.5;
+  letter-spacing: 0.02em;
+}
+
+/* Flex event bands */
+.eventBand {
+  fill: var(--warning-bg);
+  opacity: 0.18;
+}
+
+.eventBandHover {
+  fill: var(--warning-bg);
+  opacity: 0.3;
+}
+
+.eventBandSelected {
+  fill: var(--warning-bg-hover);
+  opacity: 0.38;
+}
+
+.eventBandEdge {
+  stroke: var(--warning-border);
+  stroke-width: 1.5;
+  opacity: 0.4;
+}
+
+.eventBandEdgeHover {
+  stroke: var(--warning-border);
+  stroke-width: 1.5;
+  opacity: 0.6;
+}
+
+.eventBandEdgeSelected {
+  stroke: var(--warning-border-hover);
+  stroke-width: 1.5;
+  opacity: 0.8;
+}
+
+/* Price line */
+.priceLine {
+  fill: none;
+  stroke: var(--accent-solid);
+  stroke-width: 2;
+}
+
+/* Min / Max markers */
+.minMarker {
+  fill: var(--success-solid);
+  stroke: var(--mono-app-bg);
+  stroke-width: 2;
+  opacity: 0.8;
+}
+
+.maxMarker {
+  fill: var(--error-solid);
+  stroke: var(--mono-app-bg);
+  stroke-width: 2;
+  opacity: 0.8;
+}
+
+.minMaxLabel,
+.maxMaxLabel {
+  fill: var(--mono-text-low-contrast);
+  font-size: 9px;
+  font-weight: 600;
+  text-anchor: middle;
+  opacity: 0.7;
+}
+
+.minMaxLabel {
+  fill: var(--success-text-low-contrast);
+}
+
+.maxMaxLabel {
+  fill: var(--error-text-low-contrast);
+}
+
+/* Selection overlay */
+.dimOverlay {
+  fill: var(--mono-app-bg);
+  opacity: 0.55;
+}
+
+.selectionFill {
+  fill: var(--accent-bg);
+  opacity: 0.04;
+}
+
+.selectionBoundary {
+  stroke: var(--accent-border);
+  stroke-width: 1.5;
+}
+
+.selectionCap {
+  fill: var(--accent-solid);
+  stroke: var(--mono-app-bg);
+  stroke-width: 1;
+}
+
+.gripNub {
+  fill: var(--accent-on-solid);
+}
+
+/* Tooltip */
+.crosshair {
+  stroke: var(--mono-text-low-contrast);
+  stroke-width: 1;
+  opacity: 0.25;
+}
+
+.tooltipDot {
+  fill: var(--accent-solid);
+  stroke: var(--mono-app-bg);
+  stroke-width: 2;
+}
+
+.tooltip {
+  background-color: var(--mono-bg) !important;
+  border: 1px solid var(--mono-border) !important;
+  border-radius: 8px !important;
+  padding: var(--space-2) var(--space-3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  pointer-events: none;
+}
+
+.tooltipTime {
+  font-size: var(--text-xs);
+  color: var(--mono-text-low-contrast);
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipPrice {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--mono-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipFlex {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--warning-text-low-contrast);
+  margin-top: var(--space-1);
+  text-transform: capitalize;
+}
+
+.tooltipFlexBadge {
+  display: inline-block;
+  padding: 1px var(--space-1);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--warning-text);
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-border-subtle);
+  border-radius: 3px;
+  line-height: 1.5;
+}
+
+/* Drag range pill */
+.dragPill {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px var(--space-3);
+  background-color: var(--mono-bg);
+  border: 1px solid var(--mono-border);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mono-text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+}
+
+.dragPillSep {
+  color: var(--mono-text-low-contrast);
+  opacity: 0.5;
+}
+
+.dragPillDuration {
+  color: var(--mono-text-low-contrast);
+  font-weight: 400;
+}
+
+/* Interaction overlay — cursor via data-cursor attribute */
+.interactionOverlay {
+  cursor: crosshair;
+
+  &[data-cursor="ew-resize"] {
+    cursor: ew-resize;
+  }
+
+  &[data-cursor="grab"] {
+    cursor: grab;
+  }
+
+  &[data-cursor="grabbing"] {
+    cursor: grabbing;
+  }
+
+  &[data-cursor="pointer"] {
+    cursor: pointer;
+  }
+}
