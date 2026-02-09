@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { BentoCard } from '@/components/Bento';
+import { BentoTile } from '@/components/Bento';
 import { MarketPricePanel } from './MarketPricePanel';
 import { MarketPricePanelSkeleton } from './MarketPricePanelSkeleton';
 import { mockPrices, mockFlexEvents } from './mockData';
 
 /**
  * ## MarketPricePanel
- * Chart panel for energy price data. Renders inside a BentoCard tile.
+ * Chart panel for energy price data. Renders inside a BentoTile.
  *
- * - **Loading**: BentoCard `loading` + `skeleton` props handle the skeleton silhouette.
+ * - **Loading**: BentoTile `loading` + `skeleton` props handle the skeleton silhouette.
  * - **Loaded**: Panel renders header, chart, footer, and quick-range bar.
  */
 const meta = {
@@ -20,9 +20,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <BentoCard span={3}>
+      <BentoTile variant="wide">
         <Story />
-      </BentoCard>
+      </BentoTile>
     ),
   ],
 } satisfies Meta<typeof MarketPricePanel>;
@@ -66,14 +66,14 @@ export const TabletWidth: Story = {
   },
 };
 
-/** Tile-level skeleton as rendered by BentoCard when market data is loading. */
+/** Tile-level skeleton as rendered by BentoTile when market data is loading. */
 export const Loading: Story = {
   args: { prices: mockPrices, flexEvents: mockFlexEvents },
   decorators: [
     () => (
-      <BentoCard span={3} loading skeleton={<MarketPricePanelSkeleton />}>
+      <BentoTile variant="wide" loading skeleton={<MarketPricePanelSkeleton />}>
         {null}
-      </BentoCard>
+      </BentoTile>
     ),
   ],
 };
@@ -84,12 +84,12 @@ export const MultiChart: Story = {
   decorators: [
     () => (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        <BentoCard span={3}>
+        <BentoTile variant="wide">
           <MarketPricePanel prices={mockPrices} flexEvents={mockFlexEvents} />
-        </BentoCard>
-        <BentoCard span={3}>
+        </BentoTile>
+        <BentoTile variant="wide">
           <MarketPricePanel prices={mockPrices} flexEvents={mockFlexEvents} />
-        </BentoCard>
+        </BentoTile>
       </div>
     ),
   ],

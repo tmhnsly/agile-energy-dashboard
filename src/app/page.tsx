@@ -1,6 +1,6 @@
 import { MarketPriceTile } from "@/components/MarketPricePanel";
 import { Section, Container } from "@/components/Layout";
-import { BentoGrid, BentoCard } from "@/components/Bento";
+import { BentoGrid, BentoTile } from "@/components/Bento";
 import styles from "./page.module.scss";
 
 export default function Home() {
@@ -11,18 +11,18 @@ export default function Home() {
           <h1 className={styles.heading}>Dashboard</h1>
           <BentoGrid>
             <MarketPriceTile />
-            <BentoCard>
+            <BentoTile>
               <h3 className={styles.tileTitle}>Coming Soon</h3>
               <p className={styles.tileText}>
                 Additional dashboard features will appear here.
               </p>
-            </BentoCard>
-            <BentoCard>
+            </BentoTile>
+            <BentoTile>
               <h3 className={styles.tileTitle}>Notifications</h3>
               <p className={styles.tileText}>
                 Price alerts and flex event notifications.
               </p>
-            </BentoCard>
+            </BentoTile>
           </BentoGrid>
         </Container>
       </Section>

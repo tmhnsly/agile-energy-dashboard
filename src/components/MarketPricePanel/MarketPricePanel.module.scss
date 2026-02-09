@@ -2,7 +2,7 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
 
-/* Layout-only content wrapper — card shell (padding, border, bg) is on BentoCard */
+/* Layout-only content wrapper — card shell (padding, border, bg) is on BentoTile */
 .content {
   @include layout.stack(var(--card-gap));
   min-width: 0;

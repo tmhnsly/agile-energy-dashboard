@@ -1,14 +1,14 @@
 'use client';
 
 import { useMarketData } from '@/hooks/useMarketData';
-import { BentoCard } from '@/components/Bento';
+import { BentoTile } from '@/components/Bento';
 import { MarketPricePanel } from './MarketPricePanel';
 import { MarketPricePanelSkeleton } from './MarketPricePanelSkeleton';
 import styles from './MarketPricePanel.module.scss';
 
 /**
  * Tile-level wrapper — single owner of loading / error / ready state.
- * BentoCard renders the skeleton while loading; MarketPricePanel receives
+ * BentoTile renders the skeleton while loading; MarketPricePanel receives
  * resolved data as props and never fetches on its own.
  */
 export const MarketPriceTile = () => {
@@ -16,8 +16,8 @@ export const MarketPriceTile = () => {
   const isLoading = marketData.status === 'loading';
 
   return (
-    <BentoCard
-      span={3}
+    <BentoTile
+      variant="wide"
       loading={isLoading}
       skeleton={<MarketPricePanelSkeleton />}
     >
@@ -31,6 +31,6 @@ export const MarketPriceTile = () => {
           flexEvents={marketData.flexEvents}
         />
       ) : null}
-    </BentoCard>
+    </BentoTile>
   );
 };

@@ -1,22 +1,25 @@
 @use 'mixins/breakpoints' as bp;
 
-.card {
+.tile {
   background-color: var(--mono-app-bg);
   border: 1px solid var(--mono-border-subtle);
   border-radius: var(--radius-md);
   padding: var(--card-padding-compact);
+  min-height: 5rem;
 
   @include bp.tablet {
     padding: var(--card-padding);
   }
 
-  &[data-span='2'] {
+  /* ── variant placement ────────────────────────── */
+
+  &[data-variant='feature'] {
     @include bp.tablet {
       grid-column: span 2;
     }
   }
 
-  &[data-span='3'] {
+  &[data-variant='wide'] {
     @include bp.tablet {
       grid-column: span 2;
     }
@@ -25,9 +28,19 @@
       grid-column: span 3;
     }
   }
+
+  &[data-variant='tall'] {
+    @include bp.tablet {
+      grid-row: span 2;
+    }
+  }
+
+  &[data-variant='compact'] {
+    min-height: auto;
+  }
 }
 
-/* Default skeleton fallback — single shimmer block filling the card body */
+/* Default skeleton fallback — single shimmer block */
 .skelFallback {
   height: 6rem;
   border-radius: var(--radius-sm);
@@ -37,11 +50,11 @@
     var(--mono-bg) 50%,
     var(--mono-subtle-bg) 75%
   );
-  background-size: 800px 100%;
+  background-size: 50rem 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes shimmer {
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0% { background-position: -25rem 0; }
+  100% { background-position: 25rem 0; }
 }
