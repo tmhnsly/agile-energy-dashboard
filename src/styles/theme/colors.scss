@@ -128,4 +128,17 @@
   /* App-level aliases */
   --app-bg: var(--slate-1);
   --app-text: var(--slate-12);
+
+  /* ── Surface tokens (aliases to existing roles) ───── */
+  --surface-page: var(--mono-subtle-bg);
+  --surface-panel: color-mix(in srgb, var(--mono-app-bg) 60%, transparent);
+  --surface-panel-border: color-mix(
+    in srgb,
+    var(--mono-border-subtle) 50%,
+    transparent
+  );
+  --surface-divider: var(--mono-border-subtle);
+  --surface-shadow: color-mix(in srgb, var(--mono-solid) 5%, transparent);
+  --surface-shimmer-from: var(--mono-subtle-bg);
+  --surface-shimmer-via: var(--mono-bg);
 }

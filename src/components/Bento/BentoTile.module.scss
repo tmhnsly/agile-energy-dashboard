@@ -1,9 +1,10 @@
 @use 'mixins/breakpoints' as bp;
+@use 'mixins/surfaces' as surface;
 
 .tile {
-  background-color: var(--mono-app-bg);
-  border: 1px solid var(--mono-border-subtle);
-  border-radius: var(--radius-md);
+  @include surface.glass-panel;
+  @include surface.shimmer-surface;
+  border-radius: var(--radius-lg);
   padding: var(--card-padding-compact);
   min-height: 5rem;
 
@@ -40,21 +41,24 @@
   }
 }
 
-/* Default skeleton fallback — single shimmer block */
+/* Default skeleton fallback — multi-colour shimmer block */
 .skelFallback {
   height: 6rem;
   border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
-    var(--mono-subtle-bg) 25%,
-    var(--mono-bg) 50%,
-    var(--mono-subtle-bg) 75%
+    var(--mono-subtle-bg) 0%,
+    var(--accent-bg) 20%,
+    var(--info-bg) 40%,
+    var(--success-bg) 60%,
+    var(--accent-bg) 80%,
+    var(--mono-subtle-bg) 100%
   );
-  background-size: 50rem 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  background-size: 300% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
 }
 
 @keyframes shimmer {
-  0% { background-position: -25rem 0; }
-  100% { background-position: 25rem 0; }
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }

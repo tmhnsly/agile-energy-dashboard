@@ -22,7 +22,7 @@ export const BentoTile = ({
     <div
       className={`${styles.tile}${className ? ` ${className}` : ''}`}
       data-variant={variant}
-      {...(loading ? { 'aria-busy': 'true' } : {})}
+      {...(loading ? { 'aria-busy': 'true', 'data-loading': 'true' } : {})}
     >
       {loading ? (skeleton ?? <div className={styles.skelFallback} />) : children}
     </div>

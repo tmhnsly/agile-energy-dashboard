@@ -1,0 +1,103 @@
+// Surface mixins — page aurora wash, glass panels, full-tile loading shimmer.
+// Usage: @use 'mixins/surfaces' as surface;
+
+// ── Page backdrop ─────────────────────────────────────
+// Layered wash inspired by Apple/Stripe app shells.
+// Uses isolation: isolate so the ::before sits between
+// the element's background and its children.
+//
+// Layers (bottom → top):
+//   1. Edge vignette — subtle darkening at viewport edges
+//   2. Aurora pools — diffuse accent-tinted radials at low alpha
+//   3. Top sheen   — gentle highlight along upper edge
+@mixin page-wash {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      // ── 3. Top sheen ──
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent-subtle-bg) 35%, transparent),
+        transparent 28%
+      ),
+      // ── 2. Aurora pools ──
+      radial-gradient(
+          circle farthest-side at 72% 12%,
+          color-mix(in srgb, var(--accent-bg) 28%, transparent),
+          transparent 70%
+        ),
+      radial-gradient(
+        circle farthest-side at 28% 65%,
+        color-mix(in srgb, var(--accent-bg-hover) 10%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        circle farthest-side at 85% 75%,
+        color-mix(in srgb, var(--accent-subtle-bg) 25%, transparent),
+        transparent 65%
+      ),
+      // ── 1. Edge vignette ──
+      radial-gradient(
+          ellipse 70% 60% at 50% 50%,
+          transparent 50%,
+          color-mix(in srgb, var(--mono-bg) 40%, transparent)
+        );
+  }
+}
+
+// ── Glass panel ───────────────────────────────────────
+// Translucent card/panel with backdrop blur, subtle border + shadow.
+@mixin glass-panel {
+  background-color: var(--surface-panel);
+  border: 1px solid var(--surface-panel-border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px 0 var(--surface-shadow);
+}
+
+// ── Loading shimmer overlay ───────────────────────────
+// Full-surface shimmer owned by the tile wrapper (edge-to-edge).
+// Activates on [data-loading="true"] via pseudo-element.
+@mixin shimmer-surface {
+  &[data-loading="true"] {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+      background: linear-gradient(
+        90deg,
+        var(--mono-subtle-bg) 0%,
+        var(--accent-bg) 20%,
+        var(--info-bg) 40%,
+        var(--success-bg) 60%,
+        var(--accent-bg) 80%,
+        var(--mono-subtle-bg) 100%
+      );
+      background-size: 300% 100%;
+      animation: surface-shimmer 2.5s ease-in-out infinite;
+    }
+  }
+
+  @at-root {
+    @keyframes surface-shimmer {
+      0% {
+        background-position: 100% 0;
+      }
+      100% {
+        background-position: -100% 0;
+      }
+    }
+  }
+}

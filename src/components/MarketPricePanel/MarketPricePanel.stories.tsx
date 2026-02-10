@@ -9,8 +9,12 @@ import { mockPrices, mockFlexEvents } from './mockData';
  * ## MarketPricePanel
  * Chart panel for energy price data. Renders inside a BentoTile.
  *
+ * - **Presets**: 6h/12h/24h/48h select the **cheapest contiguous window** of that
+ *   duration (minimum average price). "All" resets to full range.
+ * - **Duration-locked nudging**: after selecting a preset, dragging the chart region
+ *   slides the window while preserving the duration — the preset stays highlighted
+ *   as long as the duration matches.
  * - **Loading**: BentoTile `loading` + `skeleton` props handle the skeleton silhouette.
- * - **Loaded**: Panel renders header, chart, footer, and quick-range bar.
  */
 const meta = {
   title: 'Market/MarketPricePanel',
@@ -30,6 +34,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/**
+ * Default view — "All" preset active. Click 6h to jump to the cheapest
+ * 6-hour window, then drag the selection to nudge it (duration stays locked).
+ */
 export const Default: Story = {
   args: {
     prices: mockPrices,

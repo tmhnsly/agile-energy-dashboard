@@ -1,28 +1,46 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
+@use 'mixins/breakpoints' as bp;
 
 .card {
   @include layout.stack(var(--statcard-gap));
   padding: var(--statcard-padding-y) var(--statcard-padding-x);
-  background-color: var(--mono-subtle-bg);
-  border: 1px solid var(--mono-border-subtle);
   border-radius: var(--radius-sm);
   min-width: 100px;
 
+  /* ── Tone palette (scoped custom props) ──────── */
+  --_bg: var(--mono-subtle-bg);
+  --_border: var(--mono-border-subtle);
+  --_solid: var(--mono-solid);
+  --_text: var(--mono-text);
+  --_text-lc: var(--mono-text-low-contrast);
+
   &[data-tone="positive"] {
-    border-color: var(--success-border);
-    background-color: var(--success-bg);
+    --_bg: var(--success-bg);
+    --_border: var(--success-border);
+    --_solid: var(--success-solid);
+    --_text: var(--success-text);
+    --_text-lc: var(--success-text-low-contrast);
   }
 
   &[data-tone="negative"] {
-    border-color: var(--error-border);
-    background-color: var(--error-bg);
+    --_bg: var(--error-bg);
+    --_border: var(--error-border);
+    --_solid: var(--error-solid);
+    --_text: var(--error-text);
+    --_text-lc: var(--error-text-low-contrast);
   }
 
   &[data-tone="accent"] {
-    border-color: var(--accent-border);
-    background-color: var(--accent-bg);
+    --_bg: var(--accent-bg);
+    --_border: var(--accent-border);
+    --_solid: var(--accent-solid);
+    --_text: var(--accent-text);
+    --_text-lc: var(--accent-text-low-contrast);
   }
+
+  background-color: var(--_bg);
+  border: 1px solid var(--_border);
 }
 
 .header {
@@ -36,38 +54,30 @@
   align-items: center;
   font-size: var(--text-xs);
   line-height: 1;
-
-  .card[data-tone="positive"] & {
-    color: var(--success-solid);
-  }
-
-  .card[data-tone="negative"] & {
-    color: var(--error-solid);
-  }
-
-  .card[data-tone="accent"] & {
-    color: var(--accent-solid);
-  }
-
-  .card[data-tone="neutral"] & {
-    color: var(--mono-text-low-contrast);
-  }
+  color: var(--_solid);
 }
 
 .label {
   @include type.typography(label);
-  color: var(--mono-text-low-contrast);
+  color: var(--_text-lc);
   text-transform: uppercase;
 }
 
 .value {
   @include type.typography(number);
   font-variant-numeric: tabular-nums;
-  color: var(--mono-text);
+  color: var(--_text);
+  font-size: var(--text-lg);
+  padding-right: var(--space-4);
+
+  @include bp.tablet {
+    font-size: var(--text-2xl);
+  }
 }
 
 .subValue {
   @include type.typography(meta);
-  color: var(--mono-text-low-contrast);
+  color: var(--_text-lc);
   font-variant-numeric: tabular-nums;
+  margin-top: auto;
 }

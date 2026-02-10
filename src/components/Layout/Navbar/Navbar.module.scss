@@ -20,6 +20,19 @@
   height: 56px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brandIcon {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-lg);
+  color: var(--warning-solid);
+}
+
 .title {
   @include type.typography(card-title);
   color: var(--mono-text);
@@ -29,4 +42,18 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-squircle);
+  background-color: var(--mono-subtle-bg);
+  border: 1px solid var(--mono-border-subtle);
+  color: var(--mono-solid);
+  font-size: var(--text-2xl);
+  cursor: pointer;
 }

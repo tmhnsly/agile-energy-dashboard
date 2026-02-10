@@ -42,4 +42,6 @@ export const mockRange = {
 export const mockStats = {
   min: { price: 17.7, ts: BASE_DATE + 5 * HALF_HOUR },
   max: { price: 44.5, ts: BASE_DATE + 36 * HALF_HOUR },
+  total: PRICES_RAW.reduce((s, v) => s + v, 0),
+  count: PRICES_RAW.length,
 };

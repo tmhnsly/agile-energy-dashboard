@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
@@ -10,7 +10,12 @@ import { formatDateTime, formatPricePerKwh } from '@/utils/format';
 import { Button } from '@/components/Button/Button';
 import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
+import { findCheapestWindow } from './findCheapestWindow';
 import styles from './MarketPricePanel.module.scss';
+
+const HOUR_MS = 3_600_000;
+const HALF_HOUR_MS = 30 * 60_000;
+const PRESET_HOURS = [6, 12, 24, 48] as const;
 
 function formatYTickWithUnit(v: number): string {
   return `${Number(v).toFixed(0)}p`;
@@ -52,6 +57,44 @@ export const MarketPricePanel = ({
     })),
   [flexEvents]);
 
+  /* ── Cheapest-window presets ────────────────────── */
+
+  /** Memoised cheapest window per preset duration. Recomputes only when data or fullRange changes. */
+  const cheapestWindows = useMemo(() => {
+    const data = chartSeries[0]?.data ?? [];
+    const windows = new Map<number, TimeRange | null>();
+    for (const hours of PRESET_HOURS) {
+      windows.set(hours, findCheapestWindow(data, fullRange, hours * HOUR_MS));
+    }
+    return windows;
+  }, [chartSeries, fullRange]);
+
+  /** Derive active preset label from current range duration (duration-locked matching). */
+  const activePreset = useMemo((): string | null => {
+    if (
+      activeRange.fromTs === fullRange.fromTs &&
+      activeRange.toTs === fullRange.toTs
+    ) {
+      return 'All';
+    }
+    const durationMs = activeRange.toTs - activeRange.fromTs;
+    for (const hours of PRESET_HOURS) {
+      if (Math.abs(durationMs - hours * HOUR_MS) < HALF_HOUR_MS) {
+        return `${hours}h`;
+      }
+    }
+    return null;
+  }, [activeRange, fullRange]);
+
+  const handlePresetSelect = useCallback((hours: number | null) => {
+    if (hours === null) {
+      resetRange();
+    } else {
+      const window = cheapestWindows.get(hours);
+      if (window) setRange(window);
+    }
+  }, [cheapestWindows, setRange, resetRange]);
+
   return (
     <div className={styles.content}>
       <div className={styles.headerTop}>
@@ -62,7 +105,7 @@ export const MarketPricePanel = ({
             {formatDateTime(displayRange.toTs)}
           </div>
         </div>
-        <PriceStatsBar stats={stats} />
+        <PriceStatsBar stats={stats} range={displayRange} />
       </div>
 
       <div className={styles.chartArea}>
@@ -97,9 +140,8 @@ export const MarketPricePanel = ({
       </div>
 
       <QuickRangeBar
-        fullRange={fullRange}
-        activeRange={activeRange}
-        onRangeChange={setRange}
+        activePreset={activePreset}
+        onPresetSelect={handlePresetSelect}
       />
     </div>
   );
