@@ -39,13 +39,12 @@ export const HouseholdUsageSkeleton = () => (
     </div>
 
     <div className={panelStyles.chartControls}>
-      <div className={skelStyles.selector}>
-        <Skeleton width="2.75rem" height="2rem" radius="full" />
-        <Skeleton width="5rem" height="2rem" radius="full" />
-        <Skeleton width="6rem" height="2rem" radius="full" />
-        <Skeleton width="10rem" height="2rem" radius="full" />
-      </div>
-      <Skeleton width="7rem" height="2rem" radius="full" />
+      <Skeleton width="2.75rem" height="2.75rem" radius="full" />
+      <Skeleton width="5rem" height="2.75rem" radius="full" />
+      <Skeleton width="6rem" height="2.75rem" radius="full" />
+      <Skeleton width="10rem" height="2.75rem" radius="full" />
     </div>
+
+    <Skeleton width="100%" height="2.75rem" radius="full" />
   </div>
 );

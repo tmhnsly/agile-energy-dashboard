@@ -131,18 +131,21 @@
   }
 
   &[data-size="small"] {
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--text-xs);
+    min-height: var(--btn-height-sm);
+    padding-inline: var(--btn-px-sm);
+    font-size: var(--btn-font-sm);
   }
 
   &[data-size="medium"] {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
+    min-height: var(--btn-height-md);
+    padding-inline: var(--btn-px-md);
+    font-size: var(--btn-font-md);
   }
 
   &[data-size="large"] {
-    padding: var(--space-3) var(--space-5);
-    font-size: var(--text-base);
+    min-height: var(--btn-height-lg);
+    padding-inline: var(--btn-px-lg);
+    font-size: var(--btn-font-lg);
   }
 
   &:disabled {

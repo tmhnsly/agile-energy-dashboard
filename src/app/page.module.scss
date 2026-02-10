@@ -4,7 +4,6 @@
 .page {
   min-height: 100dvh;
   background-color: var(--surface-page);
-  @include surface.page-wash;
 }
 
 .heading {
@@ -12,4 +11,3 @@
   color: var(--mono-text);
   margin: 0 0 var(--space-6) 0;
 }
-

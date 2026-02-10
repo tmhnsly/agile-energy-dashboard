@@ -52,12 +52,12 @@ export const MarketPriceSkeleton = () => (
 
     <div className={panelStyles.chartControls}>
       <div className={skelStyles.presets}>
-        <Skeleton width="2.75rem" height="2rem" radius="full" />
-        <Skeleton width="2.5rem" height="2rem" radius="full" />
-        <Skeleton width="3rem" height="2rem" radius="full" />
-        <Skeleton width="3rem" height="2rem" radius="full" />
+        <Skeleton width="2.75rem" height="2.75rem" radius="full" />
+        <Skeleton width="2.5rem" height="2.75rem" radius="full" />
+        <Skeleton width="3rem" height="2.75rem" radius="full" />
+        <Skeleton width="3rem" height="2.75rem" radius="full" />
       </div>
-      <Skeleton width="7rem" height="2rem" radius="full" />
+      <Skeleton width="7rem" height="2.75rem" radius="full" />
     </div>
   </div>
 );

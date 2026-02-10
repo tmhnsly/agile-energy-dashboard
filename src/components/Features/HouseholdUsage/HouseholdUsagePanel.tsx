@@ -121,8 +121,9 @@ export const HouseholdUsagePanel = ({
 
       <div className={styles.chartControls}>
         <HouseholdSelector selected={selected} onToggle={handleToggle} />
-        <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
       </div>
+
+      <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
     </div>
   );
 };

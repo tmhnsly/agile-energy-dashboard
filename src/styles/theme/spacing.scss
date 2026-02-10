@@ -49,6 +49,17 @@
   --chart-footer-gap: var(--space-3);
   --chart-legend-gap: var(--space-2);
 
+  /* buttons — Apple HIG 44pt minimum touch target */
+  --btn-height-sm: 2.75rem;  /* 44px — minimum touch target */
+  --btn-height-md: 3rem;     /* 48px */
+  --btn-height-lg: 3.5rem;   /* 56px */
+  --btn-px-sm: var(--space-4);
+  --btn-px-md: var(--space-5);
+  --btn-px-lg: var(--space-6);
+  --btn-font-sm: var(--text-sm);
+  --btn-font-md: var(--text-md);
+  --btn-font-lg: var(--text-lg);
+
   /* temporary aliases — used by non-target components */
   --gutter: var(--space-5);
 }

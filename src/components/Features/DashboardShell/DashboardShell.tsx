@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import { useMarketData } from '@/hooks/useMarketData';
-import { BentoTile } from '@/components/Layout';
-import { BentoGrid } from '@/components/Layout';
+import { useCallback, useState } from "react";
+import { useMarketData } from "@/hooks/useMarketData";
+import { BentoTile } from "@/components/Layout";
+import { BentoGrid } from "@/components/Layout";
 import {
   MarketPricePanel,
   MarketPriceSkeleton,
-} from '@/components/Features/MarketPrice';
+} from "@/components/Features/MarketPrice";
 import {
   HouseholdUsagePanel,
   HouseholdUsageSkeleton,
-} from '@/components/Features/HouseholdUsage';
+} from "@/components/Features/HouseholdUsage";
 
-import styles from './DashboardShell.module.scss';
+import styles from "./DashboardShell.module.scss";
 
 /**
  * Client component that calls `useMarketData()` once and fans data out
@@ -23,23 +23,22 @@ import styles from './DashboardShell.module.scss';
 export const DashboardShell = () => {
   const [retryKey, setRetryKey] = useState(0);
   const marketData = useMarketData(retryKey);
-  const isLoading = marketData.status === 'loading';
+  const isLoading = marketData.status === "loading";
 
   const handleRetry = useCallback(() => {
     setRetryKey((k) => k + 1);
   }, []);
 
-  const errorMessage =
-    marketData.status === 'error' ? marketData.error : null;
+  const errorMessage = marketData.status === "error" ? marketData.error : null;
 
   return (
     <BentoGrid>
       <BentoTile
-        span="wide"
+        span="feature"
         loading={isLoading}
         skeleton={<MarketPriceSkeleton />}
       >
-        {marketData.status === 'error' ? (
+        {marketData.status === "error" ? (
           <div className={styles.error}>
             <p>Failed to load market data.</p>
             {errorMessage && (
@@ -49,7 +48,7 @@ export const DashboardShell = () => {
               Retry
             </button>
           </div>
-        ) : marketData.status === 'ready' ? (
+        ) : marketData.status === "ready" ? (
           <MarketPricePanel
             prices={marketData.prices}
             flexEvents={marketData.flexEvents}
@@ -58,11 +57,11 @@ export const DashboardShell = () => {
       </BentoTile>
 
       <BentoTile
-        span="feature"
+        span="compact"
         loading={isLoading}
         skeleton={<HouseholdUsageSkeleton />}
       >
-        {marketData.status === 'error' ? (
+        {marketData.status === "error" ? (
           <div className={styles.error}>
             <p>Failed to load usage data.</p>
             {errorMessage && (
@@ -72,7 +71,7 @@ export const DashboardShell = () => {
               Retry
             </button>
           </div>
-        ) : marketData.status === 'ready' ? (
+        ) : marketData.status === "ready" ? (
           <HouseholdUsagePanel
             usage={marketData.householdUsage}
             prices={marketData.prices}
