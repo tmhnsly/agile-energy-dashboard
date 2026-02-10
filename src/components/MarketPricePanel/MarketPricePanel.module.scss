@@ -1,4 +1,4 @@
-@use 'mixins/breakpoints' as breakpoint;
+@use 'mixins/container-queries' as cq;
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
 
@@ -13,7 +13,7 @@
   flex-direction: column;
   gap: var(--space-3);
 
-  @include breakpoint.tablet {
+  @include cq.large {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
@@ -46,11 +46,11 @@
   overflow: hidden;
   height: 240px;
 
-  @include breakpoint.tablet {
+  @include cq.medium {
     height: 300px;
   }
 
-  @include breakpoint.desktop {
+  @include cq.large {
     height: 380px;
   }
 }
@@ -63,7 +63,7 @@
   @include type.typography(meta);
   color: var(--error-text-low-contrast);
 
-  @include breakpoint.desktop {
+  @include cq.large {
     min-height: 300px;
   }
 }

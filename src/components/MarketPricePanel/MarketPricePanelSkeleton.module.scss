@@ -4,7 +4,7 @@
    invisible text reserves correct dimensions, card pulses. */
 .statSkel {
   --_bg: var(--mono-bg);
-  --_border: var(--mono-border-subtle);
+  --_border: transparent;
   --_solid: transparent;
   --_text: transparent;
   --_text-lc: transparent;

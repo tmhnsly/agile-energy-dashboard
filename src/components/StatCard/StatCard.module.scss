@@ -1,6 +1,6 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
-@use 'mixins/breakpoints' as bp;
+@use 'mixins/container-queries' as cq;
 
 .card {
   @include layout.stack(var(--statcard-gap));
@@ -68,9 +68,10 @@
   font-variant-numeric: tabular-nums;
   color: var(--_text);
   font-size: var(--text-lg);
+  white-space: nowrap;
   padding-right: var(--space-4);
 
-  @include bp.tablet {
+  @include cq.large {
     font-size: var(--text-2xl);
   }
 }

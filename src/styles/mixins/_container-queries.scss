@@ -1,0 +1,30 @@
+// Container-query mixins — tile-scoped, width-based.
+// Usage: @use 'mixins/container-queries' as cq; then @include cq.medium { ... }
+//
+// Requires the ancestor BentoTile to set:
+//   container-type: inline-size;
+//   container-name: tile;
+//
+// medium: tile >= 400px  (standard tile at desktop, wide tile at tablet+)
+// large:  tile >= 600px  (wide / feature tiles only)
+$_medium: 400px;
+$_large: 600px;
+
+@mixin medium {
+  @container tile (min-width: #{$_medium}) {
+    @content;
+  }
+}
+
+@mixin large {
+  @container tile (min-width: #{$_large}) {
+    @content;
+  }
+}
+
+/// Escape hatch for one-off widths.
+@mixin at($min-width) {
+  @container tile (min-width: #{$min-width}) {
+    @content;
+  }
+}

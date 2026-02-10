@@ -6,6 +6,8 @@
   border-radius: var(--radius-lg);
   padding: var(--card-padding-compact);
   min-height: 5rem;
+  container-type: inline-size;
+  container-name: tile;
 
   @include bp.tablet {
     padding: var(--card-padding);
