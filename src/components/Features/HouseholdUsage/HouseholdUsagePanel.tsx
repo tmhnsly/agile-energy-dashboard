@@ -7,7 +7,7 @@ import type { ChartSeries } from '@/types/chart';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { useUsageStats } from '@/hooks/useUsageStats';
 import { formatDateTime, formatKwhValue } from '@/utils/format';
-import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/ClearSelectionButton';
+import { ClearSelectionButton } from '@/components/UI';
 import { TimeSeriesChart } from '@/components/Charts';
 import { HouseholdSelector } from './HouseholdSelector';
 import { UsageStatsBar } from './UsageStatsBar/UsageStatsBar';

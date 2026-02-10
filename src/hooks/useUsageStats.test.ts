@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { minutesToMilliseconds } from 'date-fns';
 import type { HouseholdUsageRow, PricePoint } from '@/types/energy';
 import { computeUsageStats } from './useUsageStats';
 
-const HALF_HOUR = 30 * 60_000;
+const HALF_HOUR = minutesToMilliseconds(30);
 const BASE = Date.UTC(2025, 2, 12, 0, 0);
 
 const usage: HouseholdUsageRow[] = [

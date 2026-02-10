@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { minutesToMilliseconds, hoursToMilliseconds } from 'date-fns';
 import { findCheapestWindow } from './findCheapestWindow';
 
-const HH = 30 * 60_000; // half-hour in ms
+const HH = minutesToMilliseconds(30);
 
 /** Build n contiguous half-hourly data points starting at `startTs`. */
 function makeData(startTs: number, values: number[]) {
@@ -16,27 +17,27 @@ describe('findCheapestWindow', () => {
     const data = makeData(T0, [10, 10, 10, 1, 1, 1, 1, 1, 1, 10, 10, 10]);
     const fullRange = { fromTs: T0, toTs: T0 + 12 * HH };
 
-    const result = findCheapestWindow(data, fullRange, 3 * 60 * 60_000);
+    const result = findCheapestWindow(data, fullRange, hoursToMilliseconds(3));
     expect(result).not.toBeNull();
     expect(result!.fromTs).toBe(T0 + 3 * HH);
   });
 
   it('returns null for empty data', () => {
     const fullRange = { fromTs: T0, toTs: T0 + 6 * HH };
-    expect(findCheapestWindow([], fullRange, 3 * 60 * 60_000)).toBeNull();
+    expect(findCheapestWindow([], fullRange, hoursToMilliseconds(3))).toBeNull();
   });
 
   it('returns fullRange when range is shorter than requested duration', () => {
     const data = makeData(T0, [5, 5, 5, 5]);
     const fullRange = { fromTs: T0, toTs: T0 + 4 * HH };
-    const result = findCheapestWindow(data, fullRange, 6 * 60 * 60_000);
+    const result = findCheapestWindow(data, fullRange, hoursToMilliseconds(6));
     expect(result).toEqual(fullRange);
   });
 
   it('returns null when data has fewer points than the window size', () => {
     const data = makeData(T0, [5, 5]);
     const fullRange = { fromTs: T0, toTs: T0 + 24 * HH };
-    const result = findCheapestWindow(data, fullRange, 6 * 60 * 60_000);
+    const result = findCheapestWindow(data, fullRange, hoursToMilliseconds(6));
     expect(result).toBeNull();
   });
 
@@ -44,7 +45,7 @@ describe('findCheapestWindow', () => {
     const data = makeData(T0, [5, 5, 5, 5, 5, 5]);
     const fullRange = { fromTs: T0, toTs: T0 + 6 * HH };
 
-    const result = findCheapestWindow(data, fullRange, 2 * 60 * 60_000);
+    const result = findCheapestWindow(data, fullRange, hoursToMilliseconds(2));
     expect(result).not.toBeNull();
     expect(result!.fromTs).toBe(T0);
   });
@@ -53,7 +54,7 @@ describe('findCheapestWindow', () => {
     const data = makeData(T0, [10, 10, -5, -5, -5, -5, 10, 10]);
     const fullRange = { fromTs: T0, toTs: T0 + 8 * HH };
 
-    const result = findCheapestWindow(data, fullRange, 2 * 60 * 60_000);
+    const result = findCheapestWindow(data, fullRange, hoursToMilliseconds(2));
     expect(result).not.toBeNull();
     expect(result!.fromTs).toBe(T0 + 2 * HH);
   });
@@ -61,7 +62,7 @@ describe('findCheapestWindow', () => {
   it('returns a range with the correct duration', () => {
     const data = makeData(T0, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     const fullRange = { fromTs: T0, toTs: T0 + 12 * HH };
-    const duration = 3 * 60 * 60_000;
+    const duration = hoursToMilliseconds(3);
 
     const result = findCheapestWindow(data, fullRange, duration);
     expect(result).not.toBeNull();

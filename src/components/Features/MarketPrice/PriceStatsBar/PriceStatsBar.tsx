@@ -1,10 +1,11 @@
 import { memo } from 'react';
+import { minutesToMilliseconds } from 'date-fns';
 import { TbTriangleFilled, TbTriangleInvertedFilled, TbBoltFilled } from 'react-icons/tb';
 import type { PriceStats, TimeRange } from '@/types/energy';
 import { formatPricePerKwh, formatStatTime } from '@/utils/format';
-import { StatsBar } from '@/components/UI/StatsBar/StatsBar';
+import { StatsBar } from '@/components/UI';
 
-const HALF_HOUR_MS = 30 * 60_000;
+const HALF_HOUR_MS = minutesToMilliseconds(30);
 
 function formatTotal(pence: number): string {
   if (pence >= 100) return `£${(pence / 100).toFixed(2)}`;

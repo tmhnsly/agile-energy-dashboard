@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, minutesToMilliseconds } from 'date-fns';
 import { UTCDate } from '@date-fns/utc';
 
 /** Format a timestamp as `HH:mm` (e.g. "14:30"). */
@@ -57,7 +57,7 @@ export function formatCostPence(pence: number): string {
  */
 export function formatDuration(fromTs: number, toTs: number): string {
   const ms = Math.abs(toTs - fromTs);
-  const totalMinutes = Math.round(ms / 60_000);
+  const totalMinutes = Math.round(ms / minutesToMilliseconds(1));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (hours === 0) return `${minutes}m`;

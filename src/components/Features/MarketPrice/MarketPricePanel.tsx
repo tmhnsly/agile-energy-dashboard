@@ -1,20 +1,21 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { hoursToMilliseconds, minutesToMilliseconds } from 'date-fns';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
 import { formatDateTime, formatPricePerKwh } from '@/utils/format';
-import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/ClearSelectionButton';
+import { ClearSelectionButton } from '@/components/UI';
 import { TimeSeriesChart, ChartLegend, CheapestWindowBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
 import styles from './MarketPricePanel.module.scss';
 
-const HOUR_MS = 3_600_000;
-const HALF_HOUR_MS = 30 * 60_000;
+const HOUR_MS = hoursToMilliseconds(1);
+const HALF_HOUR_MS = minutesToMilliseconds(30);
 const PRESET_HOURS = [6, 12, 24] as const;
 
 function formatYTickWithUnit(v: number): string {

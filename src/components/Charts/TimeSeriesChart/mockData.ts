@@ -1,3 +1,4 @@
+import { minutesToMilliseconds } from 'date-fns';
 import type { ChartSeries, ChartBand } from '@/types/chart';
 
 /**
@@ -5,7 +6,7 @@ import type { ChartSeries, ChartBand } from '@/types/chart';
  * Uses the same numeric values as the price mock data, in generic shape.
  */
 const BASE_DATE = new Date('2025-03-12T00:00:00Z').getTime();
-const HALF_HOUR = 30 * 60 * 1000;
+const HALF_HOUR = minutesToMilliseconds(30);
 
 const VALUES_A = [
   20.5, 19.8, 19.2, 18.9, 18.6, 17.7, 19.5, 19.8, 20.2, 21.2, 22.4, 23.6,

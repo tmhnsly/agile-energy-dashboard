@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { minutesToMilliseconds } from 'date-fns';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
@@ -35,7 +36,7 @@ import styles from './TimeSeriesChart.module.scss';
 /* ------------------------------------------------------------------ */
 
 /** Half-hour in milliseconds — used to snap the drag pill readout. */
-const HALF_HOUR_MS = 30 * 60_000;
+const HALF_HOUR_MS = minutesToMilliseconds(30);
 
 /** Maximum number of x-axis tick labels. */
 const MAX_X_TICKS = 8;
@@ -50,7 +51,7 @@ const PILL_EDGE_PAD = 80;
 const PILL_TOP_OFFSET = 8;
 
 /** Minimum selection duration (ms) — prevents zero-width selections. */
-const MIN_SELECTION_MS = 60_000;
+const MIN_SELECTION_MS = minutesToMilliseconds(1);
 
 export type { ChartMargin };
 
@@ -355,6 +356,26 @@ export const TimeSeriesChart = ({
     ? snapToHalfHour(displayRange.toTs)
     : displayRange.toTs;
 
+  /* ---- keyboard tooltip data ---- */
+
+  const keyboardTooltipData: TooltipData | null = useMemo(() => {
+    const point = primaryData[focusedIndex];
+    if (!point) return null;
+    return {
+      ts: point.ts,
+      values: series.map((s) => {
+        const p = s.data[focusedIndex];
+        return {
+          seriesId: s.id,
+          label: s.label,
+          value: p?.value ?? 0,
+          tone: s.tone,
+        };
+      }),
+      inBand: null,
+    };
+  }, [primaryData, focusedIndex, series]);
+
   /* ---- early exit ---- */
 
   if (width < 10 || height < 10) return null;
@@ -579,7 +600,7 @@ export const TimeSeriesChart = ({
       )}
 
       {/* Keyboard-driven tooltip at focused data point */}
-      {isKeyboardActive && primaryData.length > 0 && primaryData[focusedIndex] && (
+      {isKeyboardActive && keyboardTooltipData && primaryData[focusedIndex] && (
         <TooltipWithBounds
           left={xScale(new Date(primaryData[focusedIndex].ts)) + margin.left}
           top={yScale(primaryData[focusedIndex].value) + margin.top}
@@ -588,19 +609,7 @@ export const TimeSeriesChart = ({
           applyPositionStyle
         >
           <TooltipContent
-            tooltipData={{
-              ts: primaryData[focusedIndex].ts,
-              values: series.map((s) => {
-                const point = s.data[focusedIndex];
-                return {
-                  seriesId: s.id,
-                  label: s.label,
-                  value: point?.value ?? 0,
-                  tone: s.tone,
-                };
-              }),
-              inBand: null,
-            }}
+            tooltipData={keyboardTooltipData}
             formatTooltipValue={fmtTooltipValue}
           />
         </TooltipWithBounds>

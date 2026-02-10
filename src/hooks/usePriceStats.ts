@@ -13,32 +13,37 @@ import { lowerBound } from '@/utils/binarySearch';
  * frame during a drag interaction.  The range is half-open `[fromTs, toTs)`
  * so a point at exactly `toTs` is excluded.
  */
+export function computePriceStats(
+  points: PricePoint[],
+  range: TimeRange,
+): PriceStats {
+  const start = lowerBound(points, range.fromTs);
+  const end = lowerBound(points, range.toTs);
+
+  if (start >= end) return { min: null, max: null, total: null, count: 0 };
+
+  let min = points[start];
+  let max = points[start];
+  let total = points[start].price;
+
+  for (let i = start + 1; i < end; i++) {
+    const p = points[i];
+    total += p.price;
+    if (p.price < min.price) min = p;
+    if (p.price > max.price) max = p;
+  }
+
+  return {
+    min: { price: min.price, ts: min.ts },
+    max: { price: max.price, ts: max.ts },
+    total,
+    count: end - start,
+  };
+}
+
 export function usePriceStats(
   points: PricePoint[],
   range: TimeRange,
 ): PriceStats {
-  return useMemo(() => {
-    const start = lowerBound(points, range.fromTs);
-    const end = lowerBound(points, range.toTs);
-
-    if (start >= end) return { min: null, max: null, total: null, count: 0 };
-
-    let min = points[start];
-    let max = points[start];
-    let total = points[start].price;
-
-    for (let i = start + 1; i < end; i++) {
-      const p = points[i];
-      total += p.price;
-      if (p.price < min.price) min = p;
-      if (p.price > max.price) max = p;
-    }
-
-    return {
-      min: { price: min.price, ts: min.ts },
-      max: { price: max.price, ts: max.ts },
-      total,
-      count: end - start,
-    };
-  }, [points, range]);
+  return useMemo(() => computePriceStats(points, range), [points, range]);
 }

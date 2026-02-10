@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { hoursToMilliseconds } from 'date-fns';
 
 import { BentoTile } from '@/components/Layout';
 import { PriceStatsBar } from './PriceStatsBar';
@@ -40,7 +41,7 @@ export const SubRange: Story = {
     stats: mockStats,
     range: {
       fromTs: mockRange.fromTs,
-      toTs: mockRange.fromTs + 12 * 60 * 60 * 1000,
+      toTs: mockRange.fromTs + hoursToMilliseconds(12),
     },
   },
 };

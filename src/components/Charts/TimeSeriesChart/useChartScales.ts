@@ -32,6 +32,37 @@ function defaultFormatYTick(v: number): string {
 }
 
 /* ------------------------------------------------------------------ */
+/* Pure helpers                                                        */
+/* ------------------------------------------------------------------ */
+
+export function computeYDomain(series: ChartSeries[]): [number, number] {
+  let hasData = false;
+  let minV = Infinity;
+  let maxV = -Infinity;
+  for (const s of series) {
+    for (const d of s.data) {
+      hasData = true;
+      if (d.value < minV) minV = d.value;
+      if (d.value > maxV) maxV = d.value;
+    }
+  }
+  if (!hasData) return [0, 100];
+  const pad = (maxV - minV) * 0.1 || 5;
+  return [minV - pad, maxV + pad];
+}
+
+export function computeAutoLeftMargin(
+  yDomain: [number, number],
+  formatYTick?: (value: number) => string,
+): number {
+  const fmt = formatYTick ?? defaultFormatYTick;
+  const tempScale = scaleLinear({ domain: yDomain, range: TEMP_SCALE_RANGE, nice: true });
+  const ticks = tempScale.ticks(Y_TICK_COUNT);
+  const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmt(t))));
+  return Math.ceil(maxWidth + AXIS_LABEL_PAD);
+}
+
+/* ------------------------------------------------------------------ */
 /* Hook                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -56,29 +87,12 @@ export function useChartScales({
   margin: marginProp,
   formatYTick: formatYTickProp,
 }: UseChartScalesOptions) {
-  const yDomain: [number, number] = useMemo(() => {
-    let hasData = false;
-    let minV = Infinity;
-    let maxV = -Infinity;
-    for (const s of series) {
-      for (const d of s.data) {
-        hasData = true;
-        if (d.value < minV) minV = d.value;
-        if (d.value > maxV) maxV = d.value;
-      }
-    }
-    if (!hasData) return [0, 100];
-    const pad = (maxV - minV) * 0.1 || 5;
-    return [minV - pad, maxV + pad];
-  }, [series]);
+  const yDomain = useMemo(() => computeYDomain(series), [series]);
 
-  const autoLeftMargin = useMemo(() => {
-    const fmt = formatYTickProp ?? defaultFormatYTick;
-    const tempScale = scaleLinear({ domain: yDomain, range: TEMP_SCALE_RANGE, nice: true });
-    const ticks = tempScale.ticks(Y_TICK_COUNT);
-    const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmt(t))));
-    return Math.ceil(maxWidth + AXIS_LABEL_PAD);
-  }, [yDomain, formatYTickProp]);
+  const autoLeftMargin = useMemo(
+    () => computeAutoLeftMargin(yDomain, formatYTickProp),
+    [yDomain, formatYTickProp],
+  );
 
   const margin: ChartMargin = useMemo(() => ({
     top: marginProp?.top ?? DEFAULT_MARGIN_TOP,

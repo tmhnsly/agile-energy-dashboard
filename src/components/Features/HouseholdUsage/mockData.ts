@@ -1,3 +1,4 @@
+import { minutesToMilliseconds } from 'date-fns';
 import type { HouseholdUsageRow, PricePoint } from '@/types/energy';
 
 /**
@@ -5,7 +6,7 @@ import type { HouseholdUsageRow, PricePoint } from '@/types/energy';
  * 48 half-hourly rows matching realistic household consumption profiles.
  */
 const BASE_DATE = new Date('2025-03-12T00:00:00Z').getTime();
-const HALF_HOUR = 30 * 60 * 1000;
+const HALF_HOUR = minutesToMilliseconds(30);
 
 const STANDARD_RAW = [
   0.25, 0.22, 0.20, 0.18, 0.17, 0.16, 0.20, 0.25, 0.35, 0.45, 0.50, 0.55,

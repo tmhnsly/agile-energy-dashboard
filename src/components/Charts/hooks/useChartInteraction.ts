@@ -89,7 +89,7 @@ export interface UseChartInteractionOptions<TTooltip> {
  * returns the new `{ from, to }` for the selection. Pure function
  * — no side-effects.
  */
-function computeDragRange(
+export function computeDragRange(
   drag: DragState,
   currentValue: number,
   fullRange: ChartRange,
@@ -152,7 +152,7 @@ function computeDragRange(
  * click value and selects it. Returns the band's range, or `null`
  * if no band was hit.
  */
-function handleBandClick(
+export function handleBandClick(
   clickValue: number,
   bands: ChartBandHitArea[],
 ): ChartRange | null {

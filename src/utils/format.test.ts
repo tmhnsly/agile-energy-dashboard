@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { hoursToMilliseconds, minutesToMilliseconds } from 'date-fns';
 import {
   formatTime,
   formatDateTime,
@@ -138,22 +139,19 @@ describe('formatCostPence', () => {
 
 describe('formatDuration', () => {
   it('formats hours and minutes', () => {
-    const sixHours = 6 * 60 * 60_000;
-    expect(formatDuration(0, sixHours)).toBe('6h 00m');
+    expect(formatDuration(0, hoursToMilliseconds(6))).toBe('6h 00m');
   });
 
   it('formats sub-hour durations without hours', () => {
-    const fortyFiveMin = 45 * 60_000;
-    expect(formatDuration(0, fortyFiveMin)).toBe('45m');
+    expect(formatDuration(0, minutesToMilliseconds(45))).toBe('45m');
   });
 
   it('formats mixed hours and minutes', () => {
-    const twoHoursThirty = (2 * 60 + 30) * 60_000;
-    expect(formatDuration(0, twoHoursThirty)).toBe('2h 30m');
+    expect(formatDuration(0, hoursToMilliseconds(2) + minutesToMilliseconds(30))).toBe('2h 30m');
   });
 
   it('handles reversed arguments (absolute difference)', () => {
-    expect(formatDuration(60_000, 0)).toBe('1m');
+    expect(formatDuration(minutesToMilliseconds(1), 0)).toBe('1m');
   });
 
   it('formats zero duration', () => {
