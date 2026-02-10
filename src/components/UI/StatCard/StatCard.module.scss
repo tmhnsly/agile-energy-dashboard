@@ -73,9 +73,10 @@
 
   @include cq.medium {
     font-size: var(--text-lg);
-    min-width: 9ch;
+    min-width: 9ch; /* prevents layout shift between "0.00p" and "99.99p" style values */
   }
 
+  /* Wide tile at desktop — enough room for full-size stat values */
   @include cq.at(900px) {
     font-size: var(--text-2xl);
   }

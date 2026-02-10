@@ -1,5 +1,7 @@
 'use client';
 
+import styles from './status-page.module.scss';
+
 export default function Error({
   error,
   reset,
@@ -8,33 +10,12 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '1rem',
-        minHeight: '50vh',
-        padding: '2rem',
-        textAlign: 'center',
-      }}
-    >
-      <h2 style={{ margin: 0 }}>Something went wrong</h2>
-      <p style={{ margin: 0, color: 'var(--mono-text-low-contrast)' }}>
+    <div className={styles.page}>
+      <h2 className={styles.heading}>Something went wrong</h2>
+      <p className={styles.message}>
         {error.message || 'An unexpected error occurred.'}
       </p>
-      <button
-        onClick={reset}
-        style={{
-          padding: '0.5rem 1rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--mono-border)',
-          background: 'var(--mono-subtle-bg)',
-          color: 'var(--mono-text)',
-          cursor: 'pointer',
-        }}
-      >
+      <button onClick={reset} className={styles.retryBtn}>
         Try again
       </button>
     </div>

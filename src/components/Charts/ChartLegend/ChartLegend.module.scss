@@ -18,18 +18,18 @@
 
 .swatchLine {
   display: inline-block;
-  width: 1rem;
-  height: 2px;
-  border-radius: 1px;
+  width: 1rem; /* swatch width — wider than height for a "line" appearance */
+  height: 2px; /* matches series stroke-width visually */
+  border-radius: 1px; /* pill ends */
   background-color: var(--accent-solid);
   opacity: 0.6;
 }
 
 .swatchBand {
   display: inline-block;
-  width: 1rem;
-  height: 0.625rem;
-  border-radius: 2px;
+  width: 1rem; /* matches swatchLine width for alignment */
+  height: 0.625rem; /* 10px — tall enough to show fill + border */
+  border-radius: 2px; /* slightly rounded corners */
   background-color: var(--secondary-bg);
   border-left: 2px solid var(--secondary-border);
   opacity: 0.6;
@@ -39,5 +39,5 @@
   @include type.typography(label);
   color: var(--mono-text);
   text-transform: none;
-  opacity: 0.7;
+  opacity: 0.7; /* secondary to chart data */
 }

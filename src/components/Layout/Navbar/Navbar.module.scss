@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  height: var(--navbar-height);
 }
 
 .brand {
@@ -48,8 +48,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
   padding: 0;
   border-radius: var(--radius-squircle);
   background-color: var(--mono-subtle-bg);

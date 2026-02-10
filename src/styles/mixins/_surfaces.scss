@@ -57,8 +57,8 @@
 @mixin glass-panel {
   background-color: var(--surface-panel);
   border: 1px solid var(--surface-panel-border);
-  -webkit-backdrop-filter: blur(12px) saturate(1.3);
-  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow:
     0 1px 3px 0 var(--surface-shadow),
     inset 0 1px 0 0 var(--surface-highlight);
@@ -68,11 +68,10 @@
 // Heavier glass for sticky chrome (navbar, popovers, dropdowns).
 // Higher opacity + stronger blur for readability over content.
 @mixin glass-chrome {
-  $glassChromeBlur: 4px;
   background-color: var(--surface-chrome);
   border: 1px solid var(--surface-chrome-border);
-  -webkit-backdrop-filter: blur($glassChromeBlur);
-  backdrop-filter: blur($glassChromeBlur);
+  -webkit-backdrop-filter: blur(var(--glass-chrome-blur));
+  backdrop-filter: blur(var(--glass-chrome-blur));
   box-shadow:
     0 1px 2px -1px var(--surface-shadow),
     inset 0 1px 0 0 var(--surface-highlight);
@@ -81,11 +80,12 @@
 // ── Skeleton pulse ────────────────────────────────────
 // Short fade-in masks any container-query layout shift on first paint,
 // then a continuous opacity pulse. Compositing-only — zero layout/paint cost.
+// Timings use --skeleton-fade-in and --skeleton-pulse tokens from spacing.
 @mixin skeleton-pulse {
   background-color: var(--mono-bg);
   animation:
-    skeleton-fade-in 0.15s ease-out both,
-    skeleton-pulse 1.8s ease-in-out 0.15s infinite;
+    skeleton-fade-in var(--skeleton-fade-in) ease-out both,
+    skeleton-pulse var(--skeleton-pulse) ease-in-out var(--skeleton-fade-in) infinite;
 }
 
 @keyframes skeleton-fade-in {

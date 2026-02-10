@@ -14,26 +14,27 @@
 /* Horizontal gridlines */
 .gridLine {
   stroke: var(--mono-border-subtle);
-  stroke-width: 1;
-  opacity: 0.25;
+  stroke-width: var(--chart-stroke-thin);
+  opacity: 0.25; /* subtle guide — barely visible */
 }
 
 /* Day boundary separators */
 .dayBoundary {
   stroke: var(--mono-border-subtle);
-  stroke-width: 1;
+  stroke-width: var(--chart-stroke-thin);
   stroke-dasharray: 4 4;
-  opacity: 0.35;
+  opacity: 0.35; /* slightly stronger than gridlines to mark day breaks */
 }
 
 .dayLabel {
   @include type.typography(meta);
   fill: var(--mono-text-low-contrast);
   font-size: var(--text-xs);
-  opacity: 0.5;
+  opacity: 0.5; /* secondary label — visible but recedes behind data */
 }
 
-/* Bands — pointer-events: none so only the interaction overlay handles events */
+/* Bands — progressive opacity for rest → hover → selected states.
+   pointer-events: none so only the interaction overlay handles events */
 .band {
   opacity: 0.18;
   pointer-events: none;
@@ -50,19 +51,19 @@
 }
 
 .bandEdge {
-  stroke-width: 1.5;
+  stroke-width: var(--chart-stroke-medium);
   opacity: 0.4;
   pointer-events: none;
 }
 
 .bandEdgeHover {
-  stroke-width: 1.5;
+  stroke-width: var(--chart-stroke-medium);
   opacity: 0.6;
   pointer-events: none;
 }
 
 .bandEdgeSelected {
-  stroke-width: 1.5;
+  stroke-width: var(--chart-stroke-medium);
   opacity: 0.8;
   pointer-events: none;
 }
@@ -70,22 +71,22 @@
 /* Series line */
 .seriesLine {
   fill: none;
-  stroke-width: 2;
+  stroke-width: var(--chart-stroke-thick);
 }
 
 /* Min / Max markers */
 .minMarker {
   fill: var(--success-solid);
   stroke: var(--mono-app-bg);
-  stroke-width: 2;
-  opacity: 0.8;
+  stroke-width: var(--chart-stroke-thick);
+  opacity: 0.8; /* strong presence — key data points */
   pointer-events: none;
 }
 
 .maxMarker {
   fill: var(--error-solid);
   stroke: var(--mono-app-bg);
-  stroke-width: 2;
+  stroke-width: var(--chart-stroke-thick);
   opacity: 0.8;
   pointer-events: none;
 }
@@ -96,7 +97,7 @@
   fill: var(--mono-text-low-contrast);
   text-anchor: middle;
   text-transform: none;
-  opacity: 0.7;
+  opacity: 0.7; /* secondary to the marker dots themselves */
   pointer-events: none;
 }
 
@@ -111,26 +112,26 @@
 /* Selection overlay — pointer-events: none; interaction overlay handles all events */
 .dimOverlay {
   fill: var(--mono-app-bg);
-  opacity: 0.55;
+  opacity: 0.55; /* dims unselected region without hiding it */
   pointer-events: none;
 }
 
 .selectionFill {
   fill: var(--accent-bg);
-  opacity: 0.04;
+  opacity: 0.04; /* near-invisible tint inside selected range */
   pointer-events: none;
 }
 
 .selectionBoundary {
   stroke: var(--accent-border);
-  stroke-width: 1.5;
+  stroke-width: var(--chart-stroke-medium);
   pointer-events: none;
 }
 
 .selectionCap {
   fill: var(--accent-solid);
   stroke: var(--mono-app-bg);
-  stroke-width: 1;
+  stroke-width: var(--chart-stroke-thin);
   pointer-events: none;
 }
 
@@ -142,14 +143,14 @@
 /* Tooltip */
 .crosshair {
   stroke: var(--mono-text-low-contrast);
-  stroke-width: 1;
-  opacity: 0.25;
+  stroke-width: var(--chart-stroke-thin);
+  opacity: 0.25; /* matches gridline visibility */
 }
 
 .tooltipDot {
   fill: var(--accent-solid);
   stroke: var(--mono-app-bg);
-  stroke-width: 2;
+  stroke-width: var(--chart-stroke-thick);
 }
 
 .tooltip {
@@ -158,7 +159,7 @@
   border: 1px solid var(--mono-border) !important;
   border-radius: var(--radius-3) !important;
   padding: var(--tooltip-padding-y) var(--tooltip-padding-x) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 12px var(--surface-shadow-lg), 0 1px 3px var(--surface-shadow) !important;
   pointer-events: none;
   z-index: var(--z-chart-tooltip);
   max-width: min(20rem, calc(100cqw - var(--space-4)));
@@ -202,8 +203,8 @@
 
 .tooltipSwatch {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: var(--chart-swatch-size);
+  height: var(--chart-swatch-size);
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -245,11 +246,11 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 3px var(--space-3);
+  padding: var(--space-1) var(--space-3); /* 4px vertical — compact pill shape */
   background-color: var(--mono-bg);
   border: 1px solid var(--mono-border);
   border-radius: var(--radius-full);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--surface-shadow-lg);
   font-size: var(--text-xs);
   color: var(--mono-text);
   white-space: nowrap;
@@ -285,9 +286,9 @@
 .focusRing {
   fill: none;
   stroke: var(--accent-solid);
-  stroke-width: 2;
+  stroke-width: var(--chart-stroke-thick);
   pointer-events: none;
-  animation: focusPulse 1.5s ease-in-out infinite;
+  animation: focusPulse 1.5s ease-in-out infinite; /* gentle attention pulse for keyboard focus */
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -298,16 +299,16 @@
 /* Selection start boundary placed via Space key */
 .selectionStartLine {
   stroke: var(--accent-solid);
-  stroke-width: 1.5;
+  stroke-width: var(--chart-stroke-medium);
   stroke-dasharray: 4 3;
-  opacity: 0.6;
+  opacity: 0.6; /* matches band-edge hover emphasis */
   pointer-events: none;
 }
 
 .selectionStartDot {
   fill: var(--accent-solid);
   stroke: var(--mono-app-bg);
-  stroke-width: 2;
+  stroke-width: var(--chart-stroke-thick);
   pointer-events: none;
 }
 

@@ -1,0 +1,39 @@
+@use 'mixins/typography' as type;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 50vh; /* vertically centre in at least half the viewport */
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.heading {
+  @include type.typography(card-title);
+  color: var(--mono-text);
+  margin: 0;
+}
+
+.message {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  margin: 0;
+}
+
+.retryBtn {
+  min-height: var(--btn-height-sm);
+  padding-inline: var(--btn-px-sm);
+  font-size: var(--btn-font-sm);
+  border-radius: var(--radius-2);
+  border: 1px solid var(--mono-border);
+  background: var(--mono-subtle-bg);
+  color: var(--mono-text);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mono-bg-hover);
+  }
+}

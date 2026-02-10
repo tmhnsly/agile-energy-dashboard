@@ -149,7 +149,7 @@
   }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.4; /* dimmed enough to look inactive, visible enough to show placement */
     cursor: not-allowed;
     pointer-events: none;
   }

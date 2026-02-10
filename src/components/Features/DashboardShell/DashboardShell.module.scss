@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 200px;
+  min-height: var(--error-min-height-sm);
   @include type.typography(meta);
   color: var(--error-text-low-contrast);
 
@@ -16,7 +16,7 @@
   }
 
   @include cq.large {
-    min-height: 300px;
+    min-height: var(--error-min-height-lg);
   }
 }
 
@@ -35,7 +35,7 @@
   @include type.typography(meta);
 
   &:hover {
-    background: var(--mono-hover-bg);
+    background: var(--mono-bg-hover);
   }
 }
 

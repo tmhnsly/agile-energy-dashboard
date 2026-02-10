@@ -45,14 +45,14 @@
 
 .chartArea {
   overflow: visible;
-  height: 240px;
+  height: var(--chart-height-sm);
 
   @include cq.medium {
-    height: 300px;
+    height: var(--chart-height-md);
   }
 
   @include cq.large {
-    height: 380px;
+    height: var(--chart-height-lg);
   }
 }
 

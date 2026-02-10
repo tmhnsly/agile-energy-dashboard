@@ -5,7 +5,7 @@
   @include surface.glass-panel;
   border-radius: var(--radius-card);
   padding: var(--card-padding-compact);
-  min-height: 5rem;
+  min-height: var(--tile-min-height);
   container-type: inline-size;
   container-name: tile;
 
@@ -46,7 +46,8 @@
   }
 }
 
-/* Default skeleton fallback */
+/* Default skeleton fallback — slightly taller than tile min-height
+   to hint that real content will be larger */
 .skelFallback {
   height: 6rem;
   border-radius: var(--radius-inner, var(--radius-2));

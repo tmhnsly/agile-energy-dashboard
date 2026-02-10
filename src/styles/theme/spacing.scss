@@ -1,3 +1,5 @@
+@use 'mixins/breakpoints' as bp;
+
 :root {
   /* spacing scale */
   --space-0: 0rem;
@@ -19,9 +21,14 @@
   --space-24: 6rem;
 
   /* layout */
-  --content-max: 1440px;
+  --content-max: 90rem; /* 1440px — standard wide-screen cap */
   --gutter-x: var(--space-2);
   --section-gap: var(--space-12);
+  --navbar-height: 3.5rem;       /* 56px */
+  --avatar-size: var(--btn-height-sm); /* 44px — Apple HIG touch target */
+  --tile-min-height: var(--space-20); /* 5rem / 80px */
+  --error-min-height-sm: 200px;
+  --error-min-height-lg: 300px;
 
   /* layout helpers */
   --stack-gap: var(--space-6);
@@ -48,6 +55,22 @@
   /* chart */
   --chart-footer-gap: var(--space-3);
   --chart-legend-gap: var(--space-2);
+  --chart-height-sm: 240px;
+  --chart-height-md: 300px;
+  --chart-height-lg: 380px;
+  --chart-stroke-thin: 1;       /* gridlines, dividers, caps */
+  --chart-stroke-medium: 1.5;   /* band edges, selection edges */
+  --chart-stroke-thick: 2;      /* series lines, markers, focus ring */
+  --chart-swatch-size: 0.5rem;  /* 8px — tooltip colour swatches */
+
+  /* glass surfaces */
+  --glass-blur: 12px;
+  --glass-saturate: 1.3;
+  --glass-chrome-blur: 4px;
+
+  /* skeleton animation */
+  --skeleton-fade-in: 0.15s;  /* masks CQ layout shift on first paint */
+  --skeleton-pulse: 1.8s;     /* continuous opacity pulse cycle */
 
   /* buttons — Apple HIG 44pt minimum touch target */
   --btn-height-sm: 2.75rem;  /* 44px — minimum touch target */
@@ -59,12 +82,9 @@
   --btn-font-sm: var(--text-sm);
   --btn-font-md: var(--text-md);
   --btn-font-lg: var(--text-lg);
-
-  /* temporary aliases — used by non-target components */
-  --gutter: var(--space-5);
 }
 
-@media (min-width: 48rem) {
+@include bp.tablet {
   :root {
     --gutter-x: var(--space-8);
     --section-gap: var(--space-16);

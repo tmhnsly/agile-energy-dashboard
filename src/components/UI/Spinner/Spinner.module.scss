@@ -6,7 +6,7 @@
 }
 
 .icon {
-  animation: spin 0.75s linear infinite;
+  animation: spin 0.75s linear infinite; /* fast enough to feel responsive, slow enough to avoid jank */
 
   .spinner[data-size="small"] & {
     font-size: var(--text-base);
