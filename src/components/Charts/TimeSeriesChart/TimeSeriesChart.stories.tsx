@@ -21,13 +21,34 @@ import { mockSeriesA, mockBands, mockRange } from './mockData';
  * | `onRangeChange` | Called with the new `TimeRange` when the user finishes a drag or clicks a band. |
  * | `onRangePreview` | Called on **every frame** during a drag with the in-progress range (or `null` on drag end). Use this to show live stats while dragging. |
  *
- * ### Interactions
+ * ### Pointer interactions
  *
  * - **Drag** on empty space to draw a new selection.
  * - **Drag handles** to resize an existing selection.
  * - **Drag inside** the selection to pan it (duration stays locked).
  * - **Click a band** to snap the selection to that band's range.
  * - **Hover** to see a crosshair tooltip with values and band info.
+ *
+ * ### Keyboard navigation
+ *
+ * Tab to the chart to focus it — a pulsing ring appears on the first
+ * data point and a tooltip shows its value. Then use the following keys:
+ *
+ * | Key | Action |
+ * |-----|--------|
+ * | `ArrowRight` | Move focus to next data point |
+ * | `ArrowLeft` | Move focus to previous data point |
+ * | `Space` | Place range boundary — first press sets the start, second press sets the end and commits the selection |
+ * | `Shift + ArrowRight` | Extend/start selection rightward (power-user shortcut) |
+ * | `Shift + ArrowLeft` | Extend/start selection leftward (power-user shortcut) |
+ * | `Home` | Jump to first data point |
+ * | `End` | Jump to last data point |
+ * | `Escape` | Clear selection and pending boundary, reset to full range |
+ * | `Enter` | Confirm current Shift+Arrow selection |
+ *
+ * Keyboard and pointer input use a **last-input-wins** model — moving
+ * the pointer dismisses the keyboard focus indicator and vice-versa.
+ * Both write to the same `activeRange` via `onRangeChange`.
  *
  * ### Sizing
  *
@@ -102,6 +123,10 @@ function useRangeStats(range: TimeRange) {
  * Fully interactive demo — drag to select a range, click bands, hover for tooltip.
  * The status bar above the chart shows live min/max values and the current drag state,
  * demonstrating how `onRangePreview` can drive external UI during a drag.
+ *
+ * **Keyboard:** Tab to the chart to focus it. Use Arrow keys to navigate
+ * data points. Press Space to set a range start, navigate, then Space
+ * again to set the range end. Press Escape to reset.
  */
 export const Interactive: Story = {
   args: {
@@ -240,4 +265,102 @@ export const WithSelection: Story = {
       </div>
     );
   },
+};
+
+/**
+ * Demonstrates keyboard navigation. Press **Tab** to focus the chart —
+ * a pulsing focus ring and tooltip appear on the first data point.
+ *
+ * ### Selecting a range with Space
+ *
+ * 1. Navigate to a data point with Arrow keys
+ * 2. Press **Space** to place the range start (a dashed line appears)
+ * 3. Navigate to the end point
+ * 4. Press **Space** again to commit the selection
+ *
+ * ### All keys
+ *
+ * | Key | Action |
+ * |-----|--------|
+ * | `ArrowRight` / `ArrowLeft` | Move to next / previous data point |
+ * | `Space` | Place range start, then range end |
+ * | `Shift + Arrow` | Extend or start a selection (power-user shortcut) |
+ * | `Home` / `End` | Jump to first / last data point |
+ * | `Escape` | Clear selection and pending boundary |
+ * | `Enter` | Confirm current Shift+Arrow selection |
+ *
+ * Moving the pointer back over the chart dismisses keyboard mode
+ * (last-input-wins).
+ */
+export const KeyboardNavigation: Story = {
+  args: {
+    series: [mockSeriesA],
+    bands: mockBands,
+    fullRange: mockRange,
+    activeRange: mockRange,
+    onRangeChange: () => {},
+    width: 800,
+    height: CHART_HEIGHT,
+  },
+  render: function KeyboardNavigation() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const width = useContainerWidth(containerRef);
+    const [activeRange, setActiveRange] = useState<TimeRange>(mockRange);
+
+    const isFullRange =
+      activeRange.fromTs === mockRange.fromTs &&
+      activeRange.toTs === mockRange.toTs;
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 16,
+            fontSize: 'var(--text-sm)',
+            color: 'var(--mono-text)',
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          <span>
+            <kbd style={kbdStyle}>Tab</kbd> to focus
+            {' '}<kbd style={kbdStyle}>&larr;</kbd> <kbd style={kbdStyle}>&rarr;</kbd> navigate
+            {' '}<kbd style={kbdStyle}>Space</kbd> set start/end
+            {' '}<kbd style={kbdStyle}>Esc</kbd> reset
+          </span>
+          <span style={{ color: 'var(--mono-text-low-contrast)' }}>
+            {isFullRange
+              ? 'Full range — navigate then press Space to start selecting'
+              : `Selected: ${formatTime(activeRange.fromTs)} – ${formatTime(activeRange.toTs)} (${formatDuration(activeRange.fromTs, activeRange.toTs)})`}
+          </span>
+        </div>
+        <div ref={containerRef} style={{ width: '100%' }}>
+          {width > 0 && (
+            <TimeSeriesChart
+              series={[mockSeriesA]}
+              bands={mockBands}
+              fullRange={mockRange}
+              activeRange={activeRange}
+              onRangeChange={setActiveRange}
+              width={width}
+              height={CHART_HEIGHT}
+            />
+          )}
+        </div>
+      </div>
+    );
+  },
+};
+
+const kbdStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '1px 5px',
+  fontSize: 'var(--text-xs)',
+  fontFamily: 'inherit',
+  lineHeight: 1.4,
+  color: 'var(--mono-text)',
+  background: 'var(--mono-subtle-bg)',
+  border: '1px solid var(--mono-border)',
+  borderRadius: 'var(--radius-sm)',
 };

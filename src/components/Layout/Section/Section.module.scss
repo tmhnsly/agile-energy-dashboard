@@ -5,7 +5,7 @@
   @include container.fullBleed;
 
   &[data-variant='surface'] {
-    background-color: var(--mono-subtle-bg);
+    background-color: transparent;
   }
 
   &[data-variant='contrast'] {

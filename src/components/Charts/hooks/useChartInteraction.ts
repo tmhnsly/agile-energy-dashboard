@@ -1,9 +1,6 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { localPoint } from '@visx/event';
 import { useTooltip } from '@visx/tooltip';
-import type { TimeRange } from '@/types/energy';
-import type { ChartSeries, ChartBand, ChartDataPoint, TooltipData } from '@/types/chart';
-import { bisectNearest } from '@/utils/binarySearch';
 
 /*
  * Drag state machine
@@ -24,8 +21,6 @@ import { bisectNearest } from '@/utils/binarySearch';
 const MIN_SEL_PX = 10;
 /** Movement threshold (px) to distinguish a click from a drag. */
 const CLICK_THRESHOLD_PX = 3;
-/** Minimum selection duration (ms) — prevents zero-width selections. */
-const MIN_DOMAIN_MS = 60_000;
 /** Viewport width below which we use wider touch targets for selection handles. */
 const MOBILE_WIDTH_THRESHOLD = 480;
 /** Hit-test width (px) for selection edge handles on mobile. */
@@ -39,154 +34,188 @@ function clamp(val: number, min: number, max: number) {
 
 /* ── Types ─────────────────────────────────────────── */
 
+/** A numeric range with `from` and `to` endpoints. */
+export interface ChartRange {
+  from: number;
+  to: number;
+}
+
+/** A clickable/hoverable band region on the chart. */
+export interface ChartBandHitArea {
+  id: string;
+  from: number;
+  to: number;
+}
+
 interface DragState {
   type: 'left' | 'right' | 'region' | 'new';
   originX: number;
-  originTs: number;
-  startFromTs: number;
-  startToTs: number;
+  originValue: number;
+  startFrom: number;
+  startTo: number;
 }
 
-export type { TooltipData };
-
-export interface UseChartInteractionOptions {
+export interface UseChartInteractionOptions<TTooltip> {
   svgRef: React.RefObject<SVGSVGElement | null>;
   overlayRef: React.RefObject<SVGRectElement | null>;
   width: number;
   marginLeft: number;
   marginTop: number;
-  fullRange: TimeRange;
-  activeRange: TimeRange;
-  xScale: { invert: (x: number) => Date; (d: Date): number };
-  yScale: (v: number) => number;
-  series: ChartSeries[];
-  primaryData: ChartDataPoint[];
-  visibleBands: ChartBand[];
-  onRangeChange: (range: TimeRange) => void;
-  onRangePreview?: (range: TimeRange | null) => void;
+  fullRange: ChartRange;
+  activeRange: ChartRange;
+  /** Convert a chart-local pixel x to a domain value. */
+  pixelToValue: (px: number) => number;
+  /** Convert a domain value to a chart-local pixel x. */
+  valueToPixel: (value: number) => number;
+  /**
+   * Build tooltip data for the given domain value.
+   * Return `{ data, left, top }` or `null` to suppress the tooltip.
+   */
+  buildTooltipData?: (domainValue: number) => { data: TTooltip; left: number; top: number } | null;
+  /** Clickable band regions (optional). */
+  bands?: ChartBandHitArea[];
+  /** Minimum selection span in domain units. Default: 0 (pixel check only). */
+  minSelectionSpan?: number;
+  onRangeChange: (range: ChartRange) => void;
+  onRangePreview?: (range: ChartRange | null) => void;
+  /** Called on any pointer movement — lets the parent dismiss keyboard mode. */
+  onPointerActivity?: () => void;
 }
 
 /* ── Pure helpers ──────────────────────────────────── */
 
 /**
- * Given the current drag state and the pointer's current timestamp,
- * returns the new `{ fromTs, toTs }` for the selection.  Pure function
+ * Given the current drag state and the pointer's current domain value,
+ * returns the new `{ from, to }` for the selection. Pure function
  * — no side-effects.
  */
 function computeDragRange(
   drag: DragState,
-  currentTs: number,
-  fullRange: TimeRange,
-): { fromTs: number; toTs: number } {
-  const dTs = currentTs - drag.originTs;
+  currentValue: number,
+  fullRange: ChartRange,
+  minSpan: number,
+): ChartRange {
+  const delta = currentValue - drag.originValue;
 
-  let fromTs = drag.startFromTs;
-  let toTs = drag.startToTs;
+  let from = drag.startFrom;
+  let to = drag.startTo;
 
   switch (drag.type) {
     case 'left':
-      fromTs = clamp(
-        drag.startFromTs + dTs,
-        fullRange.fromTs,
-        drag.startToTs - MIN_DOMAIN_MS,
+      from = clamp(
+        drag.startFrom + delta,
+        fullRange.from,
+        drag.startTo - minSpan,
       );
       break;
     case 'right':
-      toTs = clamp(
-        drag.startToTs + dTs,
-        drag.startFromTs + MIN_DOMAIN_MS,
-        fullRange.toTs,
+      to = clamp(
+        drag.startTo + delta,
+        drag.startFrom + minSpan,
+        fullRange.to,
       );
       break;
     case 'region': {
-      const dur = drag.startToTs - drag.startFromTs;
-      fromTs = drag.startFromTs + dTs;
-      toTs = drag.startToTs + dTs;
-      if (fromTs < fullRange.fromTs) {
-        fromTs = fullRange.fromTs;
-        toTs = fullRange.fromTs + dur;
+      const dur = drag.startTo - drag.startFrom;
+      from = drag.startFrom + delta;
+      to = drag.startTo + delta;
+      if (from < fullRange.from) {
+        from = fullRange.from;
+        to = fullRange.from + dur;
       }
-      if (toTs > fullRange.toTs) {
-        toTs = fullRange.toTs;
-        fromTs = fullRange.toTs - dur;
+      if (to > fullRange.to) {
+        to = fullRange.to;
+        from = fullRange.to - dur;
       }
       break;
     }
     case 'new': {
-      fromTs = clamp(
-        Math.min(currentTs, drag.originTs),
-        fullRange.fromTs,
-        fullRange.toTs,
+      from = clamp(
+        Math.min(currentValue, drag.originValue),
+        fullRange.from,
+        fullRange.to,
       );
-      toTs = clamp(
-        Math.max(currentTs, drag.originTs),
-        fullRange.fromTs,
-        fullRange.toTs,
+      to = clamp(
+        Math.max(currentValue, drag.originValue),
+        fullRange.from,
+        fullRange.to,
       );
       break;
     }
   }
 
-  return { fromTs, toTs };
+  return { from, to };
 }
 
 /**
  * Handles a click on a band: finds the narrowest band containing the
- * click timestamp and selects it.  Returns the band's range, or `null`
+ * click value and selects it. Returns the band's range, or `null`
  * if no band was hit.
  */
 function handleBandClick(
-  clickTs: number,
-  visibleBands: ChartBand[],
-): TimeRange | null {
-  const hitBands = visibleBands.filter(
-    (b) => clickTs >= b.startTs && clickTs <= b.endTs,
+  clickValue: number,
+  bands: ChartBandHitArea[],
+): ChartRange | null {
+  const hitBands = bands.filter(
+    (b) => clickValue >= b.from && clickValue <= b.to,
   );
   if (hitBands.length === 0) return null;
   const band = hitBands.reduce((a, b) =>
-    a.endTs - a.startTs < b.endTs - b.startTs ? a : b,
+    a.to - a.from < b.to - b.from ? a : b,
   );
-  return { fromTs: band.startTs, toTs: band.endTs };
+  return { from: band.from, to: band.to };
 }
 
 /* ── Hook ──────────────────────────────────────────── */
 
-export function useChartInteraction({
+export function useChartInteraction<TTooltip>({
   svgRef,
   overlayRef,
   width,
   marginLeft,
-  marginTop,
   fullRange,
   activeRange,
-  xScale,
-  yScale,
-  series,
-  primaryData,
-  visibleBands,
+  pixelToValue,
+  valueToPixel,
+  buildTooltipData,
+  bands = [],
+  minSelectionSpan = 0,
   onRangeChange,
   onRangePreview,
-}: UseChartInteractionOptions) {
+  onPointerActivity,
+}: UseChartInteractionOptions<TTooltip>) {
   const dragRef = useRef<DragState | null>(null);
   const rafId = useRef(0);
-  const pendingDragRange = useRef<TimeRange | null>(null);
-  const dragRangeRef = useRef<TimeRange | null>(null);
+  const pendingDragRange = useRef<ChartRange | null>(null);
+  const dragRangeRef = useRef<ChartRange | null>(null);
   const hoverRafId = useRef(0);
   const pendingHoverX = useRef<number | null>(null);
 
   const onRangePreviewRef = useRef(onRangePreview);
   useEffect(() => { onRangePreviewRef.current = onRangePreview; }, [onRangePreview]);
 
-  const [localDragRange, setLocalDragRange] = useState<TimeRange | null>(null);
+  const onPointerActivityRef = useRef(onPointerActivity);
+  useEffect(() => { onPointerActivityRef.current = onPointerActivity; }, [onPointerActivity]);
+
+  const pixelToValueRef = useRef(pixelToValue);
+  useEffect(() => { pixelToValueRef.current = pixelToValue; }, [pixelToValue]);
+
+  const valueToPixelRef = useRef(valueToPixel);
+  useEffect(() => { valueToPixelRef.current = valueToPixel; }, [valueToPixel]);
+
+  const buildTooltipDataRef = useRef(buildTooltipData);
+  useEffect(() => { buildTooltipDataRef.current = buildTooltipData; }, [buildTooltipData]);
+
+  const [localDragRange, setLocalDragRange] = useState<ChartRange | null>(null);
   const [hoveredBandId, setHoveredBandId] = useState<string | null>(null);
 
   /* ---- derived display values ---- */
   const displayRange = localDragRange ?? activeRange;
-  const displaySelLeftX = xScale(new Date(displayRange.fromTs));
-  const displaySelRightX = xScale(new Date(displayRange.toTs));
+  const displaySelLeftX = valueToPixel(displayRange.from);
+  const displaySelRightX = valueToPixel(displayRange.to);
   const isFullSelection =
-    displayRange.fromTs <= fullRange.fromTs &&
-    displayRange.toTs >= fullRange.toTs;
+    displayRange.from <= fullRange.from &&
+    displayRange.to >= fullRange.to;
 
   const handleHitWidth = width < MOBILE_WIDTH_THRESHOLD ? HANDLE_HIT_WIDTH_MOBILE : HANDLE_HIT_WIDTH_DESKTOP;
 
@@ -199,7 +228,7 @@ export function useChartInteraction({
     }
   }, [overlayRef]);
 
-  const tooltip = useTooltip<TooltipData>();
+  const tooltip = useTooltip<TTooltip>();
 
   /* ---- Cleanup RAF on unmount ---- */
   useEffect(() => {
@@ -236,47 +265,31 @@ export function useChartInteraction({
     [displaySelLeftX, displaySelRightX, isFullSelection, handleHitWidth],
   );
 
-  const showTooltipForX = useCallback(
+  const showTooltipAtPixel = useCallback(
     (x: number) => {
-      if (primaryData.length === 0) return;
-      const ts = xScale.invert(x).getTime();
-      const idx = bisectNearest(primaryData, ts);
-      if (idx < 0) return;
-      const closest = primaryData[idx];
-
-      const values = series.map((s) => {
-        const sIdx = bisectNearest(s.data, closest.ts);
-        const point = sIdx >= 0 ? s.data[sIdx] : null;
-        return {
-          seriesId: s.id,
-          label: s.label,
-          value: point?.value ?? 0,
-          tone: s.tone,
-        };
-      });
-
-      const inBand =
-        visibleBands.find(
-          (b) => closest.ts >= b.startTs && closest.ts <= b.endTs,
-        ) ?? null;
-
-      tooltip.showTooltip({
-        tooltipData: { ts: closest.ts, values, inBand },
-        tooltipLeft: xScale(new Date(closest.ts)) + marginLeft,
-        tooltipTop: yScale(closest.value) + marginTop,
-      });
+      const builder = buildTooltipDataRef.current;
+      if (!builder) return;
+      const value = pixelToValueRef.current(x);
+      const result = builder(value);
+      if (result) {
+        tooltip.showTooltip({
+          tooltipData: result.data,
+          tooltipLeft: result.left,
+          tooltipTop: result.top,
+        });
+      }
     },
-    [primaryData, series, xScale, yScale, visibleBands, tooltip, marginLeft, marginTop],
+    [tooltip],
   );
 
-  const showTooltipForXRef = useRef(showTooltipForX);
-  useEffect(() => { showTooltipForXRef.current = showTooltipForX; }, [showTooltipForX]);
+  const showTooltipAtPixelRef = useRef(showTooltipAtPixel);
+  useEffect(() => { showTooltipAtPixelRef.current = showTooltipAtPixel; }, [showTooltipAtPixel]);
 
   /* ---- hover handler (no drag active) ---- */
 
   /**
    * Updates tooltip, cursor, and hovered-band state when the pointer
-   * moves without an active drag.  Tooltip updates are batched via RAF.
+   * moves without an active drag. Tooltip updates are batched via RAF.
    */
   const handleHover = useCallback(
     (x: number) => {
@@ -285,7 +298,7 @@ export function useChartInteraction({
         hoverRafId.current = requestAnimationFrame(() => {
           hoverRafId.current = 0;
           if (pendingHoverX.current !== null) {
-            showTooltipForXRef.current(pendingHoverX.current);
+            showTooltipAtPixelRef.current(pendingHoverX.current);
             pendingHoverX.current = null;
           }
         });
@@ -295,9 +308,9 @@ export function useChartInteraction({
 
       let bandId: string | null = null;
       if (hoverType === 'new') {
-        const ts = xScale.invert(x).getTime();
-        const band = visibleBands.find(
-          (b) => ts >= b.startTs && ts <= b.endTs,
+        const value = pixelToValueRef.current(x);
+        const band = bands.find(
+          (b) => value >= b.from && value <= b.to,
         );
         bandId = band?.id ?? null;
       }
@@ -313,7 +326,7 @@ export function useChartInteraction({
               : 'crosshair',
       );
     },
-    [getDragType, updateCursor, xScale, visibleBands],
+    [getDragType, updateCursor, bands],
   );
 
   /* ---- pointer event handlers ---- */
@@ -322,7 +335,7 @@ export function useChartInteraction({
     (e: React.PointerEvent<SVGRectElement>) => {
       const x = getChartX(e);
       const type = getDragType(x);
-      const ts = xScale.invert(x).getTime();
+      const value = pixelToValueRef.current(x);
 
       e.currentTarget.setPointerCapture(e.pointerId);
       e.preventDefault();
@@ -330,19 +343,19 @@ export function useChartInteraction({
       dragRef.current = {
         type,
         originX: x,
-        originTs: ts,
-        startFromTs: activeRange.fromTs,
-        startToTs: activeRange.toTs,
+        originValue: value,
+        startFrom: activeRange.from,
+        startTo: activeRange.to,
       };
 
       if (type !== 'new') {
         dragRangeRef.current = {
-          fromTs: activeRange.fromTs,
-          toTs: activeRange.toTs,
+          from: activeRange.from,
+          to: activeRange.to,
         };
         setLocalDragRange({
-          fromTs: activeRange.fromTs,
-          toTs: activeRange.toTs,
+          from: activeRange.from,
+          to: activeRange.to,
         });
       }
 
@@ -356,11 +369,12 @@ export function useChartInteraction({
       tooltip.hideTooltip();
       setHoveredBandId(null);
     },
-    [getChartX, getDragType, xScale, activeRange, tooltip, updateCursor],
+    [getChartX, getDragType, activeRange, tooltip, updateCursor],
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<SVGRectElement>) => {
+      onPointerActivityRef.current?.();
       const x = getChartX(e);
       const drag = dragRef.current;
 
@@ -370,13 +384,13 @@ export function useChartInteraction({
       }
 
       /* ---- active drag ---- */
-      const currentTs = xScale.invert(x).getTime();
-      const { fromTs, toTs } = computeDragRange(drag, currentTs, fullRange);
+      const currentValue = pixelToValueRef.current(x);
+      const { from, to } = computeDragRange(drag, currentValue, fullRange, minSelectionSpan);
 
-      const leftPx = xScale(new Date(fromTs));
-      const rightPx = xScale(new Date(toTs));
+      const leftPx = valueToPixelRef.current(from);
+      const rightPx = valueToPixelRef.current(to);
       if (rightPx - leftPx >= MIN_SEL_PX) {
-        const newRange = { fromTs, toTs };
+        const newRange: ChartRange = { from, to };
         dragRangeRef.current = newRange;
         pendingDragRange.current = newRange;
         if (!rafId.current) {
@@ -390,7 +404,7 @@ export function useChartInteraction({
         }
       }
     },
-    [getChartX, handleHover, xScale, fullRange],
+    [getChartX, handleHover, fullRange, minSelectionSpan],
   );
 
   const handlePointerUp = useCallback(
@@ -410,17 +424,17 @@ export function useChartInteraction({
 
       if (Math.abs(x - drag.originX) < CLICK_THRESHOLD_PX) {
         if (drag.type === 'new') {
-          const clickTs = xScale.invert(x).getTime();
-          const bandRange = handleBandClick(clickTs, visibleBands);
+          const clickValue = pixelToValueRef.current(x);
+          const bandRange = handleBandClick(clickValue, bands);
           if (bandRange) onRangeChange(bandRange);
         }
       } else {
         const finalRange = dragRangeRef.current;
         if (finalRange) {
-          const clampedFrom = clamp(finalRange.fromTs, fullRange.fromTs, fullRange.toTs);
-          const clampedTo = clamp(finalRange.toTs, fullRange.fromTs, fullRange.toTs);
+          const clampedFrom = clamp(finalRange.from, fullRange.from, fullRange.to);
+          const clampedTo = clamp(finalRange.to, fullRange.from, fullRange.to);
           if (clampedTo > clampedFrom) {
-            onRangeChange({ fromTs: clampedFrom, toTs: clampedTo });
+            onRangeChange({ from: clampedFrom, to: clampedTo });
           }
         }
       }
@@ -430,7 +444,7 @@ export function useChartInteraction({
       pendingDragRange.current = null;
       onRangePreviewRef.current?.(null);
     },
-    [getChartX, xScale, visibleBands, onRangeChange, fullRange, updateCursor],
+    [getChartX, bands, onRangeChange, fullRange, updateCursor],
   );
 
   const handlePointerCancel = useCallback(

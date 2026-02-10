@@ -249,6 +249,54 @@
   font-weight: var(--weight-regular);
 }
 
+/* Keyboard focus indicator — pulsing accent ring */
+@keyframes focusPulse {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--accent-solid);
+  stroke-width: 2;
+  pointer-events: none;
+  animation: focusPulse 1.5s ease-in-out infinite;
+}
+
+/* Selection start boundary placed via Space key */
+.selectionStartLine {
+  stroke: var(--accent-solid);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.selectionStartDot {
+  fill: var(--accent-solid);
+  stroke: var(--mono-app-bg);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+/* Screen-reader-only — visually hidden, accessible to assistive tech */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Interaction overlay — cursor via data-cursor attribute */
 .interactionOverlay {
   cursor: crosshair;
@@ -267,5 +315,10 @@
 
   &[data-cursor="pointer"] {
     cursor: pointer;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: -2px;
   }
 }

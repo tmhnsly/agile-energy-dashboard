@@ -16,9 +16,14 @@ import {
 } from '@/utils/format';
 import { BandsLayer } from './BandsLayer';
 import { SelectionOverlay } from './SelectionOverlay';
+import { FocusIndicator } from './FocusIndicator';
 import { MinMaxMarkers } from './MinMaxMarkers';
 import { TooltipCrosshair, TooltipContent } from './TooltipLayer';
-import { useChartInteraction } from './useChartInteraction';
+import type { TooltipData } from '@/types/chart';
+import { bisectNearest } from '@/utils/binarySearch';
+import { useChartInteraction } from '../hooks/useChartInteraction';
+import { useChartKeyboardNav } from '../hooks/useChartKeyboardNav';
+import type { ChartRange } from '../hooks/useChartInteraction';
 import { useChartScales } from './useChartScales';
 import { useMinMaxStats } from './useMinMaxStats';
 import { useDayBoundaries } from './useDayBoundaries';
@@ -44,6 +49,9 @@ const PILL_EDGE_PAD = 80;
 /** Vertical offset (px) of the drag pill from the top of the chart area. */
 const PILL_TOP_OFFSET = 8;
 
+/** Minimum selection duration (ms) — prevents zero-width selections. */
+const MIN_SELECTION_MS = 60_000;
+
 export type { ChartMargin };
 
 function clamp(val: number, min: number, max: number) {
@@ -56,6 +64,10 @@ function snapToHalfHour(ts: number): number {
 
 function defaultFormatYTick(v: number): string {
   return String(v);
+}
+
+function defaultFormatTooltipValue(v: number): string {
+  return v.toFixed(1);
 }
 
 const AXIS_BOTTOM_TICK_LABEL_PROPS = {
@@ -71,6 +83,8 @@ const AXIS_LEFT_TICK_LABEL_PROPS = {
   dx: '-0.25em',
   dy: '0.33em',
 };
+
+const EMPTY_BANDS: ChartBand[] = [];
 
 /** Maps series tone tokens to CSS custom-property stroke colours. */
 const TONE_STROKE: Record<string, string> = {
@@ -114,7 +128,7 @@ export interface TimeSeriesChartProps {
 
 export const TimeSeriesChart = ({
   series,
-  bands = [],
+  bands,
   fullRange,
   activeRange,
   onRangeChange,
@@ -130,6 +144,9 @@ export const TimeSeriesChart = ({
 }: TimeSeriesChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const overlayRef = useRef<SVGRectElement>(null);
+  const pointerFocusingRef = useRef(false);
+
+  const stableBands = bands ?? EMPTY_BANDS;
 
   /* ---- formatters (stable refs to avoid re-render cascades) ---- */
   const fmtYTickRef = useRef(formatYTickProp);
@@ -139,7 +156,12 @@ export const TimeSeriesChart = ({
     [],
   );
   const fmtXTick = formatXTickProp ?? formatTime;
-  const fmtTooltipValue = formatTooltipValueProp ?? ((v: number) => v.toFixed(1));
+  const fmtTooltipValueRef = useRef(formatTooltipValueProp);
+  useEffect(() => { fmtTooltipValueRef.current = formatTooltipValueProp; }, [formatTooltipValueProp]);
+  const fmtTooltipValue = useCallback(
+    (v: number) => (fmtTooltipValueRef.current ?? defaultFormatTooltipValue)(v),
+    [],
+  );
 
   /* ---- primary data (first series) ---- */
   const primaryData = useMemo(() => series[0]?.data ?? [], [series]);
@@ -159,10 +181,10 @@ export const TimeSeriesChart = ({
 
   const visibleBands = useMemo(
     () =>
-      bands.filter(
+      stableBands.filter(
         (b) => b.endTs >= fullRange.fromTs && b.startTs <= fullRange.toTs,
       ),
-    [bands, fullRange],
+    [stableBands, fullRange],
   );
 
   const selectedBandId = useMemo(() => {
@@ -174,10 +196,114 @@ export const TimeSeriesChart = ({
 
   const dayBoundaries = useDayBoundaries(fullRange);
 
+  /* ---- keyboard hook ---- */
+
+  const {
+    focusedIndex,
+    isKeyboardActive,
+    selectionStart,
+    announcement,
+    dismissKeyboard,
+    activateKeyboard,
+    handleKeyDown,
+  } = useChartKeyboardNav({
+    dataLength: primaryData.length,
+    onSelect: useCallback(
+      (fromIdx: number, toIdx: number) => {
+        onRangeChange({ fromTs: primaryData[fromIdx].ts, toTs: primaryData[toIdx].ts });
+      },
+      [primaryData, onRangeChange],
+    ),
+    onReset: useCallback(
+      () => onRangeChange(fullRange),
+      [onRangeChange, fullRange],
+    ),
+    formatPoint: useCallback(
+      (idx: number) => {
+        const p = primaryData[idx];
+        return p ? `${formatTime(p.ts)}, ${fmtTooltipValue(p.value)}` : '';
+      },
+      [primaryData, fmtTooltipValue],
+    ),
+    formatSelection: useCallback(
+      (fromIdx: number, toIdx: number) =>
+        `Selected ${formatTime(primaryData[fromIdx]?.ts ?? 0)} to ${formatTime(primaryData[toIdx]?.ts ?? 0)}`,
+      [primaryData],
+    ),
+  });
+
+  /* ---- interaction hook adapters ---- */
+
+  const chartFullRange = useMemo<ChartRange>(
+    () => ({ from: fullRange.fromTs, to: fullRange.toTs }),
+    [fullRange],
+  );
+  const chartActiveRange = useMemo<ChartRange>(
+    () => ({ from: activeRange.fromTs, to: activeRange.toTs }),
+    [activeRange],
+  );
+  const chartBands = useMemo(
+    () => visibleBands.map((b) => ({ id: b.id, from: b.startTs, to: b.endTs })),
+    [visibleBands],
+  );
+
+  const pixelToValue = useCallback(
+    (px: number) => xScale.invert(px).getTime(),
+    [xScale],
+  );
+  const valueToPixel = useCallback(
+    (v: number) => xScale(new Date(v)),
+    [xScale],
+  );
+
+  const buildTooltipData = useCallback(
+    (domainValue: number): { data: TooltipData; left: number; top: number } | null => {
+      if (primaryData.length === 0) return null;
+      const idx = bisectNearest(primaryData, domainValue);
+      if (idx < 0) return null;
+      const closest = primaryData[idx];
+
+      const values = series.map((s) => {
+        const sIdx = bisectNearest(s.data, closest.ts);
+        const point = sIdx >= 0 ? s.data[sIdx] : null;
+        return {
+          seriesId: s.id,
+          label: s.label,
+          value: point?.value ?? 0,
+          tone: s.tone,
+        };
+      });
+
+      const inBand =
+        visibleBands.find(
+          (b) => closest.ts >= b.startTs && closest.ts <= b.endTs,
+        ) ?? null;
+
+      return {
+        data: { ts: closest.ts, values, inBand },
+        left: xScale(new Date(closest.ts)) + margin.left,
+        top: yScale(closest.value) + margin.top,
+      };
+    },
+    [primaryData, series, visibleBands, xScale, yScale, margin.left, margin.top],
+  );
+
+  const handleRangeChange = useCallback(
+    (range: ChartRange) => onRangeChange({ fromTs: range.from, toTs: range.to }),
+    [onRangeChange],
+  );
+
+  const handleRangePreview = useCallback(
+    (range: ChartRange | null) => {
+      onRangePreview?.(range ? { fromTs: range.from, toTs: range.to } : null);
+    },
+    [onRangePreview],
+  );
+
   /* ---- interaction hook ---- */
 
   const {
-    displayRange,
+    displayRange: chartDisplayRange,
     displaySelLeftX,
     displaySelRightX,
     isFullSelection,
@@ -185,22 +311,29 @@ export const TimeSeriesChart = ({
     isDragging,
     tooltip,
     handlers,
-  } = useChartInteraction({
+  } = useChartInteraction<TooltipData>({
     svgRef,
     overlayRef,
     width,
     marginLeft: margin.left,
     marginTop: margin.top,
-    fullRange,
-    activeRange,
-    xScale,
-    yScale,
-    series,
-    primaryData,
-    visibleBands,
-    onRangeChange,
-    onRangePreview,
+    fullRange: chartFullRange,
+    activeRange: chartActiveRange,
+    pixelToValue,
+    valueToPixel,
+    buildTooltipData,
+    bands: chartBands,
+    minSelectionSpan: MIN_SELECTION_MS,
+    onRangeChange: handleRangeChange,
+    onRangePreview: handleRangePreview,
+    onPointerActivity: dismissKeyboard,
   });
+
+  /* Convert generic ChartRange back to TimeRange for downstream consumers */
+  const displayRange: TimeRange = useMemo(
+    () => ({ fromTs: chartDisplayRange.from, toTs: chartDisplayRange.to }),
+    [chartDisplayRange],
+  );
 
   /* ---- min/max stats (live during drag) ---- */
 
@@ -331,6 +464,34 @@ export const TimeSeriesChart = ({
             />
           )}
 
+          {/* 6b — Keyboard focus indicator */}
+          {primaryData.length > 0 && (
+            <FocusIndicator
+              x={xScale(new Date(primaryData[focusedIndex]?.ts ?? 0))}
+              y={yScale(primaryData[focusedIndex]?.value ?? 0)}
+              isVisible={isKeyboardActive}
+            />
+          )}
+
+          {/* 6c — Selection start boundary marker (Space to place) */}
+          {isKeyboardActive && selectionStart != null && primaryData[selectionStart] && (
+            <g>
+              <line
+                x1={xScale(new Date(primaryData[selectionStart].ts))}
+                y1={0}
+                x2={xScale(new Date(primaryData[selectionStart].ts))}
+                y2={innerHeight}
+                className={styles.selectionStartLine}
+              />
+              <circle
+                cx={xScale(new Date(primaryData[selectionStart].ts))}
+                cy={yScale(primaryData[selectionStart].value)}
+                r={4}
+                className={styles.selectionStartDot}
+              />
+            </g>
+          )}
+
           {/* 7 — Axes */}
           <AxisBottom
             top={innerHeight}
@@ -370,13 +531,33 @@ export const TimeSeriesChart = ({
             fill="transparent"
             className={styles.interactionOverlay}
             data-cursor="crosshair"
-            {...handlers}
+            tabIndex={0}
+            role="application"
+            aria-label="Time series chart. Use arrow keys to navigate data points. Press Space to set range start, then Space again to set range end. Escape to reset."
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              if (!pointerFocusingRef.current) {
+                activateKeyboard();
+              }
+              pointerFocusingRef.current = false;
+            }}
+            onBlur={() => {
+              dismissKeyboard();
+            }}
+            onPointerDown={(e) => {
+              pointerFocusingRef.current = true;
+              handlers.onPointerDown(e);
+            }}
+            onPointerMove={handlers.onPointerMove}
+            onPointerUp={handlers.onPointerUp}
+            onPointerCancel={handlers.onPointerCancel}
+            onPointerLeave={handlers.onPointerLeave}
           />
         </Group>
       </svg>
 
       {/* Tooltip (inline with bounds detection — flips at container edges) */}
-      {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && (
+      {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && !isKeyboardActive && (
         <TooltipWithBounds
           left={tooltip.tooltipLeft}
           top={tooltip.tooltipTop}
@@ -390,6 +571,39 @@ export const TimeSeriesChart = ({
           />
         </TooltipWithBounds>
       )}
+
+      {/* Keyboard-driven tooltip at focused data point */}
+      {isKeyboardActive && primaryData.length > 0 && primaryData[focusedIndex] && (
+        <TooltipWithBounds
+          left={xScale(new Date(primaryData[focusedIndex].ts)) + margin.left}
+          top={yScale(primaryData[focusedIndex].value) + margin.top}
+          className={styles.tooltip}
+          unstyled
+          applyPositionStyle
+        >
+          <TooltipContent
+            tooltipData={{
+              ts: primaryData[focusedIndex].ts,
+              values: series.map((s) => {
+                const point = s.data[focusedIndex];
+                return {
+                  seriesId: s.id,
+                  label: s.label,
+                  value: point?.value ?? 0,
+                  tone: s.tone,
+                };
+              }),
+              inBand: null,
+            }}
+            formatTooltipValue={fmtTooltipValue}
+          />
+        </TooltipWithBounds>
+      )}
+
+      {/* Screen-reader announcements */}
+      <div aria-live="polite" className={styles.srOnly}>
+        {announcement}
+      </div>
 
       {/* Drag range pill */}
       {isDragging && (

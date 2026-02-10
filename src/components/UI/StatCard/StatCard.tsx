@@ -24,6 +24,8 @@ export const StatCard = memo(function StatCard({
     <div
       className={`${styles.card} ${className ?? ''}`}
       data-tone={tone}
+      role="group"
+      aria-label={label}
     >
       <div className={styles.header}>
         {icon && <span className={styles.icon}>{icon}</span>}

@@ -29,8 +29,9 @@ export const PriceStatsBar = memo(function PriceStatsBar({
   const fmtTime = (ts: number) => formatStatTime(ts, range.fromTs, range.toTs);
 
   return (
-    <div className={styles.statsRow}>
+    <div className={styles.statsRow} role="region" aria-label="Price statistics">
       <StatCard
+        className={styles.stat}
         label="Low"
         value={stats.min ? formatPricePerKwh(stats.min.price) : '—'}
         subValue={stats.min ? fmtTime(stats.min.ts) : '\u00A0'}
@@ -38,6 +39,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         tone="positive"
       />
       <StatCard
+        className={styles.stat}
         label="High"
         value={stats.max ? formatPricePerKwh(stats.max.price) : '—'}
         subValue={stats.max ? fmtTime(stats.max.ts) : '\u00A0'}
@@ -45,6 +47,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         tone="negative"
       />
       <StatCard
+        className={styles.stat}
         label="Total"
         value={stats.total != null ? formatTotal(stats.total) : '—'}
         subValue={stats.count > 0 ? formatKwh(range) : '\u00A0'}
