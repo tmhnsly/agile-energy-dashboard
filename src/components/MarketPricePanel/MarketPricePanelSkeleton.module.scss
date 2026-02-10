@@ -1,53 +1,22 @@
-@use 'mixins/breakpoints' as breakpoint;
-@use 'mixins/layout' as layout;
+@use 'mixins/surfaces' as surface;
 
-/* Mirrors MarketPricePanel.module.scss layout exactly so dimensions match */
+/* Stat card skeleton — override tone palette to neutral mono,
+   invisible text reserves correct dimensions, card pulses. */
+.statSkel {
+  --_bg: var(--mono-bg);
+  --_border: var(--mono-border-subtle);
+  --_solid: transparent;
+  --_text: transparent;
+  --_text-lc: transparent;
+  @include surface.skeleton-pulse;
 
-.layout {
-  @include layout.stack(var(--card-gap));
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-
-  @include breakpoint.tablet {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--card-gap);
+  * {
+    visibility: hidden;
   }
-}
-
-.headerText {
-  @include layout.stack(var(--card-header-gap));
-}
-
-.stats {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.chart {
-  overflow: hidden;
-  height: 240px;
-
-  @include breakpoint.tablet {
-    height: 300px;
-  }
-
-  @include breakpoint.desktop {
-    height: 380px;
-  }
-}
-
-.footer {
-  @include layout.cluster(var(--chart-footer-gap));
-  justify-content: space-between;
 }
 
 .presets {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }

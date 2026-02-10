@@ -78,59 +78,15 @@
     inset 0 1px 0 0 var(--surface-highlight);
 }
 
-// ── Abstract gradient ─────────────────────────────────
-// Reusable multi-colour gradient background + slow pulse animation.
-// Use on skeleton blocks, loading overlays, or text (via background-clip).
-@mixin abstract-gradient {
-  background: linear-gradient(
-    -45deg,
-    var(--mono-subtle-bg) 0%,
-    var(--error-border) 15%,
-    var(--warning-border) 30%,
-    var(--success-border) 50%,
-    var(--info-border) 70%,
-    var(--error-border) 85%,
-    var(--mono-subtle-bg) 100%
-  );
-  background-size: 250% 250%;
-  animation: gradient-pulse 6s ease-in-out infinite;
+// ── Skeleton pulse ────────────────────────────────────
+// Simple opacity pulse between two mono shades.
+// Compositing-only animation — zero layout/paint cost.
+@mixin skeleton-pulse {
+  background-color: var(--mono-bg);
+  animation: skeleton-pulse 1.8s ease-in-out infinite;
 }
 
-// Clip the abstract gradient to text for colourful headings / labels.
-@mixin abstract-gradient-text {
-  @include abstract-gradient;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-// ── Loading shimmer overlay ───────────────────────────
-// Full-surface shimmer owned by the tile wrapper (edge-to-edge).
-// Activates on [data-loading="true"] via pseudo-element.
-@mixin shimmer-surface {
-  &[data-loading="true"] {
-    position: relative;
-    overflow: hidden;
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      border-radius: inherit;
-      @include abstract-gradient;
-    }
-  }
-}
-
-@keyframes gradient-pulse {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
 }

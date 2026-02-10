@@ -3,7 +3,6 @@
 
 .tile {
   @include surface.glass-panel;
-  @include surface.shimmer-surface;
   border-radius: var(--radius-lg);
   padding: var(--card-padding-compact);
   min-height: 5rem;
@@ -45,5 +44,5 @@
 .skelFallback {
   height: 6rem;
   border-radius: var(--radius-sm);
-  @include surface.abstract-gradient;
+  @include surface.skeleton-pulse;
 }
