@@ -1,23 +1,27 @@
 import { memo } from 'react';
-import type { ChartBand } from '@/types/chart';
+import type { TooltipData } from '@/types/chart';
 import { formatDateTime } from '@/utils/format';
 import styles from './TimeSeriesChart.module.scss';
 
+/** Radius of the dot drawn at the hovered data point. */
 const MARKER_RADIUS = 4;
 
-interface TooltipData {
-  ts: number;
-  values: Array<{ seriesId: string; label: string; value: number; tone?: string }>;
-  inBand: ChartBand | null;
-}
-
 interface TooltipCrosshairProps {
+  /** Tooltip data for the currently hovered data point. */
   tooltipData: TooltipData;
+  /** visx time scale mapping `Date` → pixel x. */
   xScale: (d: Date) => number;
+  /** visx linear scale mapping value → pixel y. */
   yScale: (v: number) => number;
+  /** Height of the chart plotting area in pixels. */
   innerHeight: number;
 }
 
+/**
+ * Renders the vertical crosshair line and data-point dot that follow
+ * the pointer.  Visible only when the tooltip is open and no drag is
+ * in progress.
+ */
 export const TooltipCrosshair = memo(function TooltipCrosshair({
   tooltipData,
   xScale,
@@ -44,10 +48,16 @@ export const TooltipCrosshair = memo(function TooltipCrosshair({
 });
 
 interface TooltipContentProps {
+  /** Tooltip data for the currently hovered data point. */
   tooltipData: TooltipData;
+  /** Formats a numeric value for display in the tooltip. */
   formatTooltipValue: (v: number) => string;
 }
 
+/**
+ * Renders the tooltip popup content: timestamp, series values, and an
+ * optional band badge.  Displayed inside a visx `TooltipInPortal`.
+ */
 export const TooltipContent = memo(function TooltipContent({
   tooltipData,
   formatTooltipValue,

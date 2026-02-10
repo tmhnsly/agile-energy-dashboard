@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useMarketData } from '@/hooks/useMarketData';
-import { BentoTile } from '@/components/Layout';
-import { MarketPricePanel } from './MarketPricePanel';
-import { MarketPricePanelSkeleton } from './MarketPricePanelSkeleton';
-import styles from './MarketPricePanel.module.scss';
+import { useMarketData } from "@/hooks/useMarketData";
+import { BentoTile } from "@/components/Layout";
+import { MarketPricePanel } from "./MarketPricePanel";
+import { MarketPriceTileSkeleton } from "./MarketPriceTileSkeleton";
+import styles from "./MarketPriceTile.module.scss";
 
 /**
  * Tile-level wrapper — single owner of loading / error / ready state.
@@ -13,19 +13,19 @@ import styles from './MarketPricePanel.module.scss';
  */
 export const MarketPriceTile = () => {
   const marketData = useMarketData();
-  const isLoading = marketData.status === 'loading';
+  const isLoading = marketData.status === "loading";
 
   return (
     <BentoTile
       variant="wide"
       loading={isLoading}
-      skeleton={<MarketPricePanelSkeleton />}
+      skeleton={<MarketPriceTileSkeleton />}
     >
-      {marketData.status === 'error' ? (
+      {marketData.status === "error" ? (
         <div className={styles.error}>
           Failed to load market data. Please try again later.
         </div>
-      ) : marketData.status === 'ready' ? (
+      ) : marketData.status === "ready" ? (
         <MarketPricePanel
           prices={marketData.prices}
           flexEvents={marketData.flexEvents}

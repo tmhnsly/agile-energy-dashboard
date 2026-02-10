@@ -2,19 +2,19 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { BentoTile } from '@/components/Layout';
 import { MarketPricePanel } from './MarketPricePanel';
-import { MarketPricePanelSkeleton } from './MarketPricePanelSkeleton';
+import { MarketPriceTileSkeleton } from './MarketPriceTileSkeleton';
 import { mockPrices, mockFlexEvents } from './mockData';
 
 /**
  * Energy price chart with stat cards, time-range presets, and flex-event overlays.
  * Clicking a preset (6 h, 12 h, etc.) jumps to the cheapest window of that length;
  * dragging the chart afterwards slides the window without changing its duration.
- * The layout adapts to the tile's width, not the viewport — resize the panel to see it.
+ * The layout adapts to the tile's width, not the viewport — resize the tile to see it.
  *
- * Wrap in `BentoTile` with `loading` + `skeleton={<MarketPricePanelSkeleton />}` for the loading state.
+ * Wrap in `BentoTile` with `loading` + `skeleton={<MarketPriceTileSkeleton />}` for the loading state.
  */
 const meta = {
-  title: 'Features / Market & Price / MarketPricePanel',
+  title: 'Features / Market & Price / MarketPriceTile',
   component: MarketPricePanel,
   parameters: {
     layout: 'padded',
@@ -55,7 +55,7 @@ export const Loading: Story = {
   args: { prices: mockPrices, flexEvents: mockFlexEvents },
   decorators: [
     () => (
-      <BentoTile variant="wide" loading skeleton={<MarketPricePanelSkeleton />}>
+      <BentoTile variant="wide" loading skeleton={<MarketPriceTileSkeleton />}>
         {null}
       </BentoTile>
     ),

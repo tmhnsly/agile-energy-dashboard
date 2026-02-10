@@ -1,7 +1,13 @@
 /**
- * Find the index of the first element with ts >= target.
- * Returns arr.length if no such element exists.
- * Assumes arr is sorted ascending by ts.
+ * Binary-search helpers for timestamp-sorted arrays.
+ *
+ * All functions expect `arr` sorted ascending by `ts`. O(log n).
+ * Used to efficiently slice data for a visible time range.
+ */
+
+/**
+ * Index of the first element with `ts >= target`.
+ * Returns `arr.length` if every element is before `target`.
  */
 export function lowerBound(arr: { ts: number }[], target: number): number {
   let lo = 0;
@@ -15,9 +21,10 @@ export function lowerBound(arr: { ts: number }[], target: number): number {
 }
 
 /**
- * Find the index past the last element with ts <= target.
- * Returns 0 if no such element exists.
- * Assumes arr is sorted ascending by ts.
+ * Index past the last element with `ts <= target`.
+ * Returns `0` if every element is after `target`.
+ *
+ * Use with `lowerBound` to get a half-open `[start, end)` slice.
  */
 export function upperBound(arr: { ts: number }[], target: number): number {
   let lo = 0;
@@ -31,9 +38,10 @@ export function upperBound(arr: { ts: number }[], target: number): number {
 }
 
 /**
- * Find the index of the element closest to target by ts.
- * Returns -1 if arr is empty.
- * Assumes arr is sorted ascending by ts.
+ * Index of the element whose `ts` is closest to `target`.
+ * Returns `-1` for an empty array.
+ *
+ * Used by the chart tooltip to snap to the nearest data point.
  */
 export function bisectNearest(arr: { ts: number }[], target: number): number {
   if (arr.length === 0) return -1;

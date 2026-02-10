@@ -2,15 +2,24 @@
 
 import { useMemo } from 'react';
 import type { PricePoint, TimeRange, PriceStats } from '@/types/energy';
-import { lowerBound, upperBound } from '@/utils/binarySearch';
+import { lowerBound } from '@/utils/binarySearch';
 
+/**
+ * Compute min, max, total, and count statistics for the price points that
+ * fall within `range`.
+ *
+ * Uses binary search (`lowerBound`) to avoid scanning the full array on
+ * every range change — important because this hook is called on every
+ * frame during a drag interaction.  The range is half-open `[fromTs, toTs)`
+ * so a point at exactly `toTs` is excluded.
+ */
 export function usePriceStats(
   points: PricePoint[],
   range: TimeRange,
 ): PriceStats {
   return useMemo(() => {
     const start = lowerBound(points, range.fromTs);
-    const end = upperBound(points, range.toTs);
+    const end = lowerBound(points, range.toTs);
 
     if (start >= end) return { min: null, max: null, total: null, count: 0 };
 

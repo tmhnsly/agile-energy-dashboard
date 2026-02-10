@@ -15,6 +15,14 @@ import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
 // Agile prices
 // ---------------------------------------------------------------------------
 
+/**
+ * Parse raw Octopus Agile JSON into sorted `PricePoint[]`.
+ *
+ * Accepts a bare array or the `{ results: [...] }` wrapper from the API.
+ * Looks for common field names (`valid_from`/`timestamp`/`time`/`ts` for
+ * the timestamp, `value_inc_vat`/`price`/`value`/`rate` for the price).
+ * Invalid items are silently skipped.
+ */
 export function mapAgilePrices(rawJson: unknown): PricePoint[] {
   const items = extractItems(rawJson);
   const points: PricePoint[] = [];
@@ -30,6 +38,7 @@ export function mapAgilePrices(rawJson: unknown): PricePoint[] {
   return points.sort((a, b) => a.ts - b.ts);
 }
 
+/** Unwrap the Octopus `{ results: [...] }` envelope, or return a bare array. */
 function extractItems(raw: unknown): unknown[] {
   if (Array.isArray(raw)) return raw;
   if (raw && typeof raw === 'object' && 'results' in raw) {
@@ -39,6 +48,7 @@ function extractItems(raw: unknown): unknown[] {
   return [];
 }
 
+/** Try several common field names and parse to a timestamp. */
 function parseTimestamp(item: unknown): number | null {
   if (!item || typeof item !== 'object') return null;
   const rec = item as Record<string, unknown>;
@@ -51,6 +61,7 @@ function parseTimestamp(item: unknown): number | null {
   return null;
 }
 
+/** Try several common field names and parse to a numeric price. */
 function parsePrice(item: unknown): number | null {
   if (!item || typeof item !== 'object') return null;
   const rec = item as Record<string, unknown>;
@@ -68,9 +79,11 @@ function parsePrice(item: unknown): number | null {
 // ---------------------------------------------------------------------------
 
 /**
- * Maps raw flex event JSON into typed FlexEvent objects.
- * Time-only strings (e.g. "18:00") are treated as daily recurring events
- * and are expanded for each day that falls within the price data range.
+ * Parse raw flex-event JSON into sorted `FlexEvent[]`.
+ *
+ * Time-only strings (e.g. `"18:00"`) are treated as daily recurring events
+ * and expanded into one instance per day within the price-data range.
+ * Full ISO timestamps are used as-is.
  */
 export function mapFlexEvents(
   rawJson: unknown,
@@ -131,6 +144,7 @@ export function mapFlexEvents(
   return events.sort((a, b) => a.startTs - b.startTs);
 }
 
+/** Unwrap common envelope shapes for flex-event arrays. */
 function extractFlexItems(raw: unknown): unknown[] {
   if (Array.isArray(raw)) return raw;
   if (raw && typeof raw === 'object') {
@@ -142,6 +156,12 @@ function extractFlexItems(raw: unknown): unknown[] {
   return [];
 }
 
+/**
+ * Resolve a time value to a Unix-ms timestamp.
+ *
+ * Full ISO strings are parsed directly. Time-only strings like `"18:00"`
+ * are pinned to `referenceDate`. Numbers are returned as-is.
+ */
 function anchorTimeToDate(
   raw: unknown,
   referenceDate: Date,
@@ -181,6 +201,13 @@ interface CsvRow {
   [key: string]: string | undefined;
 }
 
+/**
+ * Parse a household-usage CSV into sorted `HouseholdUsageRow[]`.
+ *
+ * Expects columns `Time`, `Standard_Household`, `HeatPump_Household`,
+ * and `HeatPump_Battery_Household`. Time values are anchored to
+ * `referenceDate` so they align with the price data timeline.
+ */
 export function parseHouseholdUsageCsv(
   csvText: string,
   referenceDate: Date,

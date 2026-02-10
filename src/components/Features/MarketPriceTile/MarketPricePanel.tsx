@@ -11,7 +11,7 @@ import { Button } from '@/components/UI/Button/Button';
 import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
-import styles from './MarketPricePanel.module.scss';
+import styles from './MarketPriceTile.module.scss';
 
 const HOUR_MS = 3_600_000;
 const HALF_HOUR_MS = 30 * 60_000;

@@ -18,14 +18,25 @@ const BAND_TONE_FILL: Record<string, { bg: string; border: string; bgHover: stri
 };
 
 interface BandsLayerProps {
+  /** Bands (time windows) to render as translucent overlays. */
   bands: ChartBand[];
+  /** Width of the chart plotting area in pixels. */
   innerWidth: number;
+  /** Height of the chart plotting area in pixels. */
   innerHeight: number;
+  /** visx time scale mapping `Date` → pixel x. */
   xScale: (d: Date) => number;
+  /** ID of the currently selected band, if any. */
   selectedBandId: string | null;
+  /** ID of the band currently under the pointer, if any. */
   hoveredBandId: string | null;
 }
 
+/**
+ * Renders highlighted time-window bands (e.g. flex events) behind the
+ * series lines.  Each band is a filled rect with left/right edge lines,
+ * styled differently when selected or hovered.
+ */
 export const BandsLayer = memo(function BandsLayer({
   bands,
   innerWidth,

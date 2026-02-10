@@ -2,16 +2,35 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 import { localPoint } from '@visx/event';
 import { useTooltip } from '@visx/tooltip';
 import type { TimeRange } from '@/types/energy';
-import type { ChartSeries, ChartBand, ChartDataPoint } from '@/types/chart';
+import type { ChartSeries, ChartBand, ChartDataPoint, TooltipData } from '@/types/chart';
 import { bisectNearest } from '@/utils/binarySearch';
+
+/*
+ * Drag state machine
+ * ─────────────────────────────────────────────────────────────────
+ * pointerDown → determine drag type from click position:
+ *   'new'    — drawing a fresh selection from scratch
+ *   'left'   — resizing the left edge of the existing selection
+ *   'right'  — resizing the right edge of the existing selection
+ *   'region' — panning the entire selection (preserves duration)
+ *
+ * pointerMove → compute new range based on drag type, batch via RAF
+ * pointerUp   → commit range (or handle click-on-band if < 3 px movement)
+ */
 
 /* ── Constants ─────────────────────────────────────── */
 
+/** Minimum selection width in pixels — below this threshold drag changes are ignored. */
 const MIN_SEL_PX = 10;
+/** Movement threshold (px) to distinguish a click from a drag. */
 const CLICK_THRESHOLD_PX = 3;
+/** Minimum selection duration (ms) — prevents zero-width selections. */
 const MIN_DOMAIN_MS = 60_000;
+/** Viewport width below which we use wider touch targets for selection handles. */
 const MOBILE_WIDTH_THRESHOLD = 480;
+/** Hit-test width (px) for selection edge handles on mobile. */
 const HANDLE_HIT_WIDTH_MOBILE = 24;
+/** Hit-test width (px) for selection edge handles on desktop. */
 const HANDLE_HIT_WIDTH_DESKTOP = 16;
 
 function clamp(val: number, min: number, max: number) {
@@ -28,11 +47,7 @@ interface DragState {
   startToTs: number;
 }
 
-export interface TooltipData {
-  ts: number;
-  values: Array<{ seriesId: string; label: string; value: number; tone?: string }>;
-  inBand: ChartBand | null;
-}
+export type { TooltipData };
 
 export interface UseChartInteractionOptions {
   svgRef: React.RefObject<SVGSVGElement | null>;
@@ -50,6 +65,91 @@ export interface UseChartInteractionOptions {
   onRangeChange: (range: TimeRange) => void;
   onRangePreview?: (range: TimeRange | null) => void;
 }
+
+/* ── Pure helpers ──────────────────────────────────── */
+
+/**
+ * Given the current drag state and the pointer's current timestamp,
+ * returns the new `{ fromTs, toTs }` for the selection.  Pure function
+ * — no side-effects.
+ */
+function computeDragRange(
+  drag: DragState,
+  currentTs: number,
+  fullRange: TimeRange,
+): { fromTs: number; toTs: number } {
+  const dTs = currentTs - drag.originTs;
+
+  let fromTs = drag.startFromTs;
+  let toTs = drag.startToTs;
+
+  switch (drag.type) {
+    case 'left':
+      fromTs = clamp(
+        drag.startFromTs + dTs,
+        fullRange.fromTs,
+        drag.startToTs - MIN_DOMAIN_MS,
+      );
+      break;
+    case 'right':
+      toTs = clamp(
+        drag.startToTs + dTs,
+        drag.startFromTs + MIN_DOMAIN_MS,
+        fullRange.toTs,
+      );
+      break;
+    case 'region': {
+      const dur = drag.startToTs - drag.startFromTs;
+      fromTs = drag.startFromTs + dTs;
+      toTs = drag.startToTs + dTs;
+      if (fromTs < fullRange.fromTs) {
+        fromTs = fullRange.fromTs;
+        toTs = fullRange.fromTs + dur;
+      }
+      if (toTs > fullRange.toTs) {
+        toTs = fullRange.toTs;
+        fromTs = fullRange.toTs - dur;
+      }
+      break;
+    }
+    case 'new': {
+      fromTs = clamp(
+        Math.min(currentTs, drag.originTs),
+        fullRange.fromTs,
+        fullRange.toTs,
+      );
+      toTs = clamp(
+        Math.max(currentTs, drag.originTs),
+        fullRange.fromTs,
+        fullRange.toTs,
+      );
+      break;
+    }
+  }
+
+  return { fromTs, toTs };
+}
+
+/**
+ * Handles a click on a band: finds the narrowest band containing the
+ * click timestamp and selects it.  Returns the band's range, or `null`
+ * if no band was hit.
+ */
+function handleBandClick(
+  clickTs: number,
+  visibleBands: ChartBand[],
+): TimeRange | null {
+  const hitBands = visibleBands.filter(
+    (b) => clickTs >= b.startTs && clickTs <= b.endTs,
+  );
+  if (hitBands.length === 0) return null;
+  const band = hitBands.reduce((a, b) =>
+    a.endTs - a.startTs < b.endTs - b.startTs ? a : b,
+  );
+  return { fromTs: band.startTs, toTs: band.endTs };
+}
+
+/* ── Hook ──────────────────────────────────────────── */
 
 export function useChartInteraction({
   svgRef,
@@ -172,6 +272,50 @@ export function useChartInteraction({
   const showTooltipForXRef = useRef(showTooltipForX);
   useEffect(() => { showTooltipForXRef.current = showTooltipForX; }, [showTooltipForX]);
 
+  /* ---- hover handler (no drag active) ---- */
+
+  /**
+   * Updates tooltip, cursor, and hovered-band state when the pointer
+   * moves without an active drag.  Tooltip updates are batched via RAF.
+   */
+  const handleHover = useCallback(
+    (x: number) => {
+      pendingHoverX.current = x;
+      if (!hoverRafId.current) {
+        hoverRafId.current = requestAnimationFrame(() => {
+          hoverRafId.current = 0;
+          if (pendingHoverX.current !== null) {
+            showTooltipForXRef.current(pendingHoverX.current);
+            pendingHoverX.current = null;
+          }
+        });
+      }
+
+      const hoverType = getDragType(x);
+
+      let bandId: string | null = null;
+      if (hoverType === 'new') {
+        const ts = xScale.invert(x).getTime();
+        const band = visibleBands.find(
+          (b) => ts >= b.startTs && ts <= b.endTs,
+        );
+        bandId = band?.id ?? null;
+      }
+      setHoveredBandId(bandId);
+
+      updateCursor(
+        hoverType === 'left' || hoverType === 'right'
+          ? 'ew-resize'
+          : hoverType === 'region'
+            ? 'grab'
+            : bandId !== null
+              ? 'pointer'
+              : 'crosshair',
+      );
+    },
+    [getDragType, updateCursor, xScale, visibleBands],
+  );
+
   /* ---- pointer event handlers ---- */
 
   const handlePointerDown = useCallback(
@@ -220,93 +364,14 @@ export function useChartInteraction({
       const x = getChartX(e);
       const drag = dragRef.current;
 
-      /* ---- hover (no drag) ---- */
       if (!drag) {
-        pendingHoverX.current = x;
-        if (!hoverRafId.current) {
-          hoverRafId.current = requestAnimationFrame(() => {
-            hoverRafId.current = 0;
-            if (pendingHoverX.current !== null) {
-              showTooltipForXRef.current(pendingHoverX.current);
-              pendingHoverX.current = null;
-            }
-          });
-        }
-
-        const hoverType = getDragType(x);
-
-        let bandId: string | null = null;
-        if (hoverType === 'new') {
-          const ts = xScale.invert(x).getTime();
-          const band = visibleBands.find(
-            (b) => ts >= b.startTs && ts <= b.endTs,
-          );
-          bandId = band?.id ?? null;
-        }
-        setHoveredBandId(bandId);
-
-        updateCursor(
-          hoverType === 'left' || hoverType === 'right'
-            ? 'ew-resize'
-            : hoverType === 'region'
-              ? 'grab'
-              : bandId !== null
-                ? 'pointer'
-                : 'crosshair',
-        );
+        handleHover(x);
         return;
       }
 
-      /* ---- drag in domain space ---- */
+      /* ---- active drag ---- */
       const currentTs = xScale.invert(x).getTime();
-      const dTs = currentTs - drag.originTs;
-
-      let fromTs = drag.startFromTs;
-      let toTs = drag.startToTs;
-
-      switch (drag.type) {
-        case 'left':
-          fromTs = clamp(
-            drag.startFromTs + dTs,
-            fullRange.fromTs,
-            drag.startToTs - MIN_DOMAIN_MS,
-          );
-          break;
-        case 'right':
-          toTs = clamp(
-            drag.startToTs + dTs,
-            drag.startFromTs + MIN_DOMAIN_MS,
-            fullRange.toTs,
-          );
-          break;
-        case 'region': {
-          const dur = drag.startToTs - drag.startFromTs;
-          fromTs = drag.startFromTs + dTs;
-          toTs = drag.startToTs + dTs;
-          if (fromTs < fullRange.fromTs) {
-            fromTs = fullRange.fromTs;
-            toTs = fullRange.fromTs + dur;
-          }
-          if (toTs > fullRange.toTs) {
-            toTs = fullRange.toTs;
-            fromTs = fullRange.toTs - dur;
-          }
-          break;
-        }
-        case 'new': {
-          fromTs = clamp(
-            Math.min(currentTs, drag.originTs),
-            fullRange.fromTs,
-            fullRange.toTs,
-          );
-          toTs = clamp(
-            Math.max(currentTs, drag.originTs),
-            fullRange.fromTs,
-            fullRange.toTs,
-          );
-          break;
-        }
-      }
+      const { fromTs, toTs } = computeDragRange(drag, currentTs, fullRange);
 
       const leftPx = xScale(new Date(fromTs));
       const rightPx = xScale(new Date(toTs));
@@ -325,7 +390,7 @@ export function useChartInteraction({
         }
       }
     },
-    [getChartX, getDragType, updateCursor, xScale, visibleBands, fullRange],
+    [getChartX, handleHover, xScale, fullRange],
   );
 
   const handlePointerUp = useCallback(
@@ -346,15 +411,8 @@ export function useChartInteraction({
       if (Math.abs(x - drag.originX) < CLICK_THRESHOLD_PX) {
         if (drag.type === 'new') {
           const clickTs = xScale.invert(x).getTime();
-          const hitBands = visibleBands.filter(
-            (b) => clickTs >= b.startTs && clickTs <= b.endTs,
-          );
-          if (hitBands.length > 0) {
-            const band = hitBands.reduce((a, b) =>
-              a.endTs - a.startTs < b.endTs - b.startTs ? a : b,
-            );
-            onRangeChange({ fromTs: band.startTs, toTs: band.endTs });
-          }
+          const bandRange = handleBandClick(clickTs, visibleBands);
+          if (bandRange) onRangeChange(bandRange);
         }
       } else {
         const finalRange = dragRangeRef.current;

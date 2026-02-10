@@ -10,13 +10,6 @@ const inter = Inter({
   display: "swap",
 });
 
-const youngSerif = Young_Serif({
-  subsets: ["latin"],
-  variable: "--font-young-serif",
-  display: "swap",
-  weight: "400",
-});
-
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
@@ -38,7 +31,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} ${youngSerif.variable}`}
+      className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body>
         <Providers>

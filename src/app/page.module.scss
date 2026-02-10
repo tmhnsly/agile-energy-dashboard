@@ -1,5 +1,5 @@
-@use 'mixins/typography' as type;
-@use 'mixins/surfaces' as surface;
+@use "mixins/typography" as type;
+@use "mixins/surfaces" as surface;
 
 .page {
   min-height: 100dvh;

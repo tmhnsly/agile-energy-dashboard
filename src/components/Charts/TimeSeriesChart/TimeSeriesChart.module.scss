@@ -1,5 +1,6 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
+@use 'mixins/container-queries' as cq;
 
 .container {
   position: relative;
@@ -165,6 +166,11 @@
   @include type.typography(tooltip-date);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
+  font-size: var(--text-xs);
+
+  @include cq.medium {
+    font-size: var(--text-sm);
+  }
 }
 
 .tooltipValues {
@@ -175,6 +181,15 @@
   @include type.typography(tooltip-value);
   color: var(--mono-text);
   font-variant-numeric: tabular-nums;
+  font-size: var(--text-xs);
+
+  @include cq.medium {
+    font-size: var(--text-sm);
+  }
+
+  @include cq.large {
+    font-size: var(--text-xl);
+  }
 }
 
 .tooltipBand {
@@ -218,6 +233,10 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   transform: translateX(-50%);
+
+  @include cq.medium {
+    font-size: var(--text-sm);
+  }
 }
 
 .dragPillSep {

@@ -39,9 +39,10 @@
     }
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^10.2.7",
-    "@storybook/addon-vitest": "^10.2.7",
-    "@storybook/nextjs-vite": "^10.2.7",
+    "@storybook/addon-a11y": "^10.2.8",
+    "@storybook/addon-docs": "^10.2.8",
+    "@storybook/addon-vitest": "^10.2.8",
+    "@storybook/nextjs-vite": "^10.2.8",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
@@ -50,9 +51,9 @@
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "eslint-plugin-storybook": "^10.2.7",
+    "eslint-plugin-storybook": "^10.2.8",
     "playwright": "^1.58.2",
-    "storybook": "^10.2.7",
+    "storybook": "^10.2.8",
     "typescript": "^5",
     "vite": "^6.4.1",
     "vitest": "^4.0.18"

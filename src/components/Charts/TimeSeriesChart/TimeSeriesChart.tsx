@@ -2,57 +2,49 @@
 
 import { useMemo, useCallback, useRef, useEffect } from 'react';
 import { Group } from '@visx/group';
-import { scaleTime, scaleLinear } from '@visx/scale';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
-import { useTooltipInPortal } from '@visx/tooltip';
-import { startOfDay, addDays } from 'date-fns';
-import { UTCDate } from '@date-fns/utc';
+import { TooltipWithBounds } from '@visx/tooltip';
 import type { TimeRange } from '@/types/energy';
-import type { ChartSeries, ChartDataPoint } from '@/types/chart';
+import type { ChartSeries } from '@/types/chart';
 import type { ChartBand } from '@/types/chart';
 import {
   formatTime,
   formatDayShort,
   formatDuration,
 } from '@/utils/format';
-import { lowerBound, upperBound } from '@/utils/binarySearch';
 import { BandsLayer } from './BandsLayer';
 import { SelectionOverlay } from './SelectionOverlay';
 import { MinMaxMarkers } from './MinMaxMarkers';
 import { TooltipCrosshair, TooltipContent } from './TooltipLayer';
 import { useChartInteraction } from './useChartInteraction';
+import { useChartScales } from './useChartScales';
+import { useMinMaxStats } from './useMinMaxStats';
+import { useDayBoundaries } from './useDayBoundaries';
+import type { ChartMargin } from './useChartScales';
 import styles from './TimeSeriesChart.module.scss';
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
+/** Half-hour in milliseconds — used to snap the drag pill readout. */
 const HALF_HOUR_MS = 30 * 60_000;
 
-// Axis layout
-const CHAR_WIDTH_PX = 7.5;
-const AXIS_LABEL_PAD = 12;
-const Y_TICK_COUNT = 5;
+/** Maximum number of x-axis tick labels. */
 const MAX_X_TICKS = 8;
+/** Minimum horizontal spacing (px) between x-axis ticks. */
 const X_TICK_MIN_SPACING_PX = 80;
-const TEMP_SCALE_RANGE: [number, number] = [100, 0];
+/** Number of ticks on the y-axis. */
+const Y_TICK_COUNT = 5;
 
-// Chart margins (defaults when not overridden)
-const DEFAULT_MARGIN_TOP = 12;
-const DEFAULT_MARGIN_RIGHT = 4;
-const DEFAULT_MARGIN_BOTTOM = 28;
-
-// Drag pill positioning
+/** Minimum distance (px) from the viewport edge for the drag pill. */
 const PILL_EDGE_PAD = 80;
+/** Vertical offset (px) of the drag pill from the top of the chart area. */
 const PILL_TOP_OFFSET = 8;
 
-export type ChartMargin = { top: number; right: number; bottom: number; left: number };
-
-function estimateTextWidth(text: string): number {
-  return text.length * CHAR_WIDTH_PX;
-}
+export type { ChartMargin };
 
 function clamp(val: number, min: number, max: number) {
   return Math.max(min, Math.min(max, val));
@@ -60,6 +52,10 @@ function clamp(val: number, min: number, max: number) {
 
 function snapToHalfHour(ts: number): number {
   return Math.round(ts / HALF_HOUR_MS) * HALF_HOUR_MS;
+}
+
+function defaultFormatYTick(v: number): string {
+  return String(v);
 }
 
 const AXIS_BOTTOM_TICK_LABEL_PROPS = {
@@ -76,10 +72,7 @@ const AXIS_LEFT_TICK_LABEL_PROPS = {
   dy: '0.33em',
 };
 
-function defaultFormatYTick(v: number): string {
-  return String(v);
-}
-
+/** Maps series tone tokens to CSS custom-property stroke colours. */
 const TONE_STROKE: Record<string, string> = {
   accent: 'var(--accent-solid)',
   positive: 'var(--success-solid)',
@@ -148,67 +141,19 @@ export const TimeSeriesChart = ({
   const fmtXTick = formatXTickProp ?? formatTime;
   const fmtTooltipValue = formatTooltipValueProp ?? ((v: number) => v.toFixed(1));
 
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    detectBounds: true,
-    scroll: true,
-  });
-
   /* ---- primary data (first series) ---- */
   const primaryData = useMemo(() => series[0]?.data ?? [], [series]);
 
-  /* ---- auto-sized margins ---- */
+  /* ---- scales & layout ---- */
 
-  const yDomain: [number, number] = useMemo(() => {
-    let hasData = false;
-    let minV = Infinity;
-    let maxV = -Infinity;
-    for (const s of series) {
-      for (const d of s.data) {
-        hasData = true;
-        if (d.value < minV) minV = d.value;
-        if (d.value > maxV) maxV = d.value;
-      }
-    }
-    if (!hasData) return [0, 100];
-    const pad = (maxV - minV) * 0.1 || 5;
-    return [minV - pad, maxV + pad];
-  }, [series]);
-
-  const autoLeftMargin = useMemo(() => {
-    const fmt = formatYTickProp ?? defaultFormatYTick;
-    const tempScale = scaleLinear({ domain: yDomain, range: TEMP_SCALE_RANGE, nice: true });
-    const ticks = tempScale.ticks(Y_TICK_COUNT);
-    const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmt(t))));
-    return Math.ceil(maxWidth + AXIS_LABEL_PAD);
-  }, [yDomain, formatYTickProp]);
-
-  const margin: ChartMargin = useMemo(() => ({
-    top: marginProp?.top ?? DEFAULT_MARGIN_TOP,
-    right: marginProp?.right ?? DEFAULT_MARGIN_RIGHT,
-    bottom: marginProp?.bottom ?? DEFAULT_MARGIN_BOTTOM,
-    left: marginProp?.left ?? autoLeftMargin,
-  }), [marginProp, autoLeftMargin]);
-
-  const innerWidth = Math.max(0, width - margin.left - margin.right);
-  const innerHeight = Math.max(0, height - margin.top - margin.bottom);
-
-  /* ---- scales ---- */
-
-  const xScale = useMemo(
-    () =>
-      scaleTime({
-        domain: [new Date(fullRange.fromTs), new Date(fullRange.toTs)],
-        range: [0, innerWidth],
-      }),
-    [fullRange, innerWidth],
-  );
-
-  const yScale = useMemo(
-    () => scaleLinear({ domain: yDomain, range: [innerHeight, 0], nice: true }),
-    [yDomain, innerHeight],
-  );
-
-  const yTicks = useMemo(() => yScale.ticks(Y_TICK_COUNT), [yScale]);
+  const { margin, innerWidth, innerHeight, xScale, yScale, yTicks } = useChartScales({
+    series,
+    fullRange,
+    width,
+    height,
+    margin: marginProp,
+    formatYTick: formatYTickProp,
+  });
 
   /* ---- derived data ---- */
 
@@ -227,15 +172,7 @@ export const TimeSeriesChart = ({
     return m?.id ?? null;
   }, [visibleBands, activeRange]);
 
-  const dayBoundaries = useMemo(() => {
-    const boundaries: number[] = [];
-    let day = addDays(startOfDay(new UTCDate(fullRange.fromTs)), 1);
-    while (day.getTime() < fullRange.toTs) {
-      if (day.getTime() > fullRange.fromTs) boundaries.push(day.getTime());
-      day = addDays(day, 1);
-    }
-    return boundaries;
-  }, [fullRange]);
+  const dayBoundaries = useDayBoundaries(fullRange);
 
   /* ---- interaction hook ---- */
 
@@ -267,21 +204,7 @@ export const TimeSeriesChart = ({
 
   /* ---- min/max stats (live during drag) ---- */
 
-  const displayStats = useMemo(() => {
-    if (!showMinMaxMarkers) return { min: null as ChartDataPoint | null, max: null as ChartDataPoint | null };
-    const start = lowerBound(primaryData, displayRange.fromTs);
-    const end = upperBound(primaryData, displayRange.toTs);
-    if (start >= end)
-      return { min: null as ChartDataPoint | null, max: null as ChartDataPoint | null };
-    let min = primaryData[start];
-    let max = primaryData[start];
-    for (let i = start + 1; i < end; i++) {
-      const p = primaryData[i];
-      if (p.value < min.value) min = p;
-      if (p.value > max.value) max = p;
-    }
-    return { min, max };
-  }, [primaryData, displayRange, showMinMaxMarkers]);
+  const displayStats = useMinMaxStats(primaryData, displayRange, showMinMaxMarkers);
 
   /* ---- pill position ---- */
 
@@ -302,7 +225,7 @@ export const TimeSeriesChart = ({
   /* ---- render ---- */
 
   return (
-    <div ref={containerRef} className={styles.container}>
+    <div className={styles.container}>
       <svg
         ref={svgRef}
         width={width}
@@ -452,18 +375,20 @@ export const TimeSeriesChart = ({
         </Group>
       </svg>
 
-      {/* Tooltip */}
+      {/* Tooltip (inline with bounds detection — flips at container edges) */}
       {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && (
-        <TooltipInPortal
+        <TooltipWithBounds
           left={tooltip.tooltipLeft}
           top={tooltip.tooltipTop}
           className={styles.tooltip}
+          unstyled
+          applyPositionStyle
         >
           <TooltipContent
             tooltipData={tooltip.tooltipData}
             formatTooltipValue={fmtTooltipValue}
           />
-        </TooltipInPortal>
+        </TooltipWithBounds>
       )}
 
       {/* Drag range pill */}

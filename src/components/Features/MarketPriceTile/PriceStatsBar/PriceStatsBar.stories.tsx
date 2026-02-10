@@ -6,7 +6,7 @@ import { mockStats, mockRange } from '../mockData';
 
 /**
  * Row of Low, High, and Total stat cards for a time range. Used inside the
- * `MarketPricePanel` header. Sub-values always show day and time (e.g. "Wed 02:30").
+ * `MarketPriceTile` header. Sub-values always show day and time (e.g. "Wed 02:30").
  */
 const meta = {
   title: 'Features / Market & Price / PriceStatsBar',

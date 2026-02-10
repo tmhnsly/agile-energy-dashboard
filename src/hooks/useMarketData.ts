@@ -26,8 +26,20 @@ interface MarketDataReady {
   householdUsage: HouseholdUsageRow[];
 }
 
+/** Discriminated union of the three possible fetch states. */
 export type MarketDataState = MarketDataLoading | MarketDataError | MarketDataReady;
 
+/**
+ * Fetch and parse all market data files on mount.
+ *
+ * Loads three static data files in parallel:
+ * - `agile_price_example.json` — half-hourly Agile tariff prices
+ * - `flexibility_opportunity.json` — demand-side flex event windows
+ * - `household_usage.csv` — consumption profiles for three household types
+ *
+ * Returns a discriminated-union state (`loading` → `ready` | `error`)
+ * so the consuming component can render a skeleton, error, or data view.
+ */
 export function useMarketData(): MarketDataState {
   const [state, setState] = useState<MarketDataState>({ status: 'loading' });
 

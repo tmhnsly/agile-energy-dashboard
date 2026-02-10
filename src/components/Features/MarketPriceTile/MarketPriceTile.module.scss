@@ -50,7 +50,7 @@
 }
 
 .chartArea {
-  overflow: hidden;
+  overflow: visible;
   height: 240px;
 
   @include cq.medium {

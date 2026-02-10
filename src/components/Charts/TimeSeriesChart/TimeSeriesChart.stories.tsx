@@ -8,17 +8,53 @@ import { TimeSeriesChart } from './TimeSeriesChart';
 import { mockSeriesA, mockBands, mockRange } from './mockData';
 
 /**
- * General-purpose time-series line chart. Supports drag-to-select a time range,
- * clickable band overlays, min/max markers, and a hover tooltip. Pass `onRangePreview`
- * to receive live updates during a drag (useful for showing stats in real time).
+ * General-purpose time-series line chart built on [visx](https://airbnb.io/visx/).
  *
- * Expects explicit `width` / `height` — wrap in `ParentSize` if you need responsive sizing.
+ * ### Key concepts
+ *
+ * | Prop | Purpose |
+ * |------|---------|
+ * | `series` | Array of `ChartSeries` — each renders as a coloured line. The first series is treated as "primary" for min/max markers. |
+ * | `bands` | Array of `ChartBand` — translucent overlays behind the lines (e.g. flex events). Click a band to zoom to its range. |
+ * | `fullRange` | The total time extent of the data. The x-axis always spans this range. |
+ * | `activeRange` | The currently selected sub-range. When equal to `fullRange`, no selection overlay is shown. |
+ * | `onRangeChange` | Called with the new `TimeRange` when the user finishes a drag or clicks a band. |
+ * | `onRangePreview` | Called on **every frame** during a drag with the in-progress range (or `null` on drag end). Use this to show live stats while dragging. |
+ *
+ * ### Interactions
+ *
+ * - **Drag** on empty space to draw a new selection.
+ * - **Drag handles** to resize an existing selection.
+ * - **Drag inside** the selection to pan it (duration stays locked).
+ * - **Click a band** to snap the selection to that band's range.
+ * - **Hover** to see a crosshair tooltip with values and band info.
+ *
+ * ### Sizing
+ *
+ * The component requires explicit `width` and `height` — wrap it in
+ * `ParentSize` from `@visx/responsive` for responsive layouts. The left
+ * margin auto-sizes to fit the widest y-axis label; override via the
+ * `margin` prop if needed.
  */
 const meta = {
   title: 'Charts / TimeSeriesChart',
   component: TimeSeriesChart,
   parameters: {
     layout: 'padded',
+  },
+  argTypes: {
+    series: { table: { disable: true } },
+    bands: { table: { disable: true } },
+    fullRange: { table: { disable: true } },
+    activeRange: { table: { disable: true } },
+    onRangeChange: { table: { disable: true } },
+    onRangePreview: { table: { disable: true } },
+    width: { table: { disable: true } },
+    height: { table: { disable: true } },
+    showMinMaxMarkers: {
+      control: 'boolean',
+      description: 'Show circle markers at the min and max values within the active range.',
+    },
   },
 } satisfies Meta<typeof TimeSeriesChart>;
 
@@ -63,8 +99,9 @@ function useRangeStats(range: TimeRange) {
 }
 
 /**
- * Fully interactive — drag to select a range, click bands, hover for tooltip.
- * The debug bar above the chart shows live min/max and drag state.
+ * Fully interactive demo — drag to select a range, click bands, hover for tooltip.
+ * The status bar above the chart shows live min/max values and the current drag state,
+ * demonstrating how `onRangePreview` can drive external UI during a drag.
  */
 export const Interactive: Story = {
   args: {
@@ -130,7 +167,8 @@ export const Interactive: Story = {
 
 /**
  * Band overlays highlight time windows over the line (e.g. flex events, peak periods).
- * Click a band to zoom the selection to its range. Drag to select a custom range.
+ * Click a band to zoom the selection to its range. Hover a band to see it highlight
+ * and show its label in the tooltip.
  */
 export const WithBands: Story = {
   args: {
@@ -166,8 +204,9 @@ export const WithBands: Story = {
 };
 
 /**
- * Starts with a pre-selected sub-range showing the dim overlay and selection handles.
- * Drag the handles or draw a new selection to change the range.
+ * Starts with a pre-selected sub-range showing the dim overlay and drag handles.
+ * Drag the handles to resize, drag inside the selection to pan, or draw a new
+ * selection outside the current one.
  */
 export const WithSelection: Story = {
   args: {

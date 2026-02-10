@@ -154,3 +154,25 @@
   --surface-shimmer-from: var(--mono-subtle-bg);
   --surface-shimmer-via: var(--mono-bg);
 }
+
+/* ─── WCAG AA contrast overrides (light mode only) ────────────
+ * Radix steps 9/11 don't always meet 4.5:1 contrast on step 3
+ * backgrounds or with white foreground text. These overrides
+ * darken the minimum amount needed to reach ~4.6:1.
+ * Dark-mode Radix values are left untouched.
+ * ─────────────────────────────────────────────────────────── */
+:root:not(.dark) {
+  /* text-low-contrast: ~4.6:1 on step 3 backgrounds */
+  --accent-text-low-contrast: #0c6ec4;
+  --success-text-low-contrast: #007c6b;
+  --error-text-low-contrast: #cc2c31;
+  --warning-text-low-contrast: #9d5c00;
+
+  /* solid + solid-hover: ≥ 4.5:1 with white foreground */
+  --accent-solid: #006dc2;
+  --accent-solid-hover: #2d7ac0;
+  --success-solid: #0d7a6e;
+  --success-solid-hover: #0a8476;
+  --error-solid: #c33d41;
+  --error-solid-hover: #c94d51;
+}
