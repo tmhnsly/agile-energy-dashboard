@@ -2,35 +2,23 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { BentoGrid } from './BentoGrid';
 import { BentoTile } from './BentoTile';
-import { Skeleton } from '@/components/Skeleton/Skeleton';
+import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
 
 /**
- * ## BentoGrid + BentoTile
- * CSS Grid auto-placement dashboard layout.
- *
- * ### Props
- * **BentoGrid** — `children`, `className`
- * **BentoTile** — `children`, `variant`, `loading`, `skeleton`, `className`
- *
- * ### Variants
- * | Variant    | Tablet  | Desktop | Notes                |
- * |------------|---------|---------|----------------------|
- * | `standard` | 1 col   | 1 col   | Default              |
- * | `feature`  | 2 cols  | 2 cols  | Prominent tile       |
- * | `wide`     | 2 cols  | 3 cols  | Full-row tile        |
- * | `tall`     | 2 rows  | 2 rows  | Vertically extended  |
- * | `compact`  | 1 col   | 1 col   | Smaller min-height   |
- *
- * ### Usage notes
- * - Grid uses `grid-auto-flow: dense` — tiles flow and fill gaps automatically.
- * - Tiles declare *intent* via `variant`, not explicit column spans.
- * - Use `loading` + `skeleton` for tile-level loading silhouettes.
+ * Dashboard grid layout. Drop `BentoTile` components inside a `BentoGrid` and they
+ * arrange themselves automatically. Each tile's `variant` controls how much space
+ * it takes up — `wide` spans a full row, `feature` takes two columns, and so on.
+ * Tiles also act as container-query containers so their children can adapt to the
+ * available width rather than the viewport.
  */
 const meta = {
-  title: 'Components/BentoGrid',
+  title: 'Layout / BentoGrid',
   component: BentoGrid,
   parameters: {
     layout: 'padded',
+  },
+  argTypes: {
+    children: { table: { disable: true } },
   },
 } satisfies Meta<typeof BentoGrid>;
 
@@ -52,6 +40,7 @@ const Placeholder = ({ label, height = '7.5rem' }: { label: string; height?: str
   </div>
 );
 
+/** One wide tile followed by three standard tiles. */
 export const Default: Story = {
   args: {
     children: (
@@ -65,7 +54,7 @@ export const Default: Story = {
   },
 };
 
-/** Feature tiles take 2 columns on tablet+; standard tiles fill remaining gaps. */
+/** Mixing different tile variants — the grid fills gaps automatically. */
 export const MixedVariants: Story = {
   args: {
     children: (
@@ -81,6 +70,7 @@ export const MixedVariants: Story = {
   },
 };
 
+/** Three equally-sized tiles in a row. */
 export const StandardOnly: Story = {
   args: {
     children: (
@@ -93,7 +83,7 @@ export const StandardOnly: Story = {
   },
 };
 
-/** Demonstrates the `loading` prop with default and custom skeletons. */
+/** Tiles with `loading` show a skeleton placeholder instead of their content. */
 export const LoadingStates: Story = {
   args: {
     children: (
@@ -123,7 +113,7 @@ export const LoadingStates: Story = {
   },
 };
 
-/** Dense auto-flow fills gaps when tiles have different sizes. */
+/** Larger tiles leave gaps that smaller tiles flow into. */
 export const AutoFlowDemo: Story = {
   args: {
     children: (

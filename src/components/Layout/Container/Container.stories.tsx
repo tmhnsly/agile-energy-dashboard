@@ -2,17 +2,26 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Container } from './Container';
 
+/** Centres content at a max width with responsive side padding. Use inside a `Section`. */
 const meta = {
-  title: 'Layout/Container',
+  title: 'Layout / Container',
   component: Container,
   parameters: {
     layout: 'fullscreen',
+  },
+  argTypes: {
+    as: {
+      control: 'select',
+      options: ['div', 'section', 'main', 'nav', 'aside', 'header', 'footer', 'article'],
+    },
+    children: { table: { disable: true } },
   },
 } satisfies Meta<typeof Container>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Default `<div>` wrapper with responsive gutters. */
 export const Default: Story = {
   args: {
     children: (
@@ -26,6 +35,7 @@ export const Default: Story = {
   },
 };
 
+/** Renders as a `<section>` element for semantic HTML. */
 export const AsSection: Story = {
   args: {
     as: 'section',
@@ -39,6 +49,7 @@ export const AsSection: Story = {
   },
 };
 
+/** Full-width tinted background with constrained content inside. */
 export const WithBackground: Story = {
   args: { children: null },
   render: () => (

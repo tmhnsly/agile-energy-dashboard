@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { TbTriangleFilled, TbTriangleInvertedFilled, TbEqual } from 'react-icons/tb';
+import { TbTriangleFilled, TbTriangleInvertedFilled, TbCalculator } from 'react-icons/tb';
 import type { PriceStats, TimeRange } from '@/types/energy';
 import { formatPricePerKwh, formatStatTime } from '@/utils/format';
-import { StatCard } from '@/components/StatCard/StatCard';
+import { StatCard } from '@/components/UI/StatCard/StatCard';
 import styles from './PriceStatsBar.module.scss';
 
 function formatTotal(pence: number): string {
@@ -41,8 +41,8 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         label="Total"
         value={stats.total != null ? formatTotal(stats.total) : '—'}
         subValue={stats.count > 0 ? `${stats.count} kWh` : '\u00A0'}
-        icon={<TbEqual />}
-        tone="neutral"
+        icon={<TbCalculator />}
+        tone="accent"
       />
     </div>
   );

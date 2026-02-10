@@ -6,7 +6,6 @@
   @include layout.stack(var(--statcard-gap));
   padding: var(--statcard-padding-y) var(--statcard-padding-x);
   border-radius: var(--radius-sm);
-  min-width: 100px;
 
   /* ── Tone palette (scoped custom props) ──────── */
   --_bg: var(--mono-subtle-bg);
@@ -66,10 +65,11 @@
 .value {
   @include type.typography(number);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   color: var(--_text);
   font-size: var(--text-lg);
   white-space: nowrap;
-  padding-right: var(--space-4);
+  min-width: 9ch;
 
   @include cq.at(900px) {
     font-size: var(--text-2xl);
@@ -80,5 +80,6 @@
   @include type.typography(meta);
   color: var(--_text-lc);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   margin-top: auto;
 }

@@ -3,60 +3,95 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Container } from '../Container/Container';
 import { Section } from './Section';
 
+/**
+ * Full-width page section. Use `variant` to set the background tone and `size`
+ * to control vertical padding. Pair with `Container` to constrain content width.
+ */
 const meta = {
-  title: 'Layout/Section',
+  title: 'Layout / Section',
   component: Section,
   parameters: {
     layout: 'fullscreen',
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['default', 'surface', 'contrast'],
+    },
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
+    },
+    children: { table: { disable: true } },
   },
 } satisfies Meta<typeof Section>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const StackedSections: Story = {
-  args: { children: null },
-  render: () => (
-    <div>
-      <Section variant="default">
-        <Container>
-          <h2 style={{ color: 'var(--mono-text)', margin: '0 0 var(--space-2) 0' }}>Default variant</h2>
-          <p style={{ color: 'var(--mono-text-low-contrast)', margin: 0 }}>Transparent background — inherits from parent.</p>
-        </Container>
-      </Section>
-      <Section variant="surface">
-        <Container>
-          <h2 style={{ color: 'var(--mono-text)', margin: '0 0 var(--space-2) 0' }}>Surface variant</h2>
-          <p style={{ color: 'var(--mono-text-low-contrast)', margin: 0 }}>Subtle background for visual separation.</p>
-        </Container>
-      </Section>
-      <Section variant="contrast">
-        <Container>
-          <h2 style={{ color: 'var(--mono-text)', margin: '0 0 var(--space-2) 0' }}>Contrast variant</h2>
-          <p style={{ color: 'var(--mono-text-low-contrast)', margin: 0 }}>Stronger background for emphasis.</p>
-        </Container>
-      </Section>
-    </div>
-  ),
+/** Transparent background — inherits whatever is behind it. */
+export const Default: Story = {
+  args: {
+    variant: 'default',
+    size: 'small',
+    children: (
+      <Container>
+        <p style={{ color: 'var(--mono-text)', margin: 0 }}>
+          Default — transparent, inherits the page background.
+        </p>
+      </Container>
+    ),
+  },
 };
 
+/** Subtle tinted background to visually separate adjacent regions. */
+export const Surface: Story = {
+  args: {
+    variant: 'surface',
+    size: 'small',
+    children: (
+      <Container>
+        <p style={{ color: 'var(--mono-text)', margin: 0 }}>
+          Surface — tinted background for visual separation.
+        </p>
+      </Container>
+    ),
+  },
+};
+
+/** Stronger opaque background for high-emphasis content like CTAs or footers. */
+export const Contrast: Story = {
+  args: {
+    variant: 'contrast',
+    size: 'small',
+    children: (
+      <Container>
+        <p style={{ color: 'var(--mono-text)', margin: 0 }}>
+          Contrast — solid background for high-emphasis areas.
+        </p>
+      </Container>
+    ),
+  },
+};
+
+/** Three sizes stacked to compare vertical padding. */
 export const Sizes: Story = {
   args: { children: null },
   render: () => (
     <div>
       <Section size="small" variant="surface">
         <Container>
-          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Small — tighter vertical padding</p>
+          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Small</p>
         </Container>
       </Section>
       <Section size="medium" variant="contrast">
         <Container>
-          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Medium (default) — balanced vertical padding</p>
+          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Medium (default)</p>
         </Container>
       </Section>
       <Section size="large" variant="surface">
         <Container>
-          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Large — generous vertical padding</p>
+          <p style={{ color: 'var(--mono-text)', margin: 0 }}>Large</p>
         </Container>
       </Section>
     </div>

@@ -1,4 +1,4 @@
-import { format, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { UTCDate } from '@date-fns/utc';
 
 export function formatTime(ts: number): string {
@@ -21,21 +21,16 @@ export function formatDayShort(ts: number): string {
 }
 
 /**
- * Format a timestamp for stat display — includes day name when the
- * range spans multiple calendar days, time-only otherwise.
+ * Format a timestamp for stat display — always includes the day name
+ * so the context is visible regardless of range width.
  */
 export function formatStatTime(
   ts: number,
-  rangeFromTs: number,
-  rangeToTs: number,
+  _rangeFromTs: number,
+  _rangeToTs: number,
 ): string {
   if (!isFinite(ts)) return '—';
-  const fromDay = startOfDay(new UTCDate(rangeFromTs));
-  const toDay = startOfDay(new UTCDate(rangeToTs));
-  if (fromDay.getTime() !== toDay.getTime()) {
-    return format(new UTCDate(ts), 'EEE HH:mm');
-  }
-  return format(new UTCDate(ts), 'HH:mm');
+  return format(new UTCDate(ts), 'EEE HH:mm');
 }
 
 export function formatDuration(fromTs: number, toTs: number): string {

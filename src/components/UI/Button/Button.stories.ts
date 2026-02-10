@@ -4,17 +4,25 @@ import { fn } from 'storybook/test';
 
 import { Button } from './Button';
 
+/**
+ * Button with four style variants and five colour options.
+ * Use `solid` for primary actions, `soft` for secondary, `outline` for
+ * low-emphasis, and `ghost` for inline or nav-style actions.
+ */
 const meta = {
-  title: 'Components/Button',
+  title: 'UI / Button',
   component: Button,
   parameters: {
     layout: 'centered',
-    docs: { controls: { disable: true } },
   },
   argTypes: {
     variant: {
       control: 'select',
       options: ['solid', 'soft', 'outline', 'ghost'],
+    },
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
     },
     color: {
       control: 'select',
@@ -27,6 +35,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Primary action style — filled background. */
 export const Solid: Story = {
   args: {
     variant: 'solid',
@@ -34,6 +43,7 @@ export const Solid: Story = {
   },
 };
 
+/** Secondary action style — tinted background. */
 export const Soft: Story = {
   args: {
     variant: 'soft',
@@ -41,6 +51,7 @@ export const Soft: Story = {
   },
 };
 
+/** Low-emphasis style — border only. */
 export const Outline: Story = {
   args: {
     variant: 'outline',
@@ -48,6 +59,7 @@ export const Outline: Story = {
   },
 };
 
+/** Minimal style for inline or nav-style actions. */
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
@@ -55,6 +67,7 @@ export const Ghost: Story = {
   },
 };
 
+/** Destructive action colour. */
 export const Error: Story = {
   args: {
     variant: 'solid',
@@ -63,6 +76,7 @@ export const Error: Story = {
   },
 };
 
+/** Confirmation action colour. */
 export const Success: Story = {
   args: {
     variant: 'solid',
@@ -71,6 +85,7 @@ export const Success: Story = {
   },
 };
 
+/** Caution action colour. */
 export const Warning: Story = {
   args: {
     variant: 'solid',
@@ -79,6 +94,7 @@ export const Warning: Story = {
   },
 };
 
+/** Informational action colour. */
 export const Info: Story = {
   args: {
     variant: 'solid',

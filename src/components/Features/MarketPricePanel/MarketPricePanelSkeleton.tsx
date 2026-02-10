@@ -1,6 +1,6 @@
-import { TbTriangleInvertedFilled, TbTriangleFilled, TbEqual } from 'react-icons/tb';
-import { StatCard } from '@/components/StatCard/StatCard';
-import { Skeleton } from '@/components/Skeleton/Skeleton';
+import { TbTriangleInvertedFilled, TbTriangleFilled, TbCalculator } from 'react-icons/tb';
+import { StatCard } from '@/components/UI/StatCard/StatCard';
+import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
 import panelStyles from './MarketPricePanel.module.scss';
 import statsStyles from './PriceStatsBar/PriceStatsBar.module.scss';
 import skelStyles from './MarketPricePanelSkeleton.module.scss';
@@ -34,9 +34,9 @@ export const MarketPricePanelSkeleton = () => (
         />
         <StatCard
           label="Total"
-          value="£00.00"
-          subValue="00 kWh"
-          icon={<TbEqual />}
+          value="00.0p"
+          subValue="0 kWh"
+          icon={<TbCalculator />}
           className={skelStyles.statSkel}
         />
       </div>

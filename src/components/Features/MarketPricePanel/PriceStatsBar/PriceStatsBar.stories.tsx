@@ -1,20 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
+import { BentoTile } from '@/components/Layout';
 import { PriceStatsBar } from './PriceStatsBar';
 import { mockStats, mockRange } from '../mockData';
 
+/**
+ * Row of Low, High, and Total stat cards for a time range. Used inside the
+ * `MarketPricePanel` header. Sub-values always show day and time (e.g. "Wed 02:30").
+ */
 const meta = {
-  title: 'Price Market/PriceStatsBar',
+  title: 'Features / Market & Price / PriceStatsBar',
   component: PriceStatsBar,
   parameters: {
     layout: 'padded',
   },
+  decorators: [
+    (Story) => (
+      <BentoTile variant="wide">
+        <Story />
+      </BentoTile>
+    ),
+  ],
 } satisfies Meta<typeof PriceStatsBar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Multi-day range — LOW/HIGH show day name + time (e.g. "Wed 02:30"). */
+/** Full range with low, high and total stats populated. */
 export const Default: Story = {
   args: {
     stats: mockStats,
@@ -22,8 +34,8 @@ export const Default: Story = {
   },
 };
 
-/** Single-day range — LOW/HIGH show time only (e.g. "02:30"). */
-export const SameDay: Story = {
+/** Narrower sub-range within a single day. */
+export const SubRange: Story = {
   args: {
     stats: mockStats,
     range: {
@@ -33,6 +45,7 @@ export const SameDay: Story = {
   },
 };
 
+/** Empty state when no price data is available. */
 export const NoData: Story = {
   args: {
     stats: { min: null, max: null, total: null, count: 0 },

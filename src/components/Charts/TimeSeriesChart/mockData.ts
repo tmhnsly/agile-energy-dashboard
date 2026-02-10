@@ -14,13 +14,6 @@ const VALUES_A = [
   44.5, 44.5, 28.8, 27.4, 26.2, 24.2, 23.4, 21.6, 20.0, 22.5, 21.8, 20.6,
 ];
 
-const VALUES_B = [
-  18.2, 17.5, 17.0, 16.8, 16.5, 15.9, 17.3, 17.6, 18.0, 19.0, 20.1, 21.2,
-  22.3, 23.5, 22.0, 22.3, 19.7, 17.5, 17.7, 18.3, 18.0, 19.0, 18.5, 17.6,
-  18.1, 17.6, 18.1, 18.2, 18.4, 18.2, 18.1, 18.3, 28.0, 30.5, 35.0, 38.5,
-  41.0, 41.0, 26.0, 25.0, 23.8, 22.0, 21.2, 19.5, 18.0, 20.3, 19.7, 18.5,
-];
-
 export const mockSeriesA: ChartSeries = {
   id: 'series-a',
   label: 'Series A',
@@ -29,16 +22,6 @@ export const mockSeriesA: ChartSeries = {
     value,
   })),
   tone: 'accent',
-};
-
-export const mockSeriesB: ChartSeries = {
-  id: 'series-b',
-  label: 'Series B',
-  data: VALUES_B.map((value, i) => ({
-    ts: BASE_DATE + i * HALF_HOUR,
-    value,
-  })),
-  tone: 'positive',
 };
 
 export const mockBands: ChartBand[] = [

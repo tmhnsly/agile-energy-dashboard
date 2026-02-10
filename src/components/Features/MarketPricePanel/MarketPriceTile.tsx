@@ -1,7 +1,7 @@
 'use client';
 
 import { useMarketData } from '@/hooks/useMarketData';
-import { BentoTile } from '@/components/Bento';
+import { BentoTile } from '@/components/Layout';
 import { MarketPricePanel } from './MarketPricePanel';
 import { MarketPricePanelSkeleton } from './MarketPricePanelSkeleton';
 import styles from './MarketPricePanel.module.scss';

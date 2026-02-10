@@ -2,18 +2,28 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Skeleton, SkeletonText, SkeletonCard } from './Skeleton';
 
+/**
+ * Loading placeholders with a pulse animation. Use the base `Skeleton` for
+ * custom shapes, or the ready-made `SkeletonText` and `SkeletonCard` composites.
+ */
 const meta = {
-  title: 'Components/Skeleton',
+  title: 'UI / Skeleton',
   component: Skeleton,
   parameters: {
     layout: 'centered',
+  },
+  argTypes: {
+    radius: {
+      control: 'select',
+      options: ['none', 'small', 'medium', 'full'],
+    },
   },
 } satisfies Meta<typeof Skeleton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Basic skeleton block in various sizes. */
+/** Basic skeleton blocks in graduated sizes. */
 export const Default: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: 300 }}>
@@ -39,20 +49,6 @@ export const Card: Story = {
   render: () => (
     <div style={{ width: 320 }}>
       <SkeletonCard lines={3} />
-    </div>
-  ),
-};
-
-/** Composed loading state — stat row + chart area. */
-export const PageLoadingState: Story = {
-  render: () => (
-    <div style={{ width: 600, display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
-        {Array.from({ length: 3 }, (_, i) => (
-          <SkeletonCard key={i} lines={1} />
-        ))}
-      </div>
-      <Skeleton width="100%" height={300} radius="medium" />
     </div>
   ),
 };

@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { ChartLegend } from './ChartLegend';
 
+/** Colour-swatch legend for chart lines and band overlays. Defaults to the Price + Flex pair. */
 const meta = {
-  title: 'Charts/ChartLegend',
+  title: 'Charts / ChartLegend',
   component: ChartLegend,
   parameters: {
     layout: 'centered',

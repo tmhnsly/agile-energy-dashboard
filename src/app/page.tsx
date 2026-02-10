@@ -1,6 +1,5 @@
-import { MarketPriceTile } from "@/components/MarketPricePanel";
-import { Section, Container } from "@/components/Layout";
-import { BentoGrid, BentoTile } from "@/components/Bento";
+import { MarketPriceTile } from "@/components/Features/MarketPricePanel";
+import { Section, Container, BentoGrid, BentoTile } from "@/components/Layout";
 import styles from "./page.module.scss";
 
 export default function Home() {

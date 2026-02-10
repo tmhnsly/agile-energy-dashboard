@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/UI/Button/Button';
 import styles from './QuickRangeBar.module.scss';
 
 const PRESETS = [

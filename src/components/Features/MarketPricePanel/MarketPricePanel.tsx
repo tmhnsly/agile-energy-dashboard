@@ -7,7 +7,7 @@ import type { ChartSeries, ChartBand } from '@/types/chart';
 import { usePriceRange } from '@/hooks/usePriceRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
 import { formatDateTime, formatPricePerKwh } from '@/utils/format';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/UI/Button/Button';
 import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
