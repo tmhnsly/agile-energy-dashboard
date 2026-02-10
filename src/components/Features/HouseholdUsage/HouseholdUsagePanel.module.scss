@@ -58,10 +58,15 @@
 
 .chartControls {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-3);
 
+  > :first-child {
+    flex: 999 1 auto;
+  }
+
   > :last-child {
-    margin-left: auto;
+    flex: 1 0 auto;
   }
 }

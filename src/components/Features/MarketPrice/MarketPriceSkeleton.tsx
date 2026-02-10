@@ -1,21 +1,20 @@
 import { TbTriangleInvertedFilled, TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
-import tileStyles from './MarketPricePanel.module.scss';
+import panelStyles from './MarketPricePanel.module.scss';
 import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
 import skelStyles from './MarketPriceSkeleton.module.scss';
 
 /**
  * Skeleton that mirrors the exact layout of the MarketPricePanel content.
- * Uses the real StatCard (default neutral tone) with invisible placeholder
- * text that reserves the correct dimensions. No tone prop = no coloured borders.
+ * Heights match the real typography line boxes so spacing is identical.
  */
 export const MarketPriceSkeleton = () => (
-  <div className={tileStyles.content}>
-    <div className={tileStyles.headerTop}>
-      <div className={tileStyles.headerGroup}>
-        <Skeleton width="10rem" height="1.25rem" radius="small" />
-        <Skeleton width="14rem" height="0.875rem" radius="small" />
+  <div className={panelStyles.content}>
+    <div className={panelStyles.headerTop}>
+      <div className={panelStyles.headerGroup}>
+        <Skeleton width="10rem" height="1.4rem" radius="small" />
+        <Skeleton width="14rem" height="1.25rem" radius="small" />
       </div>
       <div className={statsStyles.statsRow}>
         <StatCard
@@ -42,19 +41,23 @@ export const MarketPriceSkeleton = () => (
       </div>
     </div>
 
-    <div className={tileStyles.chartArea}>
+    <div className={panelStyles.chartArea}>
       <Skeleton width="100%" height="100%" radius="medium" />
     </div>
 
-    <div className={tileStyles.chartLegend}>
-      <Skeleton width="8rem" height="0.875rem" radius="small" />
-      <Skeleton width="4rem" height="1.75rem" radius="small" />
+    <div className={panelStyles.chartLegend}>
+      <Skeleton width="8rem" height="1.5rem" radius="small" />
+      <Skeleton width="5.5rem" height="1.5rem" radius="small" />
     </div>
 
-    <div className={tileStyles.chartControls}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <Skeleton key={i} width="3rem" height="1.75rem" radius="small" />
-      ))}
+    <div className={panelStyles.chartControls}>
+      <div className={skelStyles.presets}>
+        <Skeleton width="2.75rem" height="2rem" radius="full" />
+        <Skeleton width="2.5rem" height="2rem" radius="full" />
+        <Skeleton width="3rem" height="2rem" radius="full" />
+        <Skeleton width="3rem" height="2rem" radius="full" />
+      </div>
+      <Skeleton width="7rem" height="2rem" radius="full" />
     </div>
   </div>
 );
