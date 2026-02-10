@@ -19,6 +19,10 @@
   &[data-radius='full'] {
     border-radius: var(--radius-full);
   }
+
+  &[data-radius='pill'] {
+    border-radius: 3em;
+  }
 }
 
 .textGroup {

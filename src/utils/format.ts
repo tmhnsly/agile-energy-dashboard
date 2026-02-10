@@ -25,8 +25,7 @@ export function formatDayShort(ts: number): string {
 }
 
 /**
- * Format a timestamp for stat-card display — always includes the day name
- * so the context is visible regardless of range width (e.g. "Wed 02:30").
+ * Format a timestamp for stat-card display (e.g. "13 Mar, 14:30").
  *
  * The range parameters are accepted for call-site compatibility but are
  * currently unused.
@@ -37,7 +36,7 @@ export function formatStatTime(
   _rangeToTs: number,
 ): string {
   if (!isFinite(ts)) return '—';
-  return format(new UTCDate(ts), 'EEE HH:mm');
+  return format(new UTCDate(ts), 'd MMM, HH:mm');
 }
 
 /** Format a kWh value with two decimal places (e.g. "1.23 kWh"). */

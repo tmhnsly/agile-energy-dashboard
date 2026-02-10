@@ -4,7 +4,7 @@ import styles from './Skeleton.module.scss';
 export interface SkeletonProps {
   width?: string | number;
   height?: string | number;
-  radius?: 'none' | 'small' | 'medium' | 'full';
+  radius?: 'none' | 'small' | 'medium' | 'full' | 'pill';
   className?: string;
 }
 

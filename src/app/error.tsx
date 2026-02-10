@@ -1,9 +1,10 @@
 'use client';
 
+import { TbPlugX } from 'react-icons/tb';
+import { Button } from '@/components/UI/Button/Button';
 import styles from './status-page.module.scss';
 
 export default function Error({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -11,13 +12,15 @@ export default function Error({
 }) {
   return (
     <div className={styles.page}>
-      <h2 className={styles.heading}>Something went wrong</h2>
+      <div className={styles.icon} aria-hidden="true">
+        <TbPlugX size="100%" />
+      </div>
+      <p className={styles.code}>500</p>
+      <h2 className={styles.heading}>Well, that&apos;s not great</h2>
       <p className={styles.message}>
-        {error.message || 'An unexpected error occurred.'}
+        Something broke on our end. Give it another go.
       </p>
-      <button onClick={reset} className={styles.retryBtn}>
-        Try again
-      </button>
+      <Button label="Try again" variant="soft" color="accent" size="small" onClick={reset} />
     </div>
   );
 }

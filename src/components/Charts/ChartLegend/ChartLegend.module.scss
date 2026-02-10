@@ -23,6 +23,26 @@
   border-radius: 1px; /* pill ends */
   background-color: var(--accent-solid);
   opacity: 0.6;
+
+  &[data-tone='accent'] {
+    background-color: var(--accent-solid);
+  }
+
+  &[data-tone='secondary'] {
+    background-color: var(--secondary-solid);
+  }
+
+  &[data-tone='positive'] {
+    background-color: var(--positive-solid);
+  }
+
+  &[data-tone='negative'] {
+    background-color: var(--negative-solid);
+  }
+
+  &[data-tone='warning'] {
+    background-color: var(--warning-solid);
+  }
 }
 
 .swatchBand {
@@ -33,6 +53,31 @@
   background-color: var(--secondary-bg);
   border-left: 2px solid var(--secondary-border);
   opacity: 0.6;
+
+  &[data-tone='accent'] {
+    background-color: var(--accent-bg);
+    border-left-color: var(--accent-border);
+  }
+
+  &[data-tone='secondary'] {
+    background-color: var(--secondary-bg);
+    border-left-color: var(--secondary-border);
+  }
+
+  &[data-tone='positive'] {
+    background-color: var(--positive-bg);
+    border-left-color: var(--positive-border);
+  }
+
+  &[data-tone='negative'] {
+    background-color: var(--negative-bg);
+    border-left-color: var(--negative-border);
+  }
+
+  &[data-tone='warning'] {
+    background-color: var(--warning-bg);
+    border-left-color: var(--warning-border);
+  }
 }
 
 .label {

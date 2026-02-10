@@ -9,7 +9,8 @@ import { useTimeRange } from '@/hooks/useTimeRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
 import { formatDateTime, formatPricePerKwh } from '@/utils/format';
 import { ClearSelectionButton } from '@/components/UI';
-import { TimeSeriesChart, ChartLegend, CheapestWindowBar } from '@/components/Charts';
+import { TimeSeriesChart, ChartLegend, DurationPresetBar } from '@/components/Charts';
+import type { ChartLegendItem } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
 import styles from './MarketPricePanel.module.scss';
@@ -57,6 +58,11 @@ export const MarketPricePanel = ({
       tone: 'secondary' as const,
     })),
   [flexEvents]);
+
+  const legendItems: ChartLegendItem[] = useMemo(() => [
+    ...chartSeries.map(s => ({ label: s.label, type: 'line' as const, tone: s.tone })),
+    ...(chartBands.length > 0 ? [{ label: 'Flex event', type: 'band' as const, tone: 'secondary' as const }] : []),
+  ], [chartSeries, chartBands]);
 
   const chartDescription = useMemo(() => {
     const from = formatDateTime(fullRange.fromTs);
@@ -140,11 +146,11 @@ export const MarketPricePanel = ({
       </div>
 
       <div className={styles.chartLegend}>
-        <ChartLegend />
+        <ChartLegend items={legendItems} />
       </div>
 
       <div className={styles.chartControls}>
-        <CheapestWindowBar
+        <DurationPresetBar
           activePreset={activePreset}
           onPresetSelect={handlePresetSelect}
         />

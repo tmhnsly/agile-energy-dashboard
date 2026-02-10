@@ -84,8 +84,8 @@ describe('formatDayShort', () => {
 // ---------------------------------------------------------------------------
 
 describe('formatStatTime', () => {
-  it('formats as EEE HH:mm', () => {
-    expect(formatStatTime(TS, 0, 0)).toBe('Thu 14:30');
+  it('formats as d MMM, HH:mm', () => {
+    expect(formatStatTime(TS, 0, 0)).toBe('13 Mar, 14:30');
   });
 
   it('returns dash for non-finite input', () => {

@@ -1,3 +1,4 @@
+export { BackButton } from './BackButton/BackButton';
 export { Button } from './Button/Button';
 export { ClearSelectionButton } from './ClearSelectionButton/ClearSelectionButton';
 export type { ClearSelectionButtonProps } from './ClearSelectionButton/ClearSelectionButton';
