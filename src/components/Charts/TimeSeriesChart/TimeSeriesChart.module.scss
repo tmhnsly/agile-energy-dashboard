@@ -192,6 +192,26 @@
   }
 }
 
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.tooltipSwatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tooltipLabel {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  font-size: var(--text-xs);
+}
+
 .tooltipBand {
   @include type.typography(meta);
   display: flex;

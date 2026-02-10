@@ -6,6 +6,8 @@ import {
   formatDayShort,
   formatStatTime,
   formatDuration,
+  formatKwhValue,
+  formatCostPence,
 } from './format';
 
 // Fixed timestamp: 2025-03-13T14:30:00Z
@@ -87,6 +89,46 @@ describe('formatStatTime', () => {
 
   it('returns dash for non-finite input', () => {
     expect(formatStatTime(NaN, 0, 0)).toBe('—');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatKwhValue
+// ---------------------------------------------------------------------------
+
+describe('formatKwhValue', () => {
+  it('formats to two decimal places', () => {
+    expect(formatKwhValue(1.234)).toBe('1.23 kWh');
+  });
+
+  it('pads short decimals', () => {
+    expect(formatKwhValue(5)).toBe('5.00 kWh');
+  });
+
+  it('handles zero', () => {
+    expect(formatKwhValue(0)).toBe('0.00 kWh');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatCostPence
+// ---------------------------------------------------------------------------
+
+describe('formatCostPence', () => {
+  it('formats below 100p as pence', () => {
+    expect(formatCostPence(42.5)).toBe('42.5p');
+  });
+
+  it('formats 100p+ as pounds', () => {
+    expect(formatCostPence(142.5)).toBe('£1.43');
+  });
+
+  it('formats exactly 100p as pounds', () => {
+    expect(formatCostPence(100)).toBe('£1.00');
+  });
+
+  it('handles zero', () => {
+    expect(formatCostPence(0)).toBe('0.0p');
   });
 });
 

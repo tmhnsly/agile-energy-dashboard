@@ -1,0 +1,63 @@
+@use 'mixins/container-queries' as cq;
+@use 'mixins/typography' as type;
+@use 'mixins/layout' as layout;
+
+/* Layout-only content wrapper — card shell (padding, border, bg) is on BentoTile */
+.content {
+  @include layout.stack(var(--card-gap));
+  min-width: 0;
+}
+
+.headerTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  @include cq.large {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--card-gap);
+  }
+}
+
+.headerGroup {
+  @include layout.stack(var(--card-header-gap));
+}
+
+.title {
+  @include type.typography(card-title);
+  color: var(--mono-text);
+  margin: 0;
+}
+
+.rangeSummary {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-1);
+
+  > span {
+    white-space: nowrap;
+  }
+}
+
+.chartFooter {
+  @include layout.cluster(var(--chart-footer-gap));
+  justify-content: space-between;
+}
+
+.chartArea {
+  overflow: visible;
+  height: 240px;
+
+  @include cq.medium {
+    height: 300px;
+  }
+
+  @include cq.large {
+    height: 380px;
+  }
+}

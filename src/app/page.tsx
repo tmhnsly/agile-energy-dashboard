@@ -1,5 +1,5 @@
-import { MarketPriceTile } from "@/components/Features/MarketPriceTile";
-import { Section, Container, BentoGrid, BentoTile } from "@/components/Layout";
+import { DashboardShell } from "@/components/Features/DashboardShell/DashboardShell";
+import { Section, Container } from "@/components/Layout";
 import styles from "./page.module.scss";
 
 export default function Home() {
@@ -8,21 +8,7 @@ export default function Home() {
       <Section variant="surface">
         <Container>
           <h1 className={styles.heading}>Dashboard</h1>
-          <BentoGrid>
-            <MarketPriceTile />
-            <BentoTile>
-              <h3 className={styles.tileTitle}>Coming Soon</h3>
-              <p className={styles.tileText}>
-                Additional dashboard features will appear here.
-              </p>
-            </BentoTile>
-            <BentoTile>
-              <h3 className={styles.tileTitle}>Notifications</h3>
-              <p className={styles.tileText}>
-                Price alerts and flex event notifications.
-              </p>
-            </BentoTile>
-          </BentoGrid>
+          <DashboardShell />
         </Container>
       </Section>
     </main>

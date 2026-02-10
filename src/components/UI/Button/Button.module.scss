@@ -20,6 +20,18 @@
   --_text-lc: var(--accent-text-low-contrast);
   --_on-solid: var(--accent-on-solid);
 
+  &[data-color="mono"] {
+    --_bg: var(--mono-bg);
+    --_bg-hover: var(--mono-bg-hover);
+    --_bg-active: var(--mono-bg-active);
+    --_border: var(--mono-border);
+    --_border-hover: var(--mono-border-hover);
+    --_solid: var(--mono-solid);
+    --_solid-hover: var(--mono-solid-hover);
+    --_text-lc: var(--mono-text-low-contrast);
+    --_on-solid: #fff;
+  }
+
   &[data-color="error"] {
     --_bg: var(--error-bg);
     --_bg-hover: var(--error-bg-hover);

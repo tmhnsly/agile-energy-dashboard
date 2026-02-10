@@ -7,6 +7,11 @@ import { playwright } from '@vitest/browser-playwright';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(dirname, 'src'),
+    },
+  },
   test: {
     projects: [
       // Unit tests — pure logic (mappers, formatters, utilities)

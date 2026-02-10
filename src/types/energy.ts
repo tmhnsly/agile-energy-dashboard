@@ -35,6 +35,18 @@ export interface TimeRange {
   toTs: number;
 }
 
+/** Which household profile to display. */
+export type HouseholdKey = 'standard' | 'heatPump' | 'heatPumpBattery';
+
+/** Aggregated usage statistics for a household over a time range. */
+export interface UsageStats {
+  totalKwh: number;
+  estimatedCostPence: number;
+  peak: { kwh: number; ts: number } | null;
+  low: { kwh: number; ts: number } | null;
+  count: number;
+}
+
 /** Aggregated price statistics for a given time range. */
 export interface PriceStats {
   /** Lowest price point in the range, or `null` if empty. */

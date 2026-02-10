@@ -141,9 +141,9 @@ export const MarketPricePanel = ({
       <div className={styles.chartFooter}>
         <ChartLegend />
         <Button
-          label="Reset"
+          label={isCustomRange ? 'Clear selection' : 'Select a range'}
           variant="soft"
-          color="warning"
+          color="mono"
           size="small"
           disabled={!isCustomRange}
           onClick={resetRange}

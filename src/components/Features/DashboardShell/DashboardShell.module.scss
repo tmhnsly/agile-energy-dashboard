@@ -1,0 +1,27 @@
+@use 'mixins/typography' as type;
+@use 'mixins/container-queries' as cq;
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  @include type.typography(meta);
+  color: var(--error-text-low-contrast);
+
+  @include cq.large {
+    min-height: 300px;
+  }
+}
+
+.tileTitle {
+  @include type.typography(card-title);
+  color: var(--mono-text);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.tileText {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  margin: 0;
+}

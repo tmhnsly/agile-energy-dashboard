@@ -40,6 +40,17 @@ export function formatStatTime(
   return format(new UTCDate(ts), 'EEE HH:mm');
 }
 
+/** Format a kWh value with two decimal places (e.g. "1.23 kWh"). */
+export function formatKwhValue(kwh: number): string {
+  return `${kwh.toFixed(2)} kWh`;
+}
+
+/** Format a cost in pence — switches to pounds above 100p (e.g. "42.5p" or "£1.43"). */
+export function formatCostPence(pence: number): string {
+  if (pence >= 100) return `£${(pence / 100).toFixed(2)}`;
+  return `${pence.toFixed(1)}p`;
+}
+
 /**
  * Format the difference between two timestamps as a compact duration
  * string (e.g. "6h 00m" or "45m").

@@ -54,14 +54,27 @@ interface TooltipContentProps {
   formatTooltipValue: (v: number) => string;
 }
 
+/** Maps series tone tokens to CSS custom-property stroke colours. */
+const TONE_COLOR: Record<string, string> = {
+  accent: 'var(--accent-solid)',
+  positive: 'var(--success-solid)',
+  negative: 'var(--error-solid)',
+  warning: 'var(--warning-solid)',
+};
+
 /**
  * Renders the tooltip popup content: timestamp, series values, and an
  * optional band badge.  Displayed inside a visx `TooltipInPortal`.
+ *
+ * When multiple series are visible, each value row shows a coloured dot
+ * and the series label so the user can tell which line is which.
  */
 export const TooltipContent = memo(function TooltipContent({
   tooltipData,
   formatTooltipValue,
 }: TooltipContentProps) {
+  const multiSeries = tooltipData.values.length > 1;
+
   return (
     <>
       <div className={styles.tooltipTime}>
@@ -70,6 +83,16 @@ export const TooltipContent = memo(function TooltipContent({
       <div className={styles.tooltipValues}>
         {tooltipData.values.map((v) => (
           <div key={v.seriesId} className={styles.tooltipValue}>
+            {multiSeries && (
+              <span className={styles.tooltipRow}>
+                <span
+                  className={styles.tooltipSwatch}
+                  style={{ backgroundColor: TONE_COLOR[v.tone ?? 'accent'] }}
+                  aria-hidden="true"
+                />
+                <span className={styles.tooltipLabel}>{v.label}</span>
+              </span>
+            )}
             {formatTooltipValue(v.value)}
           </div>
         ))}

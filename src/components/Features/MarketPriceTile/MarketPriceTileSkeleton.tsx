@@ -1,4 +1,4 @@
-import { TbTriangleInvertedFilled, TbTriangleFilled, TbCalculator } from 'react-icons/tb';
+import { TbTriangleInvertedFilled, TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
 import tileStyles from './MarketPriceTile.module.scss';
@@ -36,7 +36,7 @@ export const MarketPriceTileSkeleton = () => (
           label="Total"
           value="00.0p"
           subValue="0 kWh"
-          icon={<TbCalculator />}
+          icon={<TbBoltFilled />}
           className={skelStyles.statSkel}
         />
       </div>

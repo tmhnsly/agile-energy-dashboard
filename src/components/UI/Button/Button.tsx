@@ -1,7 +1,7 @@
 import styles from './Button.module.scss';
 
 export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
-export type ButtonColor = 'accent' | 'error' | 'success' | 'warning' | 'info';
+export type ButtonColor = 'accent' | 'error' | 'success' | 'warning' | 'info' | 'mono';
 
 export interface ButtonProps {
   /** Visual weight of the button */
@@ -16,6 +16,8 @@ export interface ButtonProps {
   onClick?: () => void;
   /** Disabled state */
   disabled?: boolean;
+  /** Toggle pressed state — sets `aria-pressed` for toggle-button semantics. */
+  pressed?: boolean;
 }
 
 export const Button = ({
@@ -24,6 +26,7 @@ export const Button = ({
   color = 'accent',
   label,
   disabled,
+  pressed,
   ...props
 }: ButtonProps) => {
   return (
@@ -34,6 +37,7 @@ export const Button = ({
       data-size={size}
       data-color={color}
       disabled={disabled}
+      {...(pressed != null ? { 'aria-pressed': pressed } : {})}
       {...props}
     >
       {label}
