@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import styles from './Button.module.scss';
 
 export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
-export type ButtonColor = 'accent' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'mono';
+export type ButtonColor = 'accent' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'mono' | 'cyan' | 'purple' | 'pink';
 
 export interface ButtonProps {
   /** Visual weight of the button */
@@ -12,6 +13,8 @@ export interface ButtonProps {
   color?: ButtonColor;
   /** Button contents */
   label: string;
+  /** Optional leading icon */
+  icon?: ReactNode;
   /** Optional click handler */
   onClick?: () => void;
   /** Disabled state */
@@ -25,6 +28,7 @@ export const Button = ({
   size = 'medium',
   color = 'accent',
   label,
+  icon,
   disabled,
   pressed,
   ...props
@@ -40,6 +44,7 @@ export const Button = ({
       {...(pressed != null ? { 'aria-pressed': pressed } : {})}
       {...props}
     >
+      {icon && <span className={styles.icon}>{icon}</span>}
       {label}
     </button>
   );

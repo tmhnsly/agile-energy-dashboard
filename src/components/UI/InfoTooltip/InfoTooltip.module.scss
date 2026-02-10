@@ -1,0 +1,87 @@
+@use 'mixins/typography' as type;
+@use 'mixins/surfaces' as surface;
+
+/* ── Trigger: inline (i) icon at current text size ──────── */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: var(--info-solid);
+  font-size: 1.15em; /* slightly larger than surrounding text for legibility */
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  /* Ensure minimum 24px tap target regardless of parent font size */
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--info-solid-hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Tooltip panel: translucent glass ──────── */
+
+.content {
+  @include surface.glass-panel;
+  @include type.typography(body);
+  min-width: 14rem;
+  max-width: 20rem;
+  padding: var(--space-3) var(--space-4);
+  color: var(--mono-text);
+  border-radius: var(--radius-4);
+  z-index: 50;
+
+  /* Radix animation */
+  animation-duration: 0.15s;
+  animation-timing-function: ease-out;
+
+  &[data-state='delayed-open'][data-side='top'],
+  &[data-state='instant-open'][data-side='top'] {
+    animation-name: slideDown;
+  }
+
+  &[data-state='delayed-open'][data-side='bottom'],
+  &[data-state='instant-open'][data-side='bottom'] {
+    animation-name: slideUp;
+  }
+}
+
+.arrow {
+  fill: var(--surface-2);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

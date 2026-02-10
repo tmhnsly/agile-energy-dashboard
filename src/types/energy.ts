@@ -15,6 +15,12 @@ export interface FlexEvent {
   endTs: number;
   /** Event type, e.g. "turn down". */
   label?: string;
+  /** Incentive price in £/kWh for participating in this event. */
+  pricePerKwh?: number;
+  /** Minimum flexibility in kWh the event requires. */
+  minFlexKwh?: number;
+  /** Maximum flexibility in kWh the event allows. */
+  maxFlexKwh?: number;
 }
 
 /** A single row of household electricity consumption data. */
@@ -60,4 +66,20 @@ export interface PriceStats {
   total: number | null;
   /** Number of half-hour intervals in the range. */
   count: number;
+}
+
+/** Potential earnings from participating in a single flex event. */
+export interface FlexEarningResult {
+  event: FlexEvent;
+  /** kWh that could be shifted (clamped to min/max). */
+  shiftableKwh: number;
+  /** Potential earnings in pence. */
+  earningsPence: number;
+}
+
+/** Result of simulating a usage shift between two time slots. */
+export interface ShiftResult {
+  originalCostPence: number;
+  newCostPence: number;
+  savingPence: number;
 }

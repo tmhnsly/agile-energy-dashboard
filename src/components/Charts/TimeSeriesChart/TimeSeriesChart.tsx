@@ -88,6 +88,9 @@ const TONE_STROKE: Record<string, string> = {
   positive: 'var(--success-solid)',
   negative: 'var(--error-solid)',
   warning: 'var(--warning-solid)',
+  cyan: 'var(--cyan-solid)',
+  purple: 'var(--purple-solid)',
+  pink: 'var(--pink-solid)',
 };
 
 /* ------------------------------------------------------------------ */

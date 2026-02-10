@@ -38,6 +38,14 @@
     --_text-lc: var(--accent-text-low-contrast);
   }
 
+  &[data-tone="secondary"] {
+    --_bg: var(--secondary-bg);
+    --_border: var(--secondary-border);
+    --_solid: var(--secondary-solid);
+    --_text: var(--secondary-text);
+    --_text-lc: var(--secondary-text-low-contrast);
+  }
+
   background-color: var(--_bg);
   border: 1px solid var(--_border);
 }

@@ -47,7 +47,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
           value: stats.total != null ? formatCostPence(stats.total) : '—',
           subValue: stats.count > 0 ? formatKwh(range) : '\u00A0',
           icon: <TbBoltFilled aria-hidden="true" />,
-          tone: 'neutral',
+          tone: 'secondary',
         },
       ]}
     />

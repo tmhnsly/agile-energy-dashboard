@@ -128,6 +128,30 @@ describe('mapFlexEvents', () => {
     const events = mapFlexEvents(raw, dayStart, dayEnd);
     expect(events[0].startTs).toBeLessThan(events[1].startTs);
   });
+
+  it('parses optional pricing and flexibility fields', () => {
+    const raw = [{
+      start_time: '18:00',
+      end_time: '19:30',
+      event_type: 'demand_turn_down',
+      price_per_kWh: 1.5,
+      min_flexibility_kWh: 0.5,
+      max_flexibility_kWh: 3.0,
+    }];
+    const events = mapFlexEvents(raw, dayStart, dayEnd);
+    expect(events).toHaveLength(1);
+    expect(events[0].pricePerKwh).toBe(1.5);
+    expect(events[0].minFlexKwh).toBe(0.5);
+    expect(events[0].maxFlexKwh).toBe(3.0);
+  });
+
+  it('leaves new fields undefined when not present in raw data', () => {
+    const raw = [{ start_time: '18:00', end_time: '19:30' }];
+    const events = mapFlexEvents(raw, dayStart, dayEnd);
+    expect(events[0].pricePerKwh).toBeUndefined();
+    expect(events[0].minFlexKwh).toBeUndefined();
+    expect(events[0].maxFlexKwh).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------

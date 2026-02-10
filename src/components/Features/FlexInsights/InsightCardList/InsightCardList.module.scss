@@ -1,0 +1,33 @@
+@use 'mixins/container-queries' as cq;
+@use 'mixins/layout' as layout;
+
+.cards {
+  @include layout.stack(var(--space-3));
+
+  /* 2 cards — side by side when there's room */
+  &[data-count='2'] {
+    @include cq.medium {
+      display: flex;
+      gap: var(--space-3);
+
+      > * {
+        flex: 1 1 0;
+      }
+    }
+  }
+
+  /* 3+ cards — cost card full width, earnings grid below */
+  &[data-count='3'],
+  &[data-count='4'] {
+    @include cq.medium {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: var(--space-3);
+
+      /* Daily cost card spans the full row */
+      > *:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+}

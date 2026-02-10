@@ -8,6 +8,9 @@
 @use "@radix-ui/colors/amber.css";
 @use "@radix-ui/colors/orange.css";
 @use "@radix-ui/colors/indigo.css";
+@use "@radix-ui/colors/cyan.css";
+@use "@radix-ui/colors/purple.css";
+@use "@radix-ui/colors/pink.css";
 
 /* =================================================================
  * Dark — Radix raw values on .dark, .dark-theme (+ P3 support)
@@ -19,6 +22,9 @@
 @use "@radix-ui/colors/amber-dark.css";
 @use "@radix-ui/colors/orange-dark.css";
 @use "@radix-ui/colors/indigo-dark.css";
+@use "@radix-ui/colors/cyan-dark.css";
+@use "@radix-ui/colors/purple-dark.css";
+@use "@radix-ui/colors/pink-dark.css";
 
 /* =================================================================
  * Semantic token layer
@@ -139,6 +145,53 @@
   --info-text: var(--indigo-12);
   --info-on-solid: #fff;
 
+  /* ── Household data-viz palette ──────── */
+
+  /* Cyan — Standard household */
+  --cyan-app-bg: var(--cyan-1);
+  --cyan-subtle-bg: var(--cyan-2);
+  --cyan-bg: var(--cyan-3);
+  --cyan-bg-hover: var(--cyan-4);
+  --cyan-bg-active: var(--cyan-5);
+  --cyan-border-subtle: var(--cyan-6);
+  --cyan-border: var(--cyan-7);
+  --cyan-border-hover: var(--cyan-8);
+  --cyan-solid: var(--cyan-9);
+  --cyan-solid-hover: var(--cyan-10);
+  --cyan-text-low-contrast: var(--cyan-11);
+  --cyan-text: var(--cyan-12);
+  --cyan-on-solid: #fff;
+
+  /* Purple — Heat Pump household */
+  --purple-app-bg: var(--purple-1);
+  --purple-subtle-bg: var(--purple-2);
+  --purple-bg: var(--purple-3);
+  --purple-bg-hover: var(--purple-4);
+  --purple-bg-active: var(--purple-5);
+  --purple-border-subtle: var(--purple-6);
+  --purple-border: var(--purple-7);
+  --purple-border-hover: var(--purple-8);
+  --purple-solid: var(--purple-9);
+  --purple-solid-hover: var(--purple-10);
+  --purple-text-low-contrast: var(--purple-11);
+  --purple-text: var(--purple-12);
+  --purple-on-solid: #fff;
+
+  /* Pink — Heat Pump + Battery household */
+  --pink-app-bg: var(--pink-1);
+  --pink-subtle-bg: var(--pink-2);
+  --pink-bg: var(--pink-3);
+  --pink-bg-hover: var(--pink-4);
+  --pink-bg-active: var(--pink-5);
+  --pink-border-subtle: var(--pink-6);
+  --pink-border: var(--pink-7);
+  --pink-border-hover: var(--pink-8);
+  --pink-solid: var(--pink-9);
+  --pink-solid-hover: var(--pink-10);
+  --pink-text-low-contrast: var(--pink-11);
+  --pink-text: var(--pink-12);
+  --pink-on-solid: #fff;
+
   /* Focus ring */
   --focus-ring: var(--blue-8);
 
@@ -193,4 +246,9 @@
   --success-solid-hover: #0a8476;
   --error-solid: #c33d41;
   --error-solid-hover: #c94d51;
+
+  /* Household data-viz palette */
+  --cyan-text-low-contrast: #0c7490;
+  --cyan-solid: #007d9e;
+  --cyan-solid-hover: #0d89a8;
 }

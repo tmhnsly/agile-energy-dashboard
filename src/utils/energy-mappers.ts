@@ -108,6 +108,10 @@ export function mapFlexEvents(
         ? rec.event_type.replace(/_/g, ' ')
         : undefined;
 
+    const pricePerKwh = typeof rec.price_per_kWh === 'number' ? rec.price_per_kWh : undefined;
+    const minFlexKwh = typeof rec.min_flexibility_kWh === 'number' ? rec.min_flexibility_kWh : undefined;
+    const maxFlexKwh = typeof rec.max_flexibility_kWh === 'number' ? rec.max_flexibility_kWh : undefined;
+
     const isTimeOnly =
       typeof startRaw === 'string' && !startRaw.includes('-');
 
@@ -128,6 +132,9 @@ export function mapFlexEvents(
             startTs,
             endTs,
             label,
+            pricePerKwh,
+            minFlexKwh,
+            maxFlexKwh,
           });
         }
         day = addDays(day, 1);
@@ -136,7 +143,7 @@ export function mapFlexEvents(
       const startTs = anchorTimeToDate(startRaw, firstDay);
       const endTs = anchorTimeToDate(endRaw, firstDay);
       if (startTs !== null && endTs !== null) {
-        events.push({ id: `flex-${i}`, startTs, endTs, label });
+        events.push({ id: `flex-${i}`, startTs, endTs, label, pricePerKwh, minFlexKwh, maxFlexKwh });
       }
     }
   }

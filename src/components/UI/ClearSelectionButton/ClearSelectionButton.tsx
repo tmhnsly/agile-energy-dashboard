@@ -13,7 +13,7 @@ export const ClearSelectionButton = memo(function ClearSelectionButton({
   return (
     <Button
       label="Clear selection"
-      variant="soft"
+      variant="outline"
       color="mono"
       size="small"
       disabled={disabled}

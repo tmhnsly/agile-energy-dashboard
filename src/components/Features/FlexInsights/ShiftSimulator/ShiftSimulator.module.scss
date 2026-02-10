@@ -1,0 +1,99 @@
+@use 'mixins/container-queries' as cq;
+@use 'mixins/typography' as type;
+@use 'mixins/layout' as layout;
+
+.content {
+  @include layout.stack(var(--card-gap));
+  min-width: 0;
+}
+
+.headerGroup {
+  @include layout.stack(var(--card-header-gap));
+}
+
+.title {
+  @include type.typography(card-title);
+  color: var(--mono-text);
+  margin: 0;
+}
+
+.subtitle {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  margin: 0;
+}
+
+.controlGroup {
+  @include layout.stack(var(--space-2));
+}
+
+.controlLabelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.controlLabel {
+  @include type.typography(meta);
+  color: var(--mono-text);
+}
+
+.controlHint {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+}
+
+/* ── 2×2 pill button grid ──────── */
+
+.pillGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+/* ── Tooltip time table ──────── */
+
+.timeTable {
+  border-spacing: var(--space-1) var(--space-2);
+}
+
+.timeTableLabel {
+  padding-right: var(--space-3);
+  color: inherit;
+  font-weight: var(--weight-semibold);
+}
+
+.timeTableRange {
+  color: var(--mono-text-low-contrast);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Result row ──────── */
+
+.savingRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.savingValue {
+  @include type.typography(card-title);
+
+  &[data-tone='positive'] {
+    color: var(--success-text);
+  }
+
+  &[data-tone='negative'] {
+    color: var(--danger-text);
+  }
+
+  &[data-tone='neutral'] {
+    color: var(--mono-text);
+  }
+}
+
+.savingBreakdown {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+}
