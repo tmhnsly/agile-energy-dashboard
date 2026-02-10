@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { hoursToMilliseconds, minutesToMilliseconds } from 'date-fns';
+import { HALF_HOUR_MS, HOUR_MS } from '@/utils/constants';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
@@ -15,8 +15,6 @@ import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
 import styles from './MarketPricePanel.module.scss';
 
-const HOUR_MS = hoursToMilliseconds(1);
-const HALF_HOUR_MS = minutesToMilliseconds(30);
 const PRESET_HOURS = [6, 12, 24] as const;
 
 function formatYTickWithUnit(v: number): string {

@@ -85,11 +85,11 @@ describe('formatDayShort', () => {
 
 describe('formatStatTime', () => {
   it('formats as d MMM, HH:mm', () => {
-    expect(formatStatTime(TS, 0, 0)).toBe('13 Mar, 14:30');
+    expect(formatStatTime(TS)).toBe('13 Mar, 14:30');
   });
 
   it('returns dash for non-finite input', () => {
-    expect(formatStatTime(NaN, 0, 0)).toBe('—');
+    expect(formatStatTime(NaN)).toBe('—');
   });
 });
 

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { localPoint } from '@visx/event';
 import { useTooltip } from '@visx/tooltip';
+import { clamp } from '@/utils/math';
 
 /*
  * Drag state machine
@@ -29,10 +30,6 @@ const MOBILE_WIDTH_THRESHOLD = 480;
 const HANDLE_HIT_WIDTH_MOBILE = 24;
 /** Hit-test width (px) for selection edge handles on desktop. */
 const HANDLE_HIT_WIDTH_DESKTOP = 16;
-
-function clamp(val: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, val));
-}
 
 /* ── Types ─────────────────────────────────────────── */
 

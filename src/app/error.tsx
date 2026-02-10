@@ -1,6 +1,6 @@
 'use client';
 
-import { TbPlugX } from 'react-icons/tb';
+import { TbServerOff } from 'react-icons/tb';
 import { Button } from '@/components/UI/Button/Button';
 import styles from './status-page.module.scss';
 
@@ -13,7 +13,7 @@ export default function Error({
   return (
     <div className={styles.page}>
       <div className={styles.icon} style={{ color: 'var(--error-text-low-contrast)' }} aria-hidden="true">
-        <TbPlugX size="100%" />
+        <TbServerOff size="100%" />
       </div>
       <p className={styles.code}>500</p>
       <h2 className={styles.heading}>Well, that&apos;s not great</h2>

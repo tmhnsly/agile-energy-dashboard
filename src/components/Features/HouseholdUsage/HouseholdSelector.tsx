@@ -1,12 +1,10 @@
 'use client';
 
 import { memo, useCallback } from 'react';
-import type { HouseholdKey } from '@/types/energy';
+import { ALL_HOUSEHOLD_KEYS, type HouseholdKey } from '@/types/energy';
 import type { ButtonColor } from '@/components/UI/Button/Button';
 import { Button } from '@/components/UI/Button/Button';
 import styles from './HouseholdSelector.module.scss';
-
-const ALL_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
 
 const HOUSEHOLD_OPTIONS: { label: string; key: HouseholdKey; color: ButtonColor }[] = [
   { label: 'Standard', key: 'standard', color: 'accent' },
@@ -23,7 +21,7 @@ export const HouseholdSelector = memo(function HouseholdSelector({
   selected,
   onToggle,
 }: HouseholdSelectorProps) {
-  const allOn = ALL_KEYS.every(k => selected.has(k));
+  const allOn = ALL_HOUSEHOLD_KEYS.every(k => selected.has(k));
 
   const handleToggle = useCallback((key: HouseholdKey) => {
     const next = new Set(selected);
@@ -31,7 +29,7 @@ export const HouseholdSelector = memo(function HouseholdSelector({
       next.delete(key);
       // Last one deselected — re-enable all
       if (next.size === 0) {
-        onToggle(new Set(ALL_KEYS));
+        onToggle(new Set(ALL_HOUSEHOLD_KEYS));
         return;
       }
     } else {
@@ -41,7 +39,7 @@ export const HouseholdSelector = memo(function HouseholdSelector({
   }, [selected, onToggle]);
 
   const handleAllToggle = useCallback(() => {
-    onToggle(new Set(ALL_KEYS));
+    onToggle(new Set(ALL_HOUSEHOLD_KEYS));
   }, [onToggle]);
 
   return (

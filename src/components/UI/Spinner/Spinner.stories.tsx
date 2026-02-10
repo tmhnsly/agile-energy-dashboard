@@ -20,7 +20,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Medium spinner with default "Loading" label. */
-export const Default: Story = {
+/** Small spinner for inline indicators. */
+export const Small: Story = {
+  args: { size: 'small', label: 'Loading data' },
+};
+
+/** Medium spinner — default size. */
+export const Medium: Story = {
   args: { size: 'medium', label: 'Loading data' },
+};
+
+/** Large spinner for page-level loading states. */
+export const Large: Story = {
+  args: { size: 'large', label: 'Loading data' },
 };

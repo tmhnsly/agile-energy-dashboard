@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { ParentSize } from '@visx/responsive';
-import type { HouseholdUsageRow, PricePoint, TimeRange, HouseholdKey } from '@/types/energy';
+import { ALL_HOUSEHOLD_KEYS, type HouseholdUsageRow, type PricePoint, type TimeRange, type HouseholdKey } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { useUsageStats } from '@/hooks/useUsageStats';
@@ -12,8 +12,6 @@ import { TimeSeriesChart } from '@/components/Charts';
 import { HouseholdSelector } from './HouseholdSelector';
 import { UsageStatsBar } from './UsageStatsBar/UsageStatsBar';
 import styles from './HouseholdUsagePanel.module.scss';
-
-const ALL_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
 
 const SERIES_CONFIG: Record<HouseholdKey, { label: string; tone: ChartSeries['tone'] }> = {
   standard: { label: 'Standard', tone: 'accent' },
@@ -43,12 +41,12 @@ export const HouseholdUsagePanel = ({
   prices,
 }: HouseholdUsagePanelProps) => {
   const [selected, setSelected] = useState<ReadonlySet<HouseholdKey>>(
-    () => new Set(ALL_KEYS),
+    () => new Set(ALL_HOUSEHOLD_KEYS),
   );
 
   // Stable array of selected keys for hooks (avoids Set reference changes)
   const selectedKeys = useMemo(
-    () => ALL_KEYS.filter(k => selected.has(k)),
+    () => ALL_HOUSEHOLD_KEYS.filter(k => selected.has(k)),
     [selected],
   );
 
@@ -75,7 +73,7 @@ export const HouseholdUsagePanel = ({
     const from = formatDateTime(fullRange.fromTs);
     const to = formatDateTime(fullRange.toTs);
     const names = selectedKeys.map(k => SERIES_CONFIG[k].label);
-    const mode = names.length === ALL_KEYS.length
+    const mode = names.length === ALL_HOUSEHOLD_KEYS.length
       ? 'all three household types overlaid'
       : names.join(' and ');
     return `Half-hourly energy usage in kWh from ${from} to ${to}, showing ${mode}. Drag to select a time range, or use keyboard arrows to navigate.`;

@@ -26,6 +26,164 @@ export interface UseChartKeyboardNavResult {
   handleKeyDown: (e: React.KeyboardEvent) => void;
 }
 
+/* ── Pure key processing ──────────────────────────── */
+
+export interface KeyNavState {
+  focusedIndex: number;
+  selectionStart: number | null;
+  anchor: number | null;
+}
+
+export interface KeyNavAction {
+  key: string;
+  shiftKey: boolean;
+  dataLength: number;
+}
+
+export interface KeyNavResult {
+  next: KeyNavState;
+  /** 'point' — announce a single point; 'selection' — announce a range; 'custom' — literal string. */
+  announce:
+    | { type: 'point'; index: number }
+    | { type: 'selection'; from: number; to: number }
+    | { type: 'custom'; text: string }
+    | null;
+  /** Indices to pass to onSelect, if any. */
+  select: [number, number] | null;
+  /** Whether onReset should be called. */
+  reset: boolean;
+  /** Whether the key was handled (should preventDefault). */
+  handled: boolean;
+}
+
+/**
+ * Pure function that computes the next keyboard navigation state from a key event.
+ * All side-effects (state updates, announcements, callbacks) are described in the return value.
+ */
+export function processKeyDown(state: KeyNavState, action: KeyNavAction): KeyNavResult {
+  const { key, shiftKey, dataLength } = action;
+  if (dataLength === 0) {
+    return { next: state, announce: null, select: null, reset: false, handled: false };
+  }
+
+  const lastIndex = dataLength - 1;
+  const { focusedIndex, selectionStart, anchor } = state;
+
+  switch (key) {
+    case 'ArrowRight': {
+      if (shiftKey) {
+        const next = Math.min(focusedIndex + 1, lastIndex);
+        const a = anchor ?? focusedIndex;
+        const from = Math.min(a, next);
+        const to = Math.max(a, next);
+        return {
+          next: { focusedIndex: next, selectionStart, anchor: a },
+          announce: { type: 'selection', from, to },
+          select: [from, to],
+          reset: false,
+          handled: true,
+        };
+      }
+      const next = Math.min(focusedIndex + 1, lastIndex);
+      return {
+        next: { focusedIndex: next, selectionStart, anchor: null },
+        announce: { type: 'point', index: next },
+        select: null,
+        reset: false,
+        handled: true,
+      };
+    }
+
+    case 'ArrowLeft': {
+      if (shiftKey) {
+        const next = Math.max(focusedIndex - 1, 0);
+        const a = anchor ?? focusedIndex;
+        const from = Math.min(a, next);
+        const to = Math.max(a, next);
+        return {
+          next: { focusedIndex: next, selectionStart, anchor: a },
+          announce: { type: 'selection', from, to },
+          select: [from, to],
+          reset: false,
+          handled: true,
+        };
+      }
+      const next = Math.max(focusedIndex - 1, 0);
+      return {
+        next: { focusedIndex: next, selectionStart, anchor: null },
+        announce: { type: 'point', index: next },
+        select: null,
+        reset: false,
+        handled: true,
+      };
+    }
+
+    case 'Home':
+      return {
+        next: { focusedIndex: 0, selectionStart, anchor: null },
+        announce: { type: 'point', index: 0 },
+        select: null,
+        reset: false,
+        handled: true,
+      };
+
+    case 'End':
+      return {
+        next: { focusedIndex: lastIndex, selectionStart, anchor: null },
+        announce: { type: 'point', index: lastIndex },
+        select: null,
+        reset: false,
+        handled: true,
+      };
+
+    case ' ': {
+      if (selectionStart == null) {
+        return {
+          next: { focusedIndex, selectionStart: focusedIndex, anchor },
+          announce: { type: 'custom', text: `range-start:${focusedIndex}` },
+          select: null,
+          reset: false,
+          handled: true,
+        };
+      }
+      const from = Math.min(selectionStart, focusedIndex);
+      const to = Math.max(selectionStart, focusedIndex);
+      return {
+        next: { focusedIndex, selectionStart: null, anchor: null },
+        announce: { type: 'selection', from, to },
+        select: [from, to],
+        reset: false,
+        handled: true,
+      };
+    }
+
+    case 'Escape':
+      return {
+        next: { focusedIndex, selectionStart: null, anchor: null },
+        announce: { type: 'custom', text: 'Selection cleared' },
+        select: null,
+        reset: true,
+        handled: true,
+      };
+
+    case 'Enter': {
+      if (anchor != null) {
+        return {
+          next: { focusedIndex, selectionStart, anchor: null },
+          announce: { type: 'custom', text: 'Selection confirmed' },
+          select: null,
+          reset: false,
+          handled: true,
+        };
+      }
+      return { next: state, announce: null, select: null, reset: false, handled: false };
+    }
+
+    default:
+      return { next: state, announce: null, select: null, reset: false, handled: false };
+  }
+}
+
 /* ── Hook ──────────────────────────────────────────── */
 
 export function useChartKeyboardNav({

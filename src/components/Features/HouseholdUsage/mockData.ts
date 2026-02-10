@@ -1,4 +1,4 @@
-import { minutesToMilliseconds } from 'date-fns';
+import { HALF_HOUR_MS } from '@/utils/constants';
 import type { HouseholdUsageRow, PricePoint } from '@/types/energy';
 
 /**
@@ -6,7 +6,6 @@ import type { HouseholdUsageRow, PricePoint } from '@/types/energy';
  * 48 half-hourly rows matching realistic household consumption profiles.
  */
 const BASE_DATE = new Date('2025-03-12T00:00:00Z').getTime();
-const HALF_HOUR = minutesToMilliseconds(30);
 
 const STANDARD_RAW = [
   0.25, 0.22, 0.20, 0.18, 0.17, 0.16, 0.20, 0.25, 0.35, 0.45, 0.50, 0.55,
@@ -30,7 +29,7 @@ const HP_BATTERY_RAW = [
 ];
 
 export const mockUsage: HouseholdUsageRow[] = STANDARD_RAW.map((standard, i) => ({
-  ts: BASE_DATE + i * HALF_HOUR,
+  ts: BASE_DATE + i * HALF_HOUR_MS,
   standard,
   heatPump: HEAT_PUMP_RAW[i],
   heatPumpBattery: HP_BATTERY_RAW[i],
@@ -44,6 +43,6 @@ const PRICES_RAW = [
 ];
 
 export const mockPrices: PricePoint[] = PRICES_RAW.map((price, i) => ({
-  ts: BASE_DATE + i * HALF_HOUR,
+  ts: BASE_DATE + i * HALF_HOUR_MS,
   price,
 }));

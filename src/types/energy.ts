@@ -38,6 +38,9 @@ export interface TimeRange {
 /** Which household profile to display. */
 export type HouseholdKey = 'standard' | 'heatPump' | 'heatPumpBattery';
 
+/** All household keys in display order. */
+export const ALL_HOUSEHOLD_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
+
 /** Aggregated usage statistics for a household over a time range. */
 export interface UsageStats {
   totalKwh: number;

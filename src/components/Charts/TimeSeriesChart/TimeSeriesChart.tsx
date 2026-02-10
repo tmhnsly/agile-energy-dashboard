@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, useRef, useEffect } from 'react';
-import { minutesToMilliseconds } from 'date-fns';
+import { HALF_HOUR_MS, ONE_MINUTE_MS } from '@/utils/constants';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
@@ -15,6 +15,7 @@ import {
   formatDayShort,
   formatDuration,
 } from '@/utils/format';
+import { clamp } from '@/utils/math';
 import { BandsLayer } from './BandsLayer';
 import { SelectionOverlay } from './SelectionOverlay';
 import { FocusIndicator } from './FocusIndicator';
@@ -35,9 +36,6 @@ import styles from './TimeSeriesChart.module.scss';
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
-/** Half-hour in milliseconds — used to snap the drag pill readout. */
-const HALF_HOUR_MS = minutesToMilliseconds(30);
-
 /** Maximum number of x-axis tick labels. */
 const MAX_X_TICKS = 8;
 /** Minimum horizontal spacing (px) between x-axis ticks. */
@@ -51,13 +49,9 @@ const PILL_EDGE_PAD = 80;
 const PILL_TOP_OFFSET = 8;
 
 /** Minimum selection duration (ms) — prevents zero-width selections. */
-const MIN_SELECTION_MS = minutesToMilliseconds(1);
+const MIN_SELECTION_MS = ONE_MINUTE_MS;
 
 export type { ChartMargin };
-
-function clamp(val: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, val));
-}
 
 function snapToHalfHour(ts: number): number {
   return Math.round(ts / HALF_HOUR_MS) * HALF_HOUR_MS;

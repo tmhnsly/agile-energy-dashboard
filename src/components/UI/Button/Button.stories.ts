@@ -130,3 +130,12 @@ export const Pressed: Story = {
     pressed: true,
   },
 };
+
+/** Disabled state — dimmed and non-interactive. */
+export const Disabled: Story = {
+  args: {
+    variant: 'solid',
+    label: 'Unavailable',
+    disabled: true,
+  },
+};

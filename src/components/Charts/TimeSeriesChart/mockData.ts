@@ -1,4 +1,4 @@
-import { minutesToMilliseconds } from 'date-fns';
+import { HALF_HOUR_MS } from '@/utils/constants';
 import type { ChartSeries, ChartBand } from '@/types/chart';
 
 /**
@@ -6,7 +6,6 @@ import type { ChartSeries, ChartBand } from '@/types/chart';
  * Uses the same numeric values as the price mock data, in generic shape.
  */
 const BASE_DATE = new Date('2025-03-12T00:00:00Z').getTime();
-const HALF_HOUR = minutesToMilliseconds(30);
 
 const VALUES_A = [
   20.5, 19.8, 19.2, 18.9, 18.6, 17.7, 19.5, 19.8, 20.2, 21.2, 22.4, 23.6,
@@ -19,7 +18,7 @@ export const mockSeriesA: ChartSeries = {
   id: 'series-a',
   label: 'Series A',
   data: VALUES_A.map((value, i) => ({
-    ts: BASE_DATE + i * HALF_HOUR,
+    ts: BASE_DATE + i * HALF_HOUR_MS,
     value,
   })),
   tone: 'accent',
@@ -43,7 +42,7 @@ export const mockSeriesB: ChartSeries = {
   id: 'series-b',
   label: 'Standard',
   data: VALUES_B.map((value, i) => ({
-    ts: BASE_DATE + i * HALF_HOUR,
+    ts: BASE_DATE + i * HALF_HOUR_MS,
     value,
   })),
   tone: 'positive',
@@ -53,7 +52,7 @@ export const mockSeriesC: ChartSeries = {
   id: 'series-c',
   label: 'Heat Pump + Battery',
   data: VALUES_C.map((value, i) => ({
-    ts: BASE_DATE + i * HALF_HOUR,
+    ts: BASE_DATE + i * HALF_HOUR_MS,
     value,
   })),
   tone: 'positive',
@@ -62,15 +61,15 @@ export const mockSeriesC: ChartSeries = {
 export const mockBands: ChartBand[] = [
   {
     id: 'band-0',
-    startTs: BASE_DATE + 4 * HALF_HOUR,  // 02:00
-    endTs: BASE_DATE + 8 * HALF_HOUR,    // 04:00
+    startTs: BASE_DATE + 4 * HALF_HOUR_MS,  // 02:00
+    endTs: BASE_DATE + 8 * HALF_HOUR_MS,    // 04:00
     label: 'event window',
     tone: 'secondary',
   },
   {
     id: 'band-1',
-    startTs: BASE_DATE + 36 * HALF_HOUR, // 18:00
-    endTs: BASE_DATE + 39 * HALF_HOUR,   // 19:30
+    startTs: BASE_DATE + 36 * HALF_HOUR_MS, // 18:00
+    endTs: BASE_DATE + 39 * HALF_HOUR_MS,   // 19:30
     label: 'peak window',
     tone: 'secondary',
   },

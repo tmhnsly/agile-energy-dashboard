@@ -1,7 +1,5 @@
-import { minutesToMilliseconds } from 'date-fns';
 import type { TimeRange } from '@/types/energy';
-
-const HALF_HOUR_MS = minutesToMilliseconds(30);
+import { HALF_HOUR_MS } from '@/utils/constants';
 
 /**
  * Finds the cheapest contiguous window of `durationMs` within `fullRange`.

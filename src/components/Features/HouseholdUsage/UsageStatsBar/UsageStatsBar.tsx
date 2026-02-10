@@ -13,7 +13,7 @@ export const UsageStatsBar = memo(function UsageStatsBar({
   stats,
   range,
 }: UsageStatsBarProps) {
-  const fmtTime = (ts: number) => formatStatTime(ts, range.fromTs, range.toTs);
+  const fmtTime = (ts: number) => formatStatTime(ts);
 
   return (
     <StatsBar

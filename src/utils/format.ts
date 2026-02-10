@@ -1,5 +1,6 @@
-import { format, minutesToMilliseconds } from 'date-fns';
+import { format } from 'date-fns';
 import { UTCDate } from '@date-fns/utc';
+import { ONE_MINUTE_MS } from './constants';
 
 /** Format a timestamp as `HH:mm` (e.g. "14:30"). */
 export function formatTime(ts: number): string {
@@ -24,17 +25,8 @@ export function formatDayShort(ts: number): string {
   return format(new UTCDate(ts), 'd MMM');
 }
 
-/**
- * Format a timestamp for stat-card display (e.g. "13 Mar, 14:30").
- *
- * The range parameters are accepted for call-site compatibility but are
- * currently unused.
- */
-export function formatStatTime(
-  ts: number,
-  _rangeFromTs: number,
-  _rangeToTs: number,
-): string {
+/** Format a timestamp for stat-card display (e.g. "13 Mar, 14:30"). */
+export function formatStatTime(ts: number): string {
   if (!isFinite(ts)) return '—';
   return format(new UTCDate(ts), 'd MMM, HH:mm');
 }
@@ -56,7 +48,7 @@ export function formatCostPence(pence: number): string {
  */
 export function formatDuration(fromTs: number, toTs: number): string {
   const ms = Math.abs(toTs - fromTs);
-  const totalMinutes = Math.round(ms / minutesToMilliseconds(1));
+  const totalMinutes = Math.round(ms / ONE_MINUTE_MS);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (hours === 0) return `${minutes}m`;
