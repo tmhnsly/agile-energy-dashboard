@@ -79,11 +79,19 @@
 }
 
 // ── Skeleton pulse ────────────────────────────────────
-// Simple opacity pulse between two mono shades.
-// Compositing-only animation — zero layout/paint cost.
+// Short fade-in masks any container-query layout shift on first paint,
+// then a continuous opacity pulse. Compositing-only — zero layout/paint cost.
 @mixin skeleton-pulse {
   background-color: var(--mono-bg);
-  animation: skeleton-pulse 1.8s ease-in-out infinite;
+  animation:
+    skeleton-fade-in 0.15s ease-out both,
+    skeleton-pulse 1.8s ease-in-out 0.15s infinite;
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes skeleton-pulse {

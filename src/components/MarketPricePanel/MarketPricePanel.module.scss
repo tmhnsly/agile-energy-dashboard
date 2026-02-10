@@ -35,6 +35,13 @@
   @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-1);
+
+  > span {
+    white-space: nowrap;
+  }
 }
 
 .chartFooter {

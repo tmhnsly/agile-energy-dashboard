@@ -71,7 +71,7 @@
   white-space: nowrap;
   padding-right: var(--space-4);
 
-  @include cq.large {
+  @include cq.at(900px) {
     font-size: var(--text-2xl);
   }
 }

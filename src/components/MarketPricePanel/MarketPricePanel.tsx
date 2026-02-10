@@ -101,8 +101,8 @@ export const MarketPricePanel = ({
         <div className={styles.headerGroup}>
           <h2 className={styles.title}>Market Price</h2>
           <div className={styles.rangeSummary}>
-            {formatDateTime(displayRange.fromTs)} &ndash;{' '}
-            {formatDateTime(displayRange.toTs)}
+            <span>{formatDateTime(displayRange.fromTs)} &ndash;</span>
+            <span>{formatDateTime(displayRange.toTs)}</span>
           </div>
         </div>
         <PriceStatsBar stats={stats} range={displayRange} />
