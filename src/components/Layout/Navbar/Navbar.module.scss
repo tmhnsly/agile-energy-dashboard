@@ -1,15 +1,15 @@
 @use "mixins/container" as container;
 @use "mixins/typography" as type;
+@use "mixins/surfaces" as surface;
 
 .navbar {
-  $blur-amount: 4px;
+  @include surface.glass-chrome;
   position: sticky;
   top: 0;
   z-index: 50;
-  background-color: color-mix(in srgb, var(--mono-app-bg) 40%, transparent);
-  -webkit-backdrop-filter: blur($blur-amount);
-  backdrop-filter: blur($blur-amount);
-  border-bottom: 1px solid var(--mono-border-subtle);
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 
 .inner {

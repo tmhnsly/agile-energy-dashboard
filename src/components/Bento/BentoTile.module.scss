@@ -41,24 +41,9 @@
   }
 }
 
-/* Default skeleton fallback — multi-colour shimmer block */
+/* Default skeleton fallback */
 .skelFallback {
   height: 6rem;
   border-radius: var(--radius-sm);
-  background: linear-gradient(
-    90deg,
-    var(--mono-subtle-bg) 0%,
-    var(--accent-bg) 20%,
-    var(--info-bg) 40%,
-    var(--success-bg) 60%,
-    var(--accent-bg) 80%,
-    var(--mono-subtle-bg) 100%
-  );
-  background-size: 300% 100%;
-  animation: shimmer 2.5s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
+  @include surface.abstract-gradient;
 }

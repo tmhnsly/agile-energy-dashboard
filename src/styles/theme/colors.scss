@@ -137,8 +137,20 @@
     var(--mono-border-subtle) 50%,
     transparent
   );
+  --surface-chrome: color-mix(in srgb, var(--mono-app-bg) 72%, transparent);
+  --surface-chrome-border: color-mix(
+    in srgb,
+    var(--mono-border-subtle) 60%,
+    transparent
+  );
+  --surface-highlight: color-mix(
+    in srgb,
+    var(--mono-bg) 40%,
+    transparent
+  );
   --surface-divider: var(--mono-border-subtle);
   --surface-shadow: color-mix(in srgb, var(--mono-solid) 5%, transparent);
+  --surface-shadow-lg: color-mix(in srgb, var(--mono-solid) 12%, transparent);
   --surface-shimmer-from: var(--mono-subtle-bg);
   --surface-shimmer-via: var(--mono-bg);
 }

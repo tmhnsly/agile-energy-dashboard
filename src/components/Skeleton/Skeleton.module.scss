@@ -1,23 +1,8 @@
-@keyframes shimmer {
-  0% {
-    background-position: -400px 0;
-  }
-
-  100% {
-    background-position: 400px 0;
-  }
-}
+@use 'mixins/surfaces' as surface;
 
 .skeleton {
   display: block;
-  background: linear-gradient(
-    90deg,
-    var(--mono-subtle-bg) 25%,
-    var(--mono-bg) 50%,
-    var(--mono-subtle-bg) 75%
-  );
-  background-size: 800px 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  @include surface.abstract-gradient;
 
   &[data-radius='none'] {
     border-radius: 0;

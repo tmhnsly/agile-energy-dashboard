@@ -53,13 +53,55 @@
 }
 
 // ── Glass panel ───────────────────────────────────────
-// Translucent card/panel with backdrop blur, subtle border + shadow.
+// Translucent card/panel with backdrop blur + saturation boost.
 @mixin glass-panel {
   background-color: var(--surface-panel);
   border: 1px solid var(--surface-panel-border);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 1px 3px 0 var(--surface-shadow);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
+  box-shadow:
+    0 1px 3px 0 var(--surface-shadow),
+    inset 0 1px 0 0 var(--surface-highlight);
+}
+
+// ── Glass chrome ──────────────────────────────────────
+// Heavier glass for sticky chrome (navbar, popovers, dropdowns).
+// Higher opacity + stronger blur for readability over content.
+@mixin glass-chrome {
+  $glassChromeBlur: 4px;
+  background-color: var(--surface-chrome);
+  border: 1px solid var(--surface-chrome-border);
+  -webkit-backdrop-filter: blur($glassChromeBlur);
+  backdrop-filter: blur($glassChromeBlur);
+  box-shadow:
+    0 1px 2px -1px var(--surface-shadow),
+    inset 0 1px 0 0 var(--surface-highlight);
+}
+
+// ── Abstract gradient ─────────────────────────────────
+// Reusable multi-colour gradient background + slow pulse animation.
+// Use on skeleton blocks, loading overlays, or text (via background-clip).
+@mixin abstract-gradient {
+  background: linear-gradient(
+    -45deg,
+    var(--mono-subtle-bg) 0%,
+    var(--error-border) 15%,
+    var(--warning-border) 30%,
+    var(--success-border) 50%,
+    var(--info-border) 70%,
+    var(--error-border) 85%,
+    var(--mono-subtle-bg) 100%
+  );
+  background-size: 250% 250%;
+  animation: gradient-pulse 6s ease-in-out infinite;
+}
+
+// Clip the abstract gradient to text for colourful headings / labels.
+@mixin abstract-gradient-text {
+  @include abstract-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // ── Loading shimmer overlay ───────────────────────────
@@ -76,28 +118,19 @@
       inset: 0;
       z-index: 1;
       border-radius: inherit;
-      background: linear-gradient(
-        90deg,
-        var(--mono-subtle-bg) 0%,
-        var(--accent-bg) 20%,
-        var(--info-bg) 40%,
-        var(--success-bg) 60%,
-        var(--accent-bg) 80%,
-        var(--mono-subtle-bg) 100%
-      );
-      background-size: 300% 100%;
-      animation: surface-shimmer 2.5s ease-in-out infinite;
+      @include abstract-gradient;
     }
   }
+}
 
-  @at-root {
-    @keyframes surface-shimmer {
-      0% {
-        background-position: 100% 0;
-      }
-      100% {
-        background-position: -100% 0;
-      }
-    }
+@keyframes gradient-pulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }

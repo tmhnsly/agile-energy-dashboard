@@ -10,8 +10,9 @@ export const MarketPricePanelSkeleton = () => (
         <Skeleton width="14rem" height="0.875rem" radius="small" />
       </div>
       <div className={styles.stats}>
-        <Skeleton width="5rem" height="2.5rem" radius="small" />
-        <Skeleton width="5rem" height="2.5rem" radius="small" />
+        <Skeleton width="6rem" height="3.5rem" radius="small" />
+        <Skeleton width="6rem" height="3.5rem" radius="small" />
+        <Skeleton width="6rem" height="3.5rem" radius="small" />
       </div>
     </div>
 
@@ -22,6 +23,15 @@ export const MarketPricePanelSkeleton = () => (
     <div className={styles.footer}>
       <Skeleton width="8rem" height="0.875rem" radius="small" />
       <Skeleton width="4rem" height="1.75rem" radius="small" />
+    </div>
+
+    {/* Quick range bar */}
+    <div className={styles.presets}>
+      <Skeleton width="3rem" height="1.75rem" radius="small" />
+      <Skeleton width="3rem" height="1.75rem" radius="small" />
+      <Skeleton width="3rem" height="1.75rem" radius="small" />
+      <Skeleton width="3rem" height="1.75rem" radius="small" />
+      <Skeleton width="3rem" height="1.75rem" radius="small" />
     </div>
   </div>
 );
