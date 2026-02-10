@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import type { PricePoint, TimeRange } from '@/types/energy';
+import type { TimeRange } from '@/types/energy';
 
 /**
- * Manage a zoomable time range over a set of price points.
+ * Manage a zoomable time range over any timestamped items.
  *
  * Derives a `fullRange` from the first/last data point, tracks an optional
  * user-selected `activeRange`, and exposes helpers to set or reset it.
@@ -17,14 +17,14 @@ import type { PricePoint, TimeRange } from '@/types/energy';
  * - `setRange(range)` — apply a new selection.
  * - `resetRange()` — clear the selection and return to the full extent.
  */
-export function usePriceRange(points: PricePoint[]) {
+export function useTimeRange(items: { ts: number }[]) {
   const fullRange: TimeRange = useMemo(() => {
-    if (points.length === 0) return { fromTs: 0, toTs: 0 };
+    if (items.length === 0) return { fromTs: 0, toTs: 0 };
     return {
-      fromTs: points[0].ts,
-      toTs: points[points.length - 1].ts,
+      fromTs: items[0].ts,
+      toTs: items[items.length - 1].ts,
     };
-  }, [points]);
+  }, [items]);
 
   const [activeRange, setActiveRange] = useState<TimeRange | null>(null);
 

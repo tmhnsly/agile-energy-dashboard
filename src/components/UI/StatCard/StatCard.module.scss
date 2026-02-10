@@ -5,7 +5,7 @@
 .card {
   @include layout.stack(var(--statcard-gap));
   padding: var(--statcard-padding-y) var(--statcard-padding-x);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-inner, var(--radius-2));
 
   /* ── Tone palette (scoped custom props) ──────── */
   --_bg: var(--mono-subtle-bg);

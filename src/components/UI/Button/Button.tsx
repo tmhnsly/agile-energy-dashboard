@@ -1,7 +1,7 @@
 import styles from './Button.module.scss';
 
 export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
-export type ButtonColor = 'accent' | 'error' | 'success' | 'warning' | 'info' | 'mono';
+export type ButtonColor = 'accent' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'mono';
 
 export interface ButtonProps {
   /** Visual weight of the button */

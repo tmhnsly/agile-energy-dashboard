@@ -4,14 +4,14 @@ import { useState, useMemo, useCallback } from 'react';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
-import { usePriceRange } from '@/hooks/usePriceRange';
+import { useTimeRange } from '@/hooks/useTimeRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
 import { formatDateTime, formatPricePerKwh } from '@/utils/format';
-import { Button } from '@/components/UI/Button/Button';
-import { TimeSeriesChart, ChartLegend, QuickRangeBar } from '@/components/Charts';
+import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/ClearSelectionButton';
+import { TimeSeriesChart, ChartLegend, CheapestWindowBar } from '@/components/Charts';
 import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
-import styles from './MarketPriceTile.module.scss';
+import styles from './MarketPricePanel.module.scss';
 
 const HOUR_MS = 3_600_000;
 const HALF_HOUR_MS = 30 * 60_000;
@@ -35,7 +35,7 @@ export const MarketPricePanel = ({
   flexEvents,
 }: MarketPricePanelProps) => {
   const { fullRange, activeRange, isCustomRange, setRange, resetRange } =
-    usePriceRange(prices);
+    useTimeRange(prices);
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
   const displayRange = previewRange ?? activeRange;
   const stats = usePriceStats(prices, displayRange);
@@ -53,7 +53,7 @@ export const MarketPricePanel = ({
       startTs: e.startTs,
       endTs: e.endTs,
       label: e.label,
-      tone: 'warning' as const,
+      tone: 'secondary' as const,
     })),
   [flexEvents]);
 
@@ -138,22 +138,17 @@ export const MarketPricePanel = ({
         </ParentSize>
       </div>
 
-      <div className={styles.chartFooter}>
+      <div className={styles.chartLegend}>
         <ChartLegend />
-        <Button
-          label={isCustomRange ? 'Clear selection' : 'Select a range'}
-          variant="soft"
-          color="mono"
-          size="small"
-          disabled={!isCustomRange}
-          onClick={resetRange}
-        />
       </div>
 
-      <QuickRangeBar
-        activePreset={activePreset}
-        onPresetSelect={handlePresetSelect}
-      />
+      <div className={styles.chartControls}>
+        <CheapestWindowBar
+          activePreset={activePreset}
+          onPresetSelect={handlePresetSelect}
+        />
+        <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
+      </div>
     </div>
   );
 };

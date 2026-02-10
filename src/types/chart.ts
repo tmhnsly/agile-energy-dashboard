@@ -1,3 +1,6 @@
+/** Colour token shared across series, bands, and tooltip value rows. */
+export type ChartTone = 'accent' | 'secondary' | 'positive' | 'negative' | 'warning';
+
 /** A single data point on a time-series chart. */
 export interface ChartDataPoint {
   /** Timestamp. */
@@ -14,7 +17,7 @@ export interface ChartSeries {
   /** Data points, sorted ascending by timestamp. */
   data: ChartDataPoint[];
   /** Colour token for the line stroke. */
-  tone?: 'accent' | 'positive' | 'negative' | 'warning';
+  tone?: ChartTone;
 }
 
 /**
@@ -30,7 +33,7 @@ export interface ChartBand {
   /** Label shown in the tooltip when hovering inside the band. */
   label?: string;
   /** Colour token for the band fill. */
-  tone?: 'warning' | 'accent';
+  tone?: ChartTone;
 }
 
 /** Data passed to the chart tooltip when hovering over a data point. */
@@ -38,7 +41,7 @@ export interface TooltipData {
   /** Timestamp of the nearest data point. */
   ts: number;
   /** Values from each visible series at the hovered timestamp. */
-  values: Array<{ seriesId: string; label: string; value: number; tone?: string }>;
+  values: Array<{ seriesId: string; label: string; value: number; tone?: ChartTone }>;
   /** The band the hovered point falls within, if any. */
   inBand: ChartBand | null;
 }

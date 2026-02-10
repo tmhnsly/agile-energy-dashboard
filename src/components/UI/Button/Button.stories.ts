@@ -5,7 +5,7 @@ import { fn } from 'storybook/test';
 import { Button } from './Button';
 
 /**
- * Button with four style variants and five colour options.
+ * Button with four style variants and seven colour options.
  * Use `solid` for primary actions, `soft` for secondary, `outline` for
  * low-emphasis, and `ghost` for inline or nav-style actions.
  */
@@ -26,7 +26,7 @@ const meta = {
     },
     color: {
       control: 'select',
-      options: ['accent', 'error', 'success', 'warning', 'info'],
+      options: ['accent', 'secondary', 'error', 'success', 'warning', 'info', 'mono'],
     },
   },
   args: { onClick: fn() },
@@ -67,6 +67,15 @@ export const Ghost: Story = {
   },
 };
 
+/** Secondary accent colour (orange). */
+export const Secondary: Story = {
+  args: {
+    variant: 'solid',
+    color: 'secondary',
+    label: 'Heat Pump',
+  },
+};
+
 /** Destructive action colour. */
 export const Error: Story = {
   args: {
@@ -100,5 +109,24 @@ export const Info: Story = {
     variant: 'solid',
     color: 'info',
     label: 'Details',
+  },
+};
+
+/** Neutral mono colour — for chrome buttons that shouldn't compete with data colours. */
+export const Mono: Story = {
+  args: {
+    variant: 'soft',
+    color: 'mono',
+    label: 'Clear selection',
+  },
+};
+
+/** Toggle button with `pressed` state — uses `aria-pressed` for toggle semantics. */
+export const Pressed: Story = {
+  args: {
+    variant: 'soft',
+    color: 'accent',
+    label: 'Standard',
+    pressed: true,
   },
 };

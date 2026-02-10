@@ -3,8 +3,8 @@ import styles from './BentoTile.module.scss';
 
 export interface BentoTileProps {
   children: React.ReactNode;
-  /** Layout intent — the grid auto-places tiles based on this hint. */
-  variant?: 'standard' | 'feature' | 'wide' | 'tall' | 'compact';
+  /** Grid column span — controls how many columns the tile occupies. */
+  span?: 'standard' | 'feature' | 'wide' | 'tall' | 'compact';
   className?: string;
   /** When true, renders skeleton instead of children. */
   loading?: boolean;
@@ -14,7 +14,7 @@ export interface BentoTileProps {
 
 export const BentoTile = ({
   children,
-  variant = 'standard',
+  span = 'standard',
   className,
   loading = false,
   skeleton,
@@ -22,7 +22,7 @@ export const BentoTile = ({
   return (
     <div
       className={cx(styles.tile, className)}
-      data-variant={variant}
+      data-span={span}
       {...(loading ? { 'aria-busy': 'true', 'data-loading': 'true' } : {})}
     >
       {loading ? (skeleton ?? <div className={styles.skelFallback} />) : children}

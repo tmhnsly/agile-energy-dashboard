@@ -10,8 +10,8 @@ const ALL_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
 
 const HOUSEHOLD_OPTIONS: { label: string; key: HouseholdKey; color: ButtonColor }[] = [
   { label: 'Standard', key: 'standard', color: 'accent' },
-  { label: 'Heat Pump', key: 'heatPump', color: 'success' },
-  { label: 'HP + Battery', key: 'heatPumpBattery', color: 'warning' },
+  { label: 'Heat Pump', key: 'heatPump', color: 'secondary' },
+  { label: 'Heat Pump + Battery', key: 'heatPumpBattery', color: 'success' },
 ];
 
 export interface HouseholdSelectorProps {
@@ -42,6 +42,14 @@ export const HouseholdSelector = memo(function HouseholdSelector({
 
   return (
     <div className={styles.bar} role="group" aria-label="Household type">
+      <Button
+        label="All"
+        size="small"
+        color="mono"
+        variant={allOn ? 'soft' : 'ghost'}
+        pressed={allOn}
+        onClick={handleAllToggle}
+      />
       {HOUSEHOLD_OPTIONS.map(({ label, key, color }) => (
         <Button
           key={key}
@@ -53,14 +61,6 @@ export const HouseholdSelector = memo(function HouseholdSelector({
           onClick={() => handleToggle(key)}
         />
       ))}
-      <Button
-        label="All"
-        size="small"
-        color="mono"
-        variant={allOn ? 'soft' : 'ghost'}
-        pressed={allOn}
-        onClick={handleAllToggle}
-      />
     </div>
   );
 });

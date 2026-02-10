@@ -18,7 +18,7 @@
     content: "";
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: var(--z-page-wash);
     pointer-events: none;
     background:
       // ── 3. Top sheen ──

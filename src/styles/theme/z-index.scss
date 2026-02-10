@@ -1,0 +1,12 @@
+/*
+ * Z-index scale — single source of truth for all stacking contexts.
+ *
+ *  -1  page-wash     Page backdrop aurora (behind all content)
+ *   1  chart-tooltip Chart tooltip & drag pill (above chart content)
+ *  50  navbar        Sticky navigation bar
+ */
+:root {
+  --z-page-wash: -1;
+  --z-chart-tooltip: 1;
+  --z-navbar: 50;
+}

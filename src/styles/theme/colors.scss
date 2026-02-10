@@ -6,6 +6,7 @@
 @use "@radix-ui/colors/red.css";
 @use "@radix-ui/colors/teal.css";
 @use "@radix-ui/colors/amber.css";
+@use "@radix-ui/colors/orange.css";
 @use "@radix-ui/colors/indigo.css";
 
 /* =================================================================
@@ -16,6 +17,7 @@
 @use "@radix-ui/colors/red-dark.css";
 @use "@radix-ui/colors/teal-dark.css";
 @use "@radix-ui/colors/amber-dark.css";
+@use "@radix-ui/colors/orange-dark.css";
 @use "@radix-ui/colors/indigo-dark.css";
 
 /* =================================================================
@@ -92,19 +94,34 @@
   --success-text: var(--teal-12);
   --success-on-solid: #fff;
 
-  /* Warning (Amber) — dark foreground on solid 9/10 */
-  --warning-app-bg: var(--amber-1);
-  --warning-subtle-bg: var(--amber-2);
-  --warning-bg: var(--amber-3);
-  --warning-bg-hover: var(--amber-4);
-  --warning-bg-active: var(--amber-5);
-  --warning-border-subtle: var(--amber-6);
-  --warning-border: var(--amber-7);
-  --warning-border-hover: var(--amber-8);
-  --warning-solid: var(--amber-9);
-  --warning-solid-hover: var(--amber-10);
-  --warning-text-low-contrast: var(--amber-11);
-  --warning-text: var(--amber-12);
+  /* Secondary (Amber) — dark foreground on solid 9/10 */
+  --secondary-app-bg: var(--amber-1);
+  --secondary-subtle-bg: var(--amber-2);
+  --secondary-bg: var(--amber-3);
+  --secondary-bg-hover: var(--amber-4);
+  --secondary-bg-active: var(--amber-5);
+  --secondary-border-subtle: var(--amber-6);
+  --secondary-border: var(--amber-7);
+  --secondary-border-hover: var(--amber-8);
+  --secondary-solid: var(--amber-9);
+  --secondary-solid-hover: var(--amber-10);
+  --secondary-text-low-contrast: var(--amber-11);
+  --secondary-text: var(--amber-12);
+  --secondary-on-solid: #21201c;
+
+  /* Warning (Orange) — dark foreground on solid 9/10 */
+  --warning-app-bg: var(--orange-1);
+  --warning-subtle-bg: var(--orange-2);
+  --warning-bg: var(--orange-3);
+  --warning-bg-hover: var(--orange-4);
+  --warning-bg-active: var(--orange-5);
+  --warning-border-subtle: var(--orange-6);
+  --warning-border: var(--orange-7);
+  --warning-border-hover: var(--orange-8);
+  --warning-solid: var(--orange-9);
+  --warning-solid-hover: var(--orange-10);
+  --warning-text-low-contrast: var(--orange-11);
+  --warning-text: var(--orange-12);
   --warning-on-solid: #21201c;
 
   /* Info (Indigo) */
@@ -166,7 +183,8 @@
   --accent-text-low-contrast: #0c6ec4;
   --success-text-low-contrast: #007c6b;
   --error-text-low-contrast: #cc2c31;
-  --warning-text-low-contrast: #9d5c00;
+  --secondary-text-low-contrast: #9d5c00;
+  --warning-text-low-contrast: #b54300;
 
   /* solid + solid-hover: ≥ 4.5:1 with white foreground */
   --accent-solid: #006dc2;

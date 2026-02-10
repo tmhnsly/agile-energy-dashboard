@@ -9,6 +9,7 @@
   font-family: var(--font-body);
   font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
 
   --_bg: var(--accent-bg);
   --_bg-hover: var(--accent-bg-hover);
@@ -30,6 +31,18 @@
     --_solid-hover: var(--mono-solid-hover);
     --_text-lc: var(--mono-text-low-contrast);
     --_on-solid: #fff;
+  }
+
+  &[data-color="secondary"] {
+    --_bg: var(--secondary-bg);
+    --_bg-hover: var(--secondary-bg-hover);
+    --_bg-active: var(--secondary-bg-active);
+    --_border: var(--secondary-border);
+    --_border-hover: var(--secondary-border-hover);
+    --_solid: var(--secondary-solid);
+    --_solid-hover: var(--secondary-solid-hover);
+    --_text-lc: var(--secondary-text-low-contrast);
+    --_on-solid: var(--secondary-on-solid);
   }
 
   &[data-color="error"] {

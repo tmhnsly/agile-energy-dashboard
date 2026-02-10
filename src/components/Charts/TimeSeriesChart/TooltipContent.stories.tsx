@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { TooltipContent } from './TooltipLayer';
-import { mockSeriesA, mockBands } from './mockData';
+import { mockSeriesA, mockSeriesB, mockSeriesC, mockBands } from './mockData';
 import styles from './TimeSeriesChart.module.scss';
 
 const midPoint = mockSeriesA.data[24];
@@ -48,5 +48,21 @@ export const WithBand: Story = {
       inBand: mockBands[0],
     },
     formatTooltipValue: (v: number) => `${v.toFixed(1)}p/kWh`,
+  },
+};
+
+/** Multi-series tooltip — three coloured value rows with swatches and labels. */
+export const MultiSeries: Story = {
+  args: {
+    tooltipData: {
+      ts: midPoint.ts,
+      values: [
+        { seriesId: mockSeriesA.id, label: mockSeriesA.label, value: mockSeriesA.data[24].value, tone: 'accent' },
+        { seriesId: mockSeriesB.id, label: mockSeriesB.label, value: mockSeriesB.data[24].value, tone: 'positive' },
+        { seriesId: mockSeriesC.id, label: mockSeriesC.label, value: mockSeriesC.data[24].value, tone: 'positive' },
+      ],
+      inBand: null,
+    },
+    formatTooltipValue: (v: number) => `${v.toFixed(2)}`,
   },
 };

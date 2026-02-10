@@ -3,6 +3,12 @@ import type { ChartBand } from '@/types/chart';
 import styles from './TimeSeriesChart.module.scss';
 
 const BAND_TONE_FILL: Record<string, { bg: string; border: string; bgHover: string; borderHover: string }> = {
+  secondary: {
+    bg: 'var(--secondary-bg)',
+    border: 'var(--secondary-border)',
+    bgHover: 'var(--secondary-bg-hover)',
+    borderHover: 'var(--secondary-border-hover)',
+  },
   warning: {
     bg: 'var(--warning-bg)',
     border: 'var(--warning-border)',
@@ -52,7 +58,7 @@ export const BandsLayer = memo(function BandsLayer({
         const x1 = Math.min(innerWidth, xScale(new Date(b.endTs)));
         const isSelected = b.id === selectedBandId;
         const isHovered = b.id === hoveredBandId;
-        const tone = BAND_TONE_FILL[b.tone ?? 'warning'] ?? BAND_TONE_FILL.warning;
+        const tone = BAND_TONE_FILL[b.tone ?? 'secondary'] ?? BAND_TONE_FILL.secondary;
         const bandClass = isSelected
           ? styles.bandSelected
           : isHovered

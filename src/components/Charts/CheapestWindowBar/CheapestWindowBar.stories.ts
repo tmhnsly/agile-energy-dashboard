@@ -2,21 +2,21 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { fn } from 'storybook/test';
 
-import { QuickRangeBar } from './QuickRangeBar';
+import { CheapestWindowBar } from './CheapestWindowBar';
 
 /**
- * Row of time-range preset buttons (6 h, 12 h, 24 h, 48 h, All).
+ * Row of cheapest-window duration preset buttons (6 h, 12 h, 24 h, All).
  * The active preset is highlighted; clicking a button fires `onPresetSelect`
  * with the corresponding hour count (or `null` for "All").
  */
 const meta = {
-  title: 'Charts / QuickRangeBar',
-  component: QuickRangeBar,
+  title: 'Charts / CheapestWindowBar',
+  component: CheapestWindowBar,
   parameters: {
     layout: 'centered',
   },
   args: { onPresetSelect: fn() },
-} satisfies Meta<typeof QuickRangeBar>;
+} satisfies Meta<typeof CheapestWindowBar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

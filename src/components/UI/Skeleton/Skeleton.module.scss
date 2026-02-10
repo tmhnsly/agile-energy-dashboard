@@ -9,11 +9,11 @@
   }
 
   &[data-radius='small'] {
-    border-radius: var(--radius-xs);
+    border-radius: var(--radius-1);
   }
 
   &[data-radius='medium'] {
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-2);
   }
 
   &[data-radius='full'] {
@@ -31,7 +31,7 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--card-padding);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-inner, var(--radius-2));
   border: 1px solid var(--mono-border-subtle);
   background-color: var(--mono-app-bg);
 }

@@ -3,18 +3,19 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { TooltipCrosshair, TooltipContent } from './TooltipLayer';
 import { mockSeriesA, mockBands } from './mockData';
 import { ChartCanvas, INNER_WIDTH, INNER_HEIGHT, createMockScales } from './storyUtils';
+import type { TooltipData } from '@/types/chart';
 
 const { xScale, yScale } = createMockScales();
 const midPoint = mockSeriesA.data[24];
 const bandPoint = mockSeriesA.data[6]; // Inside first mock band
 
-const tooltipData = {
+const tooltipData: TooltipData = {
   ts: midPoint.ts,
   values: [{ seriesId: 'price', label: 'Price', value: midPoint.value, tone: 'accent' }],
   inBand: null,
 };
 
-const tooltipDataWithBand = {
+const tooltipDataWithBand: TooltipData = {
   ts: bandPoint.ts,
   values: [{ seriesId: 'price', label: 'Price', value: bandPoint.value, tone: 'accent' }],
   inBand: mockBands[0],

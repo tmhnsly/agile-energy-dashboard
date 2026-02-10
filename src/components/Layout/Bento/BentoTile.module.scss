@@ -3,25 +3,29 @@
 
 .tile {
   @include surface.glass-panel;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: var(--card-padding-compact);
   min-height: 5rem;
   container-type: inline-size;
   container-name: tile;
 
+  /* Golden inner radius: inner = outer − padding */
+  --radius-inner: max(var(--radius-1), calc(var(--radius-card) - var(--card-padding-compact)));
+
   @include bp.tablet {
     padding: var(--card-padding);
+    --radius-inner: max(var(--radius-1), calc(var(--radius-card) - var(--card-padding)));
   }
 
-  /* ── variant placement ────────────────────────── */
+  /* ── span placement ─────────────────────────────── */
 
-  &[data-variant='feature'] {
+  &[data-span='feature'] {
     @include bp.tablet {
       grid-column: span 2;
     }
   }
 
-  &[data-variant='wide'] {
+  &[data-span='wide'] {
     @include bp.tablet {
       grid-column: span 2;
     }
@@ -31,13 +35,13 @@
     }
   }
 
-  &[data-variant='tall'] {
+  &[data-span='tall'] {
     @include bp.tablet {
       grid-row: span 2;
     }
   }
 
-  &[data-variant='compact'] {
+  &[data-span='compact'] {
     min-height: auto;
   }
 }
@@ -45,6 +49,6 @@
 /* Default skeleton fallback */
 .skelFallback {
   height: 6rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-inner, var(--radius-2));
   @include surface.skeleton-pulse;
 }

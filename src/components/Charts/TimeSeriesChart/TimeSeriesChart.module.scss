@@ -156,10 +156,12 @@
   @include layout.stack(var(--tooltip-gap));
   background-color: var(--mono-bg) !important;
   border: 1px solid var(--mono-border) !important;
-  border-radius: var(--radius-md) !important;
+  border-radius: var(--radius-3) !important;
   padding: var(--tooltip-padding-y) var(--tooltip-padding-x) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   pointer-events: none;
+  z-index: var(--z-chart-tooltip);
+  max-width: min(20rem, calc(100cqw - var(--space-4)));
 }
 
 .tooltipTime {
@@ -217,7 +219,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--warning-text-low-contrast);
+  color: var(--secondary-text-low-contrast);
   margin-top: var(--tooltip-section-gap);
   text-transform: capitalize;
 }
@@ -227,10 +229,10 @@
   display: inline-block;
   padding: var(--space-1) var(--space-2);
   text-transform: uppercase;
-  color: var(--warning-text);
-  background-color: var(--warning-bg);
-  border: 1px solid var(--warning-border-subtle);
-  border-radius: var(--radius-sm);
+  color: var(--secondary-text);
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--secondary-border-subtle);
+  border-radius: var(--radius-1);
   line-height: var(--leading-snug);
 }
 
@@ -239,14 +241,14 @@
   @include type.typography(meta);
   position: absolute;
   pointer-events: none;
-  z-index: 10;
+  z-index: var(--z-chart-tooltip);
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: 3px var(--space-3);
   background-color: var(--mono-bg);
   border: 1px solid var(--mono-border);
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: var(--text-xs);
   color: var(--mono-text);

@@ -1,16 +1,16 @@
 import { TbTriangleInvertedFilled, TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
-import tileStyles from './MarketPriceTile.module.scss';
-import statsStyles from './PriceStatsBar/PriceStatsBar.module.scss';
-import skelStyles from './MarketPriceTileSkeleton.module.scss';
+import tileStyles from './MarketPricePanel.module.scss';
+import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
+import skelStyles from './MarketPriceSkeleton.module.scss';
 
 /**
- * Skeleton that mirrors the exact layout of the MarketPriceTile content.
+ * Skeleton that mirrors the exact layout of the MarketPricePanel content.
  * Uses the real StatCard (default neutral tone) with invisible placeholder
  * text that reserves the correct dimensions. No tone prop = no coloured borders.
  */
-export const MarketPriceTileSkeleton = () => (
+export const MarketPriceSkeleton = () => (
   <div className={tileStyles.content}>
     <div className={tileStyles.headerTop}>
       <div className={tileStyles.headerGroup}>
@@ -46,12 +46,12 @@ export const MarketPriceTileSkeleton = () => (
       <Skeleton width="100%" height="100%" radius="medium" />
     </div>
 
-    <div className={tileStyles.chartFooter}>
+    <div className={tileStyles.chartLegend}>
       <Skeleton width="8rem" height="0.875rem" radius="small" />
       <Skeleton width="4rem" height="1.75rem" radius="small" />
     </div>
 
-    <div className={skelStyles.presets}>
+    <div className={tileStyles.chartControls}>
       {Array.from({ length: 5 }, (_, i) => (
         <Skeleton key={i} width="3rem" height="1.75rem" radius="small" />
       ))}

@@ -1,8 +1,13 @@
 import { memo } from 'react';
 import styles from './ChartLegend.module.scss';
 
+export interface ChartLegendItem {
+  label: string;
+  type: 'line' | 'band';
+}
+
 export interface ChartLegendProps {
-  items?: { label: string; type: 'line' | 'band' }[];
+  items?: ChartLegendItem[];
 }
 
 const DEFAULT_ITEMS: ChartLegendProps['items'] = [

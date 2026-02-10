@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { TooltipData } from '@/types/chart';
+import type { TooltipData, ChartTone } from '@/types/chart';
 import { formatDateTime } from '@/utils/format';
 import styles from './TimeSeriesChart.module.scss';
 
@@ -55,8 +55,9 @@ interface TooltipContentProps {
 }
 
 /** Maps series tone tokens to CSS custom-property stroke colours. */
-const TONE_COLOR: Record<string, string> = {
+const TONE_COLOR: Record<ChartTone, string> = {
   accent: 'var(--accent-solid)',
+  secondary: 'var(--secondary-solid)',
   positive: 'var(--success-solid)',
   negative: 'var(--error-solid)',
   warning: 'var(--warning-solid)',

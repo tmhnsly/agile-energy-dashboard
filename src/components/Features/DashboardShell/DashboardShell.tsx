@@ -1,13 +1,17 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { useMarketData } from '@/hooks/useMarketData';
 import { BentoTile } from '@/components/Layout';
 import { BentoGrid } from '@/components/Layout';
-import { MarketPricePanel, MarketPriceTileSkeleton } from '@/components/Features/MarketPriceTile';
+import {
+  MarketPricePanel,
+  MarketPriceSkeleton,
+} from '@/components/Features/MarketPrice';
 import {
   HouseholdUsagePanel,
-  HouseholdUsageTileSkeleton,
-} from '@/components/Features/HouseholdUsageTile';
+  HouseholdUsageSkeleton,
+} from '@/components/Features/HouseholdUsage';
 
 import styles from './DashboardShell.module.scss';
 
@@ -17,19 +21,33 @@ import styles from './DashboardShell.module.scss';
  * duplication.
  */
 export const DashboardShell = () => {
-  const marketData = useMarketData();
+  const [retryKey, setRetryKey] = useState(0);
+  const marketData = useMarketData(retryKey);
   const isLoading = marketData.status === 'loading';
+
+  const handleRetry = useCallback(() => {
+    setRetryKey((k) => k + 1);
+  }, []);
+
+  const errorMessage =
+    marketData.status === 'error' ? marketData.error : null;
 
   return (
     <BentoGrid>
       <BentoTile
-        variant="wide"
+        span="wide"
         loading={isLoading}
-        skeleton={<MarketPriceTileSkeleton />}
+        skeleton={<MarketPriceSkeleton />}
       >
         {marketData.status === 'error' ? (
           <div className={styles.error}>
-            Failed to load market data. Please try again later.
+            <p>Failed to load market data.</p>
+            {errorMessage && (
+              <p className={styles.errorDetail}>{errorMessage}</p>
+            )}
+            <button className={styles.retryBtn} onClick={handleRetry}>
+              Retry
+            </button>
           </div>
         ) : marketData.status === 'ready' ? (
           <MarketPricePanel
@@ -40,13 +58,19 @@ export const DashboardShell = () => {
       </BentoTile>
 
       <BentoTile
-        variant="feature"
+        span="feature"
         loading={isLoading}
-        skeleton={<HouseholdUsageTileSkeleton />}
+        skeleton={<HouseholdUsageSkeleton />}
       >
         {marketData.status === 'error' ? (
           <div className={styles.error}>
-            Failed to load usage data. Please try again later.
+            <p>Failed to load usage data.</p>
+            {errorMessage && (
+              <p className={styles.errorDetail}>{errorMessage}</p>
+            )}
+            <button className={styles.retryBtn} onClick={handleRetry}>
+              Retry
+            </button>
           </div>
         ) : marketData.status === 'ready' ? (
           <HouseholdUsagePanel

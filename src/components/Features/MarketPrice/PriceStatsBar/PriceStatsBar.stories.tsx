@@ -5,18 +5,18 @@ import { PriceStatsBar } from './PriceStatsBar';
 import { mockStats, mockRange } from '../mockData';
 
 /**
- * Row of Low, High, and Total stat cards for a time range. Used inside the
- * `MarketPriceTile` header. Sub-values always show day and time (e.g. "Wed 02:30").
+ * Row of Low, Peak, and Total stat cards for a time range. Used inside the
+ * `MarketPricePanel` header. Sub-values always show day and time (e.g. "Wed 02:30").
  */
 const meta = {
-  title: 'Features / Market & Price / PriceStatsBar',
+  title: 'Features / Market Price / PriceStatsBar',
   component: PriceStatsBar,
   parameters: {
     layout: 'padded',
   },
   decorators: [
     (Story) => (
-      <BentoTile variant="wide">
+      <BentoTile span="wide">
         <Story />
       </BentoTile>
     ),
@@ -26,7 +26,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Full range with low, high and total stats populated. */
+/** Full range with low, peak and total stats populated. */
 export const Default: Story = {
   args: {
     stats: mockStats,

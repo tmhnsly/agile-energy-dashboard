@@ -1,16 +1,16 @@
 import { TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
-import tileStyles from './HouseholdUsageTile.module.scss';
-import statsStyles from './UsageStatsBar/UsageStatsBar.module.scss';
-import skelStyles from './HouseholdUsageTileSkeleton.module.scss';
+import tileStyles from './HouseholdUsagePanel.module.scss';
+import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
+import skelStyles from './HouseholdUsageSkeleton.module.scss';
 
 /**
- * Skeleton that mirrors the exact layout of the HouseholdUsageTile content.
+ * Skeleton that mirrors the exact layout of the HouseholdUsagePanel content.
  * Uses the real StatCard (default neutral tone) with invisible placeholder
  * text that reserves the correct dimensions.
  */
-export const HouseholdUsageTileSkeleton = () => (
+export const HouseholdUsageSkeleton = () => (
   <div className={tileStyles.content}>
     <div className={tileStyles.headerTop}>
       <div className={tileStyles.headerGroup}>
@@ -39,7 +39,7 @@ export const HouseholdUsageTileSkeleton = () => (
       <Skeleton width="100%" height="100%" radius="medium" />
     </div>
 
-    <div className={tileStyles.chartFooter}>
+    <div className={tileStyles.chartControls}>
       <div className={skelStyles.selector}>
         {Array.from({ length: 4 }, (_, i) => (
           <Skeleton key={i} width="5rem" height="1.75rem" radius="small" />

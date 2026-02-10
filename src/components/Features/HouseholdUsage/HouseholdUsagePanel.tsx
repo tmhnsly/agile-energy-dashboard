@@ -4,21 +4,21 @@ import { useState, useMemo, useCallback } from 'react';
 import { ParentSize } from '@visx/responsive';
 import type { HouseholdUsageRow, PricePoint, TimeRange, HouseholdKey } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
-import { usePriceRange } from '@/hooks/usePriceRange';
+import { useTimeRange } from '@/hooks/useTimeRange';
 import { useUsageStats } from '@/hooks/useUsageStats';
 import { formatDateTime, formatKwhValue } from '@/utils/format';
-import { Button } from '@/components/UI/Button/Button';
+import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/ClearSelectionButton';
 import { TimeSeriesChart } from '@/components/Charts';
 import { HouseholdSelector } from './HouseholdSelector';
 import { UsageStatsBar } from './UsageStatsBar/UsageStatsBar';
-import styles from './HouseholdUsageTile.module.scss';
+import styles from './HouseholdUsagePanel.module.scss';
 
 const ALL_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
 
 const SERIES_CONFIG: Record<HouseholdKey, { label: string; tone: ChartSeries['tone'] }> = {
   standard: { label: 'Standard', tone: 'accent' },
-  heatPump: { label: 'Heat Pump', tone: 'positive' },
-  heatPumpBattery: { label: 'HP + Battery', tone: 'warning' },
+  heatPump: { label: 'Heat Pump', tone: 'secondary' },
+  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'positive' },
 };
 
 function formatYTick(v: number): string {
@@ -52,13 +52,8 @@ export const HouseholdUsagePanel = ({
     [selected],
   );
 
-  // Reuse usePriceRange by mapping usage rows to { ts, price } shape
-  const usageAsPricePoints = useMemo(
-    () => usage.map(r => ({ ts: r.ts, price: 0 })),
-    [usage],
-  );
   const { fullRange, activeRange, isCustomRange, setRange, resetRange } =
-    usePriceRange(usageAsPricePoints);
+    useTimeRange(usage);
 
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
   const displayRange = previewRange ?? activeRange;
@@ -124,16 +119,9 @@ export const HouseholdUsagePanel = ({
         </ParentSize>
       </div>
 
-      <div className={styles.chartFooter}>
+      <div className={styles.chartControls}>
         <HouseholdSelector selected={selected} onToggle={handleToggle} />
-        <Button
-          label={isCustomRange ? 'Clear selection' : 'Select a range'}
-          variant="soft"
-          color="mono"
-          size="small"
-          disabled={!isCustomRange}
-          onClick={resetRange}
-        />
+        <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
       </div>
     </div>
   );

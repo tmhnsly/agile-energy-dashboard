@@ -5,7 +5,7 @@ import type { TimeRange } from '@/types/energy';
 import { formatTime, formatDuration } from '@/utils/format';
 import { lowerBound, upperBound } from '@/utils/binarySearch';
 import { TimeSeriesChart } from './TimeSeriesChart';
-import { mockSeriesA, mockBands, mockRange } from './mockData';
+import { mockSeriesA, mockSeriesB, mockSeriesC, mockBands, mockRange } from './mockData';
 
 /**
  * General-purpose time-series line chart built on [visx](https://airbnb.io/visx/).
@@ -348,6 +348,42 @@ export const KeyboardNavigation: Story = {
             />
           )}
         </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Three overlaid lines with different tones (accent, positive for each series).
+ * Hover to see the coloured multi-value tooltip with a swatch and label
+ * for each series.
+ */
+export const MultiSeries: Story = {
+  args: {
+    series: [mockSeriesA, mockSeriesB, mockSeriesC],
+    fullRange: mockRange,
+    activeRange: mockRange,
+    onRangeChange: () => {},
+    width: 800,
+    height: CHART_HEIGHT,
+  },
+  render: function MultiSeries() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const width = useContainerWidth(containerRef);
+    const [activeRange, setActiveRange] = useState<TimeRange>(mockRange);
+
+    return (
+      <div ref={containerRef} style={{ width: '100%' }}>
+        {width > 0 && (
+          <TimeSeriesChart
+            series={[mockSeriesA, mockSeriesB, mockSeriesC]}
+            fullRange={mockRange}
+            activeRange={activeRange}
+            onRangeChange={setActiveRange}
+            width={width}
+            height={CHART_HEIGHT}
+          />
+        )}
       </div>
     );
   },

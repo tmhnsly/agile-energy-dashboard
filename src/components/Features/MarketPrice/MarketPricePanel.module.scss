@@ -2,7 +2,6 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
 
-/* Layout-only content wrapper — card shell (padding, border, bg) is on BentoTile */
 .content {
   @include layout.stack(var(--card-gap));
   min-width: 0;
@@ -44,11 +43,6 @@
   }
 }
 
-.chartFooter {
-  @include layout.cluster(var(--chart-footer-gap));
-  justify-content: space-between;
-}
-
 .chartArea {
   overflow: visible;
   height: 240px;
@@ -59,5 +53,19 @@
 
   @include cq.large {
     height: 380px;
+  }
+}
+
+.chartLegend {
+  @include layout.cluster(var(--chart-footer-gap));
+}
+
+.chartControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  > :last-child {
+    margin-left: auto;
   }
 }

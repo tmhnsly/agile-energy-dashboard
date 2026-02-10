@@ -40,10 +40,11 @@ export type MarketDataState = MarketDataLoading | MarketDataError | MarketDataRe
  * Returns a discriminated-union state (`loading` → `ready` | `error`)
  * so the consuming component can render a skeleton, error, or data view.
  */
-export function useMarketData(): MarketDataState {
+export function useMarketData(retryKey = 0): MarketDataState {
   const [state, setState] = useState<MarketDataState>({ status: 'loading' });
 
   useEffect(() => {
+    setState({ status: 'loading' });
     let cancelled = false;
 
     async function load() {
@@ -89,7 +90,7 @@ export function useMarketData(): MarketDataState {
 
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [retryKey]);
 
   return state;
 }

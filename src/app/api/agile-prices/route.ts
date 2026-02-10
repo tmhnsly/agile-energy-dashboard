@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 
 export const revalidate = 900; // ISR: cache for 15 minutes
 
+const TIMEOUT_MS = 10_000;
+
 export async function GET() {
   const product = process.env.OCTOPUS_PRODUCT_CODE ?? 'AGILE-24-10-01';
   const region = process.env.OCTOPUS_REGION ?? 'L';
@@ -21,15 +23,42 @@ export async function GET() {
   url.searchParams.set('period_to', periodTo.toISOString());
   url.searchParams.set('page_size', '200');
 
-  const upstream = await fetch(url, { next: { revalidate: 900 } });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, {
+      next: { revalidate: 900 },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeout);
+    const isTimeout = err instanceof DOMException && err.name === 'AbortError';
+    return NextResponse.json(
+      { error: isTimeout ? 'Upstream request timed out' : 'Failed to reach upstream API' },
+      { status: 504 },
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!upstream.ok) {
     return NextResponse.json(
-      { error: 'Upstream API error' },
+      { error: `Upstream API returned ${upstream.status}` },
       { status: upstream.status },
     );
   }
 
-  const data = await upstream.json();
+  let data: unknown;
+  try {
+    data = await upstream.json();
+  } catch {
+    return NextResponse.json(
+      { error: 'Upstream returned invalid JSON' },
+      { status: 502 },
+    );
+  }
+
   return NextResponse.json(data);
 }
