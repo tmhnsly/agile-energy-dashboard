@@ -266,6 +266,11 @@
   stroke-width: 2;
   pointer-events: none;
   animation: focusPulse 1.5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0.9;
+  }
 }
 
 /* Selection start boundary placed via Space key */

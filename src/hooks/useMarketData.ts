@@ -30,12 +30,12 @@ interface MarketDataReady {
 export type MarketDataState = MarketDataLoading | MarketDataError | MarketDataReady;
 
 /**
- * Fetch and parse all market data files on mount.
+ * Fetch and parse all market data on mount.
  *
- * Loads three static data files in parallel:
- * - `agile_price_example.json` — half-hourly Agile tariff prices
- * - `flexibility_opportunity.json` — demand-side flex event windows
- * - `household_usage.csv` — consumption profiles for three household types
+ * Loads data from three sources in parallel:
+ * - `/api/agile-prices` — live half-hourly Agile tariff prices via Octopus Energy API
+ * - `flexibility_opportunity.json` — demand-side flex event windows (static)
+ * - `household_usage.csv` — consumption profiles for three household types (static)
  *
  * Returns a discriminated-union state (`loading` → `ready` | `error`)
  * so the consuming component can render a skeleton, error, or data view.
@@ -49,7 +49,7 @@ export function useMarketData(): MarketDataState {
     async function load() {
       try {
         const [priceRes, flexRes, csvRes] = await Promise.all([
-          fetch('/data/agile_price_example.json'),
+          fetch('/api/agile-prices'),
           fetch('/data/flexibility_opportunity.json'),
           fetch('/data/household_usage.csv'),
         ]);

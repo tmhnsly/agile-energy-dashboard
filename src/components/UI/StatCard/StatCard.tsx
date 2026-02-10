@@ -1,4 +1,5 @@
 import { memo, type ReactNode } from 'react';
+import { cx } from '@/utils/cx';
 import styles from './StatCard.module.scss';
 
 export type StatCardTone = 'neutral' | 'positive' | 'negative' | 'accent';
@@ -22,7 +23,7 @@ export const StatCard = memo(function StatCard({
 }: StatCardProps) {
   return (
     <div
-      className={`${styles.card} ${className ?? ''}`}
+      className={cx(styles.card, className)}
       data-tone={tone}
       role="group"
       aria-label={label}

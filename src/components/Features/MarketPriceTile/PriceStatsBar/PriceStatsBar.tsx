@@ -14,7 +14,7 @@ function formatTotal(pence: number): string {
 
 function formatKwh(range: TimeRange): string {
   const kWh = (range.toTs - range.fromTs) / HALF_HOUR_MS;
-  return kWh % 1 === 0 ? `${kWh} kWh` : `${kWh.toFixed(1)} kWh`;
+  return `${Number.isInteger(kWh) ? kWh : kWh.toFixed(1)} kWh`;
 }
 
 export interface PriceStatsBarProps {
@@ -35,7 +35,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         label="Low"
         value={stats.min ? formatPricePerKwh(stats.min.price) : '—'}
         subValue={stats.min ? fmtTime(stats.min.ts) : '\u00A0'}
-        icon={<TbTriangleInvertedFilled />}
+        icon={<TbTriangleInvertedFilled aria-hidden="true" />}
         tone="positive"
       />
       <StatCard
@@ -43,7 +43,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         label="High"
         value={stats.max ? formatPricePerKwh(stats.max.price) : '—'}
         subValue={stats.max ? fmtTime(stats.max.ts) : '\u00A0'}
-        icon={<TbTriangleFilled />}
+        icon={<TbTriangleFilled aria-hidden="true" />}
         tone="negative"
       />
       <StatCard
@@ -51,7 +51,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
         label="Total"
         value={stats.total != null ? formatTotal(stats.total) : '—'}
         subValue={stats.count > 0 ? formatKwh(range) : '\u00A0'}
-        icon={<TbCalculator />}
+        icon={<TbCalculator aria-hidden="true" />}
         tone="accent"
       />
     </div>

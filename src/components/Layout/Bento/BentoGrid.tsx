@@ -1,3 +1,4 @@
+import { cx } from '@/utils/cx';
 import styles from './BentoGrid.module.scss';
 
 export interface BentoGridProps {
@@ -7,7 +8,7 @@ export interface BentoGridProps {
 
 export const BentoGrid = ({ children, className }: BentoGridProps) => {
   return (
-    <div className={`${styles.grid}${className ? ` ${className}` : ''}`}>
+    <div className={cx(styles.grid, className)}>
       {children}
     </div>
   );

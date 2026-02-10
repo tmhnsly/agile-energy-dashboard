@@ -50,10 +50,16 @@
   justify-content: center;
   width: 44px;
   height: 44px;
+  padding: 0;
   border-radius: var(--radius-squircle);
   background-color: var(--mono-subtle-bg);
   border: 1px solid var(--mono-border-subtle);
   color: var(--mono-solid);
   font-size: var(--text-2xl);
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: 2px;
+  }
 }

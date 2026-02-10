@@ -3,6 +3,9 @@
 .legend {
   display: flex;
   gap: var(--chart-legend-gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .item {

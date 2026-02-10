@@ -118,6 +118,8 @@ export interface TimeSeriesChartProps {
   formatTooltipValue?: (value: number) => string;
   /** Accessible label for the chart SVG. */
   ariaLabel?: string;
+  /** Longer accessible description for the chart (referenced via aria-describedby). */
+  ariaDescription?: string;
   /** Show min/max markers on the primary series. Default: true */
   showMinMaxMarkers?: boolean;
 }
@@ -140,6 +142,7 @@ export const TimeSeriesChart = ({
   formatXTick: formatXTickProp,
   formatTooltipValue: formatTooltipValueProp,
   ariaLabel = 'Time series chart',
+  ariaDescription,
   showMinMaxMarkers = true,
 }: TimeSeriesChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -365,8 +368,10 @@ export const TimeSeriesChart = ({
         height={height}
         role="img"
         aria-label={ariaLabel}
+        aria-describedby={ariaDescription ? 'chart-desc' : undefined}
         style={{ touchAction: 'none' }}
       >
+        {ariaDescription && <desc id="chart-desc">{ariaDescription}</desc>}
         <Group left={margin.left} top={margin.top}>
           {/* 1 — Alternating horizontal stripes */}
           {yTicks.slice(0, -1).map((tick, i) => {
@@ -454,45 +459,7 @@ export const TimeSeriesChart = ({
             />
           )}
 
-          {/* 6 — Selection overlay */}
-          {!isFullSelection && (
-            <SelectionOverlay
-              leftX={displaySelLeftX}
-              rightX={displaySelRightX}
-              innerWidth={innerWidth}
-              innerHeight={innerHeight}
-            />
-          )}
-
-          {/* 6b — Keyboard focus indicator */}
-          {primaryData.length > 0 && (
-            <FocusIndicator
-              x={xScale(new Date(primaryData[focusedIndex]?.ts ?? 0))}
-              y={yScale(primaryData[focusedIndex]?.value ?? 0)}
-              isVisible={isKeyboardActive}
-            />
-          )}
-
-          {/* 6c — Selection start boundary marker (Space to place) */}
-          {isKeyboardActive && selectionStart != null && primaryData[selectionStart] && (
-            <g>
-              <line
-                x1={xScale(new Date(primaryData[selectionStart].ts))}
-                y1={0}
-                x2={xScale(new Date(primaryData[selectionStart].ts))}
-                y2={innerHeight}
-                className={styles.selectionStartLine}
-              />
-              <circle
-                cx={xScale(new Date(primaryData[selectionStart].ts))}
-                cy={yScale(primaryData[selectionStart].value)}
-                r={4}
-                className={styles.selectionStartDot}
-              />
-            </g>
-          )}
-
-          {/* 7 — Axes */}
+          {/* 6 — Axes (before selection so handles paint above axis lines) */}
           <AxisBottom
             top={innerHeight}
             scale={xScale}
@@ -510,6 +477,44 @@ export const TimeSeriesChart = ({
             tickStroke="var(--mono-border-subtle)"
             tickLabelProps={AXIS_LEFT_TICK_LABEL_PROPS}
           />
+
+          {/* 7 — Selection overlay */}
+          {!isFullSelection && (
+            <SelectionOverlay
+              leftX={displaySelLeftX}
+              rightX={displaySelRightX}
+              innerWidth={innerWidth}
+              innerHeight={innerHeight}
+            />
+          )}
+
+          {/* 7b — Keyboard focus indicator */}
+          {primaryData.length > 0 && (
+            <FocusIndicator
+              x={xScale(new Date(primaryData[focusedIndex]?.ts ?? 0))}
+              y={yScale(primaryData[focusedIndex]?.value ?? 0)}
+              isVisible={isKeyboardActive}
+            />
+          )}
+
+          {/* 7c — Selection start boundary marker (Space to place) */}
+          {isKeyboardActive && selectionStart != null && primaryData[selectionStart] && (
+            <g>
+              <line
+                x1={xScale(new Date(primaryData[selectionStart].ts))}
+                y1={0}
+                x2={xScale(new Date(primaryData[selectionStart].ts))}
+                y2={innerHeight}
+                className={styles.selectionStartLine}
+              />
+              <circle
+                cx={xScale(new Date(primaryData[selectionStart].ts))}
+                cy={yScale(primaryData[selectionStart].value)}
+                r={4}
+                className={styles.selectionStartDot}
+              />
+            </g>
+          )}
 
           {/* 8 — Tooltip crosshair (hidden during drag) */}
           {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && (

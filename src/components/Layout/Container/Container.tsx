@@ -1,4 +1,5 @@
 import type { ElementType, ComponentPropsWithoutRef } from 'react';
+import { cx } from '@/utils/cx';
 import styles from './Container.module.scss';
 
 type ContainerTag = 'div' | 'section' | 'main' | 'nav' | 'aside' | 'header' | 'footer' | 'article';
@@ -17,7 +18,7 @@ export const Container = <T extends ContainerTag = 'div'>({
 }: ContainerProps<T>) => {
   const Tag = (as ?? 'div') as ElementType;
   return (
-    <Tag className={`${styles.container}${className ? ` ${className}` : ''}`} {...rest}>
+    <Tag className={cx(styles.container, className)} {...rest}>
       {children}
     </Tag>
   );

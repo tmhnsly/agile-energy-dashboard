@@ -9,6 +9,16 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   test: {
     projects: [
+      // Unit tests — pure logic (mappers, formatters, utilities)
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['src/**/*.test.{ts,tsx}'],
+          environment: 'node',
+        },
+      },
+      // Storybook smoke tests — renders every story in a real browser
       {
         extends: true,
         plugins: [

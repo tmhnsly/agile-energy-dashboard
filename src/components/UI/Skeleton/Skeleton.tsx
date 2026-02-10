@@ -1,3 +1,4 @@
+import { cx } from '@/utils/cx';
 import styles from './Skeleton.module.scss';
 
 export interface SkeletonProps {
@@ -15,7 +16,7 @@ export const Skeleton = ({
 }: SkeletonProps) => {
   return (
     <div
-      className={`${styles.skeleton}${className ? ` ${className}` : ''}`}
+      className={cx(styles.skeleton, className)}
       data-radius={radius}
       aria-hidden="true"
       role="presentation"
@@ -42,7 +43,7 @@ export const SkeletonText = ({
 }: SkeletonTextProps) => {
   return (
     <div
-      className={`${styles.textGroup}${className ? ` ${className}` : ''}`}
+      className={cx(styles.textGroup, className)}
       style={{ gap }}
       aria-hidden="true"
       role="presentation"
@@ -80,7 +81,7 @@ export interface SkeletonCardProps {
 export const SkeletonCard = ({ lines = 3, className }: SkeletonCardProps) => {
   return (
     <div
-      className={`${styles.card}${className ? ` ${className}` : ''}`}
+      className={cx(styles.card, className)}
       aria-hidden="true"
       role="presentation"
     >

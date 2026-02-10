@@ -1,3 +1,4 @@
+import { cx } from '@/utils/cx';
 import styles from './Section.module.scss';
 
 export interface SectionProps {
@@ -15,7 +16,7 @@ export const Section = ({
 }: SectionProps) => {
   return (
     <section
-      className={`${styles.section}${className ? ` ${className}` : ''}`}
+      className={cx(styles.section, className)}
       data-variant={variant}
       data-size={size}
     >

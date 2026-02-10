@@ -15,7 +15,7 @@ import styles from './MarketPriceTile.module.scss';
 
 const HOUR_MS = 3_600_000;
 const HALF_HOUR_MS = 30 * 60_000;
-const PRESET_HOURS = [6, 12, 24, 48] as const;
+const PRESET_HOURS = [6, 12, 24] as const;
 
 function formatYTickWithUnit(v: number): string {
   return `${Number(v).toFixed(0)}p`;
@@ -56,6 +56,15 @@ export const MarketPricePanel = ({
       tone: 'warning' as const,
     })),
   [flexEvents]);
+
+  const chartDescription = useMemo(() => {
+    const from = formatDateTime(fullRange.fromTs);
+    const to = formatDateTime(fullRange.toTs);
+    const bandText = flexEvents.length > 0
+      ? ` Flexibility events highlighted.`
+      : '';
+    return `Half-hourly energy prices in pence per kWh from ${from} to ${to}.${bandText} Drag to select a time range, or use keyboard arrows to navigate.`;
+  }, [fullRange, flexEvents]);
 
   /* ── Cheapest-window presets ────────────────────── */
 
@@ -122,6 +131,8 @@ export const MarketPricePanel = ({
               height={height}
               formatYTick={formatYTickWithUnit}
               formatTooltipValue={formatPricePerKwh}
+              ariaLabel="Energy market prices"
+              ariaDescription={chartDescription}
             />
           )}
         </ParentSize>

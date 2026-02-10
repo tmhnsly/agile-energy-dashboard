@@ -1,4 +1,5 @@
 import { HiLightningBolt, HiUser } from 'react-icons/hi';
+import { cx } from '@/utils/cx';
 import styles from './Navbar.module.scss';
 
 export interface NavbarProps {
@@ -9,15 +10,17 @@ export interface NavbarProps {
 
 export const Navbar = ({ title, children, className }: NavbarProps) => {
   return (
-    <nav className={`${styles.navbar}${className ? ` ${className}` : ''}`}>
+    <nav className={cx(styles.navbar, className)}>
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <span className={styles.brandIcon}><HiLightningBolt /></span>
+          <span className={styles.brandIcon} aria-hidden="true"><HiLightningBolt /></span>
           {title && <span className={styles.title}>{title}</span>}
         </div>
         <div className={styles.actions}>
           {children}
-          <span className={styles.avatar}><HiUser /></span>
+          <button className={styles.avatar} aria-label="User menu">
+            <HiUser aria-hidden="true" />
+          </button>
         </div>
       </div>
     </nav>

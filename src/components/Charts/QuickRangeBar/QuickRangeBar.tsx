@@ -8,7 +8,6 @@ const PRESETS = [
   { label: '6h', hours: 6 },
   { label: '12h', hours: 12 },
   { label: '24h', hours: 24 },
-  { label: '48h', hours: 48 },
   { label: 'All', hours: null },
 ] as const;
 
@@ -24,7 +23,7 @@ export const QuickRangeBar = memo(function QuickRangeBar({
   onPresetSelect,
 }: QuickRangeBarProps) {
   return (
-    <div className={styles.bar}>
+    <div className={styles.bar} role="group" aria-label="Time range presets">
       {PRESETS.map(({ label, hours }) => (
         <Button
           key={label}

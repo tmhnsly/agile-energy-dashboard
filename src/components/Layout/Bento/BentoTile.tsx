@@ -1,3 +1,4 @@
+import { cx } from '@/utils/cx';
 import styles from './BentoTile.module.scss';
 
 export interface BentoTileProps {
@@ -20,7 +21,7 @@ export const BentoTile = ({
 }: BentoTileProps) => {
   return (
     <div
-      className={`${styles.tile}${className ? ` ${className}` : ''}`}
+      className={cx(styles.tile, className)}
       data-variant={variant}
       {...(loading ? { 'aria-busy': 'true', 'data-loading': 'true' } : {})}
     >
