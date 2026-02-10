@@ -28,8 +28,12 @@ export const HouseholdSelector = memo(function HouseholdSelector({
   const handleToggle = useCallback((key: HouseholdKey) => {
     const next = new Set(selected);
     if (next.has(key)) {
-      // Don't allow deselecting the last one
-      if (next.size > 1) next.delete(key);
+      next.delete(key);
+      // Last one deselected — re-enable all
+      if (next.size === 0) {
+        onToggle(new Set(ALL_KEYS));
+        return;
+      }
     } else {
       next.add(key);
     }
@@ -43,7 +47,7 @@ export const HouseholdSelector = memo(function HouseholdSelector({
   return (
     <div className={styles.bar} role="group" aria-label="Household type">
       <Button
-        label="All"
+        label="Show All"
         size="small"
         color="mono"
         variant={allOn ? 'soft' : 'ghost'}

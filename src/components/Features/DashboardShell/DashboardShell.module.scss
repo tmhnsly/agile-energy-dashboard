@@ -34,8 +34,10 @@
   cursor: pointer;
   @include type.typography(meta);
 
-  &:hover {
-    background: var(--mono-bg-hover);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--mono-bg-hover);
+    }
   }
 }
 

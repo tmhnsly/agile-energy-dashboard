@@ -91,7 +91,7 @@ export const MarketPricePanel = ({
       activeRange.fromTs === fullRange.fromTs &&
       activeRange.toTs === fullRange.toTs
     ) {
-      return 'All';
+      return 'Show All';
     }
     const durationMs = activeRange.toTs - activeRange.fromTs;
     for (const hours of PRESET_HOURS) {

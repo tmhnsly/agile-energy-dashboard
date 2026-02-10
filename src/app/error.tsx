@@ -12,7 +12,7 @@ export default function Error({
 }) {
   return (
     <div className={styles.page}>
-      <div className={styles.icon} aria-hidden="true">
+      <div className={styles.icon} style={{ color: 'var(--error-text-low-contrast)' }} aria-hidden="true">
         <TbPlugX size="100%" />
       </div>
       <p className={styles.code}>500</p>

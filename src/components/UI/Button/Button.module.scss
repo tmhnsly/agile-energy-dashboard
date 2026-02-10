@@ -97,7 +97,9 @@
     background-color: var(--_solid);
     color: var(--_on-solid);
 
-    &:hover { background-color: var(--_solid-hover); }
+    @media (hover: hover) {
+      &:hover { background-color: var(--_solid-hover); }
+    }
     &:active { background-color: var(--_solid); }
   }
 
@@ -105,7 +107,9 @@
     background-color: var(--_bg);
     color: var(--_text-lc);
 
-    &:hover { background-color: var(--_bg-hover); }
+    @media (hover: hover) {
+      &:hover { background-color: var(--_bg-hover); }
+    }
     &:active { background-color: var(--_bg-active); }
   }
 
@@ -114,9 +118,11 @@
     border-color: var(--_border);
     color: var(--_text-lc);
 
-    &:hover {
-      background-color: var(--_bg);
-      border-color: var(--_border-hover);
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--_bg);
+        border-color: var(--_border-hover);
+      }
     }
 
     &:active { background-color: var(--_bg-hover); }
@@ -126,7 +132,9 @@
     background-color: transparent;
     color: var(--_text-lc);
 
-    &:hover { background-color: var(--_bg); }
+    @media (hover: hover) {
+      &:hover { background-color: var(--_bg); }
+    }
     &:active { background-color: var(--_bg-hover); }
   }
 

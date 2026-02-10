@@ -391,7 +391,7 @@ export const TimeSeriesChart = ({
         role="img"
         aria-label={ariaLabel}
         aria-describedby={ariaDescription ? 'chart-desc' : undefined}
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: 'pan-y' }}
       >
         {ariaDescription && <desc id="chart-desc">{ariaDescription}</desc>}
         <Group left={margin.left} top={margin.top}>

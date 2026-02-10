@@ -33,11 +33,11 @@
   }
 
   &[data-tone='positive'] {
-    background-color: var(--positive-solid);
+    background-color: var(--success-solid);
   }
 
   &[data-tone='negative'] {
-    background-color: var(--negative-solid);
+    background-color: var(--error-solid);
   }
 
   &[data-tone='warning'] {
@@ -65,13 +65,13 @@
   }
 
   &[data-tone='positive'] {
-    background-color: var(--positive-bg);
-    border-left-color: var(--positive-border);
+    background-color: var(--success-bg);
+    border-left-color: var(--success-border);
   }
 
   &[data-tone='negative'] {
-    background-color: var(--negative-bg);
-    border-left-color: var(--negative-border);
+    background-color: var(--error-bg);
+    border-left-color: var(--error-border);
   }
 
   &[data-tone='warning'] {

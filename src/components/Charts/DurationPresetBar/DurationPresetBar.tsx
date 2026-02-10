@@ -5,7 +5,7 @@ import { Button } from '@/components/UI/Button/Button';
 import styles from './DurationPresetBar.module.scss';
 
 const PRESETS = [
-  { label: 'All', hours: null },
+  { label: 'Show All', hours: null },
   { label: '6h', hours: 6 },
   { label: '12h', hours: 12 },
   { label: '24h', hours: 24 },

@@ -13,7 +13,6 @@
 
 .icon {
   width: 4rem;
-  color: var(--mono-text-low-contrast);
 }
 
 .code {
@@ -49,7 +48,9 @@
   text-decoration: none;
   cursor: pointer;
 
-  &:hover {
-    background: var(--mono-bg-hover);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--mono-bg-hover);
+    }
   }
 }

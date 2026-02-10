@@ -21,6 +21,8 @@ import { useTooltip } from '@visx/tooltip';
 const MIN_SEL_PX = 10;
 /** Movement threshold (px) to distinguish a click from a drag. */
 const CLICK_THRESHOLD_PX = 3;
+/** Minimum px movement before promoting a pending touch to a drag. */
+const TOUCH_DRAG_THRESHOLD_PX = 10;
 /** Viewport width below which we use wider touch targets for selection handles. */
 const MOBILE_WIDTH_THRESHOLD = 480;
 /** Hit-test width (px) for selection edge handles on mobile. */
@@ -53,6 +55,15 @@ interface DragState {
   originValue: number;
   startFrom: number;
   startTo: number;
+}
+
+interface PendingTouch {
+  pointerId: number;
+  originX: number;
+  originY: number;
+  chartX: number;
+  type: DragState['type'];
+  value: number;
 }
 
 export interface UseChartInteractionOptions<TTooltip> {
@@ -185,6 +196,7 @@ export function useChartInteraction<TTooltip>({
   onPointerActivity,
 }: UseChartInteractionOptions<TTooltip>) {
   const dragRef = useRef<DragState | null>(null);
+  const pendingTouchRef = useRef<PendingTouch | null>(null);
   const rafId = useRef(0);
   const pendingDragRange = useRef<ChartRange | null>(null);
   const dragRangeRef = useRef<ChartRange | null>(null);
@@ -337,6 +349,21 @@ export function useChartInteraction<TTooltip>({
       const type = getDragType(x);
       const value = pixelToValueRef.current(x);
 
+      /* Touch: defer drag until we know the gesture direction. */
+      if (e.pointerType === 'touch') {
+        pendingTouchRef.current = {
+          pointerId: e.pointerId,
+          originX: e.clientX,
+          originY: e.clientY,
+          chartX: x,
+          type,
+          value,
+        };
+        tooltip.hideTooltip();
+        setHoveredBandId(null);
+        return;
+      }
+
       e.currentTarget.setPointerCapture(e.pointerId);
       e.preventDefault();
 
@@ -375,6 +402,52 @@ export function useChartInteraction<TTooltip>({
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<SVGRectElement>) => {
       onPointerActivityRef.current?.();
+
+      /* ---- pending touch: decide between drag and scroll ---- */
+      const pending = pendingTouchRef.current;
+      if (pending) {
+        const dx = e.clientX - pending.originX;
+        const dy = e.clientY - pending.originY;
+
+        if (Math.abs(dy) > Math.abs(dx)) {
+          /* Vertical scroll — cancel pending touch, let browser handle it. */
+          pendingTouchRef.current = null;
+          return;
+        }
+
+        if (Math.abs(dx) < TOUCH_DRAG_THRESHOLD_PX) {
+          /* Below threshold — wait for more movement. */
+          return;
+        }
+
+        /* Horizontal drag confirmed — promote to real drag. */
+        pendingTouchRef.current = null;
+        e.currentTarget.setPointerCapture(pending.pointerId);
+        (e.currentTarget as SVGRectElement).style.touchAction = 'none';
+
+        dragRef.current = {
+          type: pending.type,
+          originX: pending.chartX,
+          originValue: pending.value,
+          startFrom: activeRange.from,
+          startTo: activeRange.to,
+        };
+
+        if (pending.type !== 'new') {
+          dragRangeRef.current = { from: activeRange.from, to: activeRange.to };
+          setLocalDragRange({ from: activeRange.from, to: activeRange.to });
+        }
+
+        updateCursor(
+          pending.type === 'region'
+            ? 'grabbing'
+            : pending.type === 'new'
+              ? 'crosshair'
+              : 'ew-resize',
+        );
+        /* Fall through to the normal drag logic below. */
+      }
+
       const x = getChartX(e);
       const drag = dragRef.current;
 
@@ -404,11 +477,22 @@ export function useChartInteraction<TTooltip>({
         }
       }
     },
-    [getChartX, handleHover, fullRange, minSelectionSpan],
+    [getChartX, handleHover, fullRange, minSelectionSpan, activeRange, updateCursor],
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<SVGRectElement>) => {
+      /* Pending touch that never became a drag — treat as tap. */
+      const pending = pendingTouchRef.current;
+      if (pending) {
+        pendingTouchRef.current = null;
+        if (pending.type === 'new') {
+          const bandRange = handleBandClick(pending.value, bands);
+          if (bandRange) onRangeChange(bandRange);
+        }
+        return;
+      }
+
       const drag = dragRef.current;
       if (!drag) return;
 
@@ -416,6 +500,8 @@ export function useChartInteraction<TTooltip>({
       e.currentTarget.releasePointerCapture(e.pointerId);
       dragRef.current = null;
       updateCursor('crosshair');
+      /* Reset touch-action after a touch drag. */
+      (e.currentTarget as SVGRectElement).style.touchAction = 'pan-y';
 
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
@@ -449,10 +535,15 @@ export function useChartInteraction<TTooltip>({
 
   const handlePointerCancel = useCallback(
     (e: React.PointerEvent<SVGRectElement>) => {
+      if (pendingTouchRef.current) {
+        pendingTouchRef.current = null;
+      }
       if (!dragRef.current) return;
       e.currentTarget.releasePointerCapture(e.pointerId);
       dragRef.current = null;
       updateCursor('crosshair');
+      /* Reset touch-action after a touch drag. */
+      (e.currentTarget as SVGRectElement).style.touchAction = 'pan-y';
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
         rafId.current = 0;
