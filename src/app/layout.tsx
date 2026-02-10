@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk, Young_Serif } from "next/font/google";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Layout";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
           <Navbar title="Shuffle Energy" />
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
