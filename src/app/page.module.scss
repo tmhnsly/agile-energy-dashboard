@@ -1,4 +1,5 @@
 @use "mixins/typography" as type;
+@use "mixins/breakpoints" as bp;
 @use "mixins/surfaces" as surface;
 
 .page {
@@ -10,4 +11,9 @@
   @include type.typography(page-title);
   color: var(--mono-text);
   margin: 0 0 var(--space-6) 0;
+  padding-left: var(--card-padding-compact);
+
+  @include bp.tablet {
+    padding-left: var(--card-padding);
+  }
 }

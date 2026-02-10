@@ -552,6 +552,7 @@ export const TimeSeriesChart = ({
             fill="transparent"
             className={styles.interactionOverlay}
             data-cursor="crosshair"
+            data-keyboard={isKeyboardActive ? 'true' : 'false'}
             tabIndex={0}
             role="application"
             aria-label="Time series chart. Use arrow keys to navigate data points. Press Space to set range start, then Space again to set range end. Escape to reset."

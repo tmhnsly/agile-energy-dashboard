@@ -328,6 +328,8 @@
 /* Interaction overlay — cursor via data-cursor attribute */
 .interactionOverlay {
   cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
 
   &[data-cursor="ew-resize"] {
     cursor: ew-resize;
@@ -348,5 +350,10 @@
   &:focus-visible {
     outline: 2px solid var(--accent-border);
     outline-offset: -2px;
+  }
+
+  /* Suppress focus ring when interacting via touch/pointer */
+  &[data-keyboard="false"]:focus {
+    outline: none;
   }
 }
