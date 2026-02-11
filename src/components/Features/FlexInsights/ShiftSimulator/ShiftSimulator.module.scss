@@ -51,7 +51,7 @@
 
 .controlLabel {
   @include type.typography(meta);
-  color: var(--mono-text-low-contrast);
+  color: var(--mono-text);
 }
 
 .controlHint {
@@ -63,6 +63,15 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
+
+  /* Promote button text from step 11 (low-contrast) → step 12 (high-contrast)
+     so labels stay readable against soft backgrounds inside tone'd tiles. */
+  --mono-text-low-contrast: var(--mono-text);
+  --accent-text-low-contrast: var(--accent-text);
+  --secondary-text-low-contrast: var(--secondary-text);
+  --warning-text-low-contrast: var(--warning-text);
+  --success-text-low-contrast: var(--success-text);
+  --error-text-low-contrast: var(--error-text);
 }
 
 

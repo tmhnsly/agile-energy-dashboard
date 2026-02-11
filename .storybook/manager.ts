@@ -1,5 +1,6 @@
 import { addons } from 'storybook/manager-api';
 import { create } from 'storybook/theming/create';
+import { SITE_NAME } from '../src/config/site';
 
 const prefersDark =
   typeof window !== 'undefined' &&
@@ -7,7 +8,7 @@ const prefersDark =
 
 const theme = create({
   base: prefersDark ? 'dark' : 'light',
-  brandTitle: 'Shuffle Energy',
+  brandTitle: SITE_NAME,
   brandImage: prefersDark ? '/shuffle-logo-dark.svg' : '/shuffle-logo.svg',
   brandTarget: '_self',
   fontBase: '"Inter", system-ui, sans-serif',

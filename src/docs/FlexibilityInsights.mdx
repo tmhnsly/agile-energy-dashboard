@@ -79,19 +79,36 @@ comparison).
 
 **Source:** `src/components/Features/FlexInsights/computeFlexInsights.ts`
 
+## sumPeriodUsage
+
+Sums the household's kWh across a set of half-hour timestamps.
+
+```
+sumPeriodUsage(usage, household, slotTimestamps) → number
+```
+
+Used by `simulateShift` to determine the available energy in a period, and by
+the `ShiftSimulator` to set the slider maximum.
+
 ---
 
 ## simulateShift
 
-Models the cost impact of moving energy between two half-hour slots.
+Models the cost impact of moving energy between two time periods.
 
 ```
-simulateShift(usage, prices, household, fromSlotTs, toSlotTs, kwhToShift) → ShiftResult
+simulateShift(usage, prices, household, fromSlots, toSlots, kwhToShift) → ShiftResult
 ```
+
+`fromSlots` and `toSlots` are arrays of half-hour timestamps covering the
+source and destination periods (e.g. all 12 slots in "Morning 06:00–12:00").
 
 1. Computes the **original** daily cost (`computeDailyCost`).
-2. Creates a modified usage array: subtracts `kwhToShift` from the *from* slot
-   (clamped so it doesn't go negative), adds the same amount to the *to* slot.
+2. Creates a modified usage array:
+   - **Removal** is proportional — each from-slot loses energy in proportion to
+     its share of the period's total usage, preserving the consumption shape.
+   - **Addition** is even — the shifted kWh are split equally across all to-slots.
+   - The total removed is clamped to what the from-period actually has.
 3. Computes the **new** daily cost.
 4. Returns the delta:
 
@@ -190,17 +207,17 @@ cost" card always appears first.
 
 **Source:** `src/components/Features/FlexInsights/ShiftSimulator/ShiftSimulator.tsx`
 
-The `ShiftSimulator` divides the day into four time-of-day groups, each mapped
-to a representative half-hour slot index:
+The `ShiftSimulator` divides the day into four 6-hour periods, each covering
+12 half-hour slots:
 
-- **Night** (00:00–06:00) — slot index 4 (02:00)
-- **Morning** (06:00–12:00) — slot index 16 (08:00)
-- **Afternoon** (12:00–18:00) — slot index 28 (14:00)
-- **Peak** (18:00–00:00) — slot index 38 (19:00)
+- **Morning** (06:00–12:00) — slots 12–23
+- **Afternoon** (12:00–18:00) — slots 24–35
+- **Peak** (18:00–00:00) — slots 36–47
+- **Night** (00:00–06:00) — slots 0–11
 
-The slot index is a half-hour offset from midnight. The actual timestamp is
-computed as `baseTs + slotIdx × HALF_HOUR_MS`, where `baseTs` is the start of
-the current day in the data.
+Each slot index is a half-hour offset from midnight. The `periodSlots()`
+helper converts a group into an array of timestamps:
+`baseTs + slotIndex × HALF_HOUR_MS` for every slot in the range.
 
 ---
 

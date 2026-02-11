@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Navbar } from './Navbar';
+import { SITE_NAME } from '@/config/site';
 
 /**
  * Sticky top navigation bar with a glass blur effect. Includes a brand icon,
@@ -20,6 +21,6 @@ type Story = StoryObj<typeof meta>;
 /** Navbar with brand title and default avatar. */
 export const Default: Story = {
   args: {
-    title: 'Shuffle Energy',
+    title: SITE_NAME,
   },
 };

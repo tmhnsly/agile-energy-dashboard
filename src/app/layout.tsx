@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { Navbar } from "@/components/Layout";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SITE_NAME, SITE_DESCRIPTION } from "@/config/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,9 +20,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Shuffle Energy Tech Test",
-  description:
-    "A Next.js web application demonstrating a Storybook component library.",
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({
@@ -37,7 +37,7 @@ export default function RootLayout({
     >
       <body>
         <Providers>
-          <Navbar title="Shuffle Energy" />
+          <Navbar title={SITE_NAME} />
           {children}
           <SpeedInsights />
         </Providers>

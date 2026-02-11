@@ -5,7 +5,7 @@ import { TbMoonStars, TbSunrise, TbSun, TbSunset2 } from 'react-icons/tb';
 import type { HouseholdUsageRow, PricePoint, HouseholdKey } from '@/types/energy';
 import { HALF_HOUR_MS } from '@/utils/constants';
 import { formatCostPence } from '@/utils/format';
-import { simulateShift } from '../computeFlexInsights';
+import { simulateShift, sumPeriodUsage } from '../computeFlexInsights';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { HOUSEHOLD_THEMES } from '@/config/households';
 import { Button, type ButtonColor, type ButtonVariant } from '@/components/UI/Button/Button';
@@ -13,56 +13,36 @@ import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/Clear
 import { Slider } from '@/components/UI/Slider/Slider';
 import styles from './ShiftSimulator.module.scss';
 
-/** Time-of-day slots. `slotIdx` is the half-hour offset from midnight. */
+/** Time-of-day periods. Each spans 12 half-hour slots (6 hours). */
 const TIME_GROUPS = [
-  { label: 'Morning',   slotIdx: 16, range: '06:00–12:00', icon: <TbSunrise /> },
-  { label: 'Afternoon', slotIdx: 28, range: '12:00–18:00', icon: <TbSun /> },
-  { label: 'Peak',      slotIdx: 38, range: '18:00–00:00', icon: <TbSunset2 /> },
-  { label: 'Night',     slotIdx: 4,  range: '00:00–06:00', icon: <TbMoonStars /> },
+  { label: 'Morning',   fromSlot: 12, toSlot: 24, range: '06:00–12:00', icon: <TbSunrise /> },
+  { label: 'Afternoon', fromSlot: 24, toSlot: 36, range: '12:00–18:00', icon: <TbSun /> },
+  { label: 'Peak',      fromSlot: 36, toSlot: 48, range: '18:00–00:00', icon: <TbSunset2 /> },
+  { label: 'Night',     fromSlot: 0,  toSlot: 12, range: '00:00–06:00', icon: <TbMoonStars /> },
 ] as const;
 
-const SLIDER_SECTIONS = 4;
+/** Build an array of timestamps for every half-hour slot in a period. */
+function periodSlots(baseTs: number, group: typeof TIME_GROUPS[number]): number[] {
+  const slots: number[] = [];
+  for (let i = group.fromSlot; i < group.toSlot; i++) {
+    slots.push(baseTs + i * HALF_HOUR_MS);
+  }
+  return slots;
+}
 
-/** Threshold in pence — below this, treat as "no meaningful difference". */
+const SLIDER_SECTIONS = 4;
 const SAVING_THRESHOLD = 0.05;
 
-/**
- * Classify a saving value into an outcome tone.
- *   positive saving → 'success' (green)
- *   negative saving → 'error'   (red)
- *   negligible      → 'mono'    (grey)
- */
 function outcomeTone(savingPence: number): ButtonColor {
   if (savingPence > SAVING_THRESHOLD) return 'success';
   if (savingPence < -SAVING_THRESHOLD) return 'error';
   return 'mono';
 }
 
-/**
- * Pick the button variant for a given state:
- *   selected → soft  (filled background)
- *   guided success → soft  (green fill to invite click)
- *   guided error   → ghost (subtle red, discourage)
- *   everything else → outline
- */
-function buttonVariant(isSelected: boolean, color: ButtonColor): ButtonVariant {
-  if (isSelected) return 'soft';
-  if (color === 'success') return 'soft';
-  if (color === 'error') return 'ghost';
-  return 'outline';
+function buttonVariant(isSelected: boolean): ButtonVariant {
+  return isSelected ? 'soft' : 'outline';
 }
 
-/**
- * Compute hint-based button appearances for the opposite side of a selection.
- *
- * For each slot, runs `simulateShift` to preview the saving if that slot
- * were paired with the already-selected slot. Returns a color + disabled
- * flag per button:
- *   saving > 0  → success (clickable)
- *   saving < 0  → error   (clickable)
- *   negligible  → mono    (disabled)
- *   same slot   → mono    (disabled — can't shift to yourself)
- */
 function computeHints(
   usage: HouseholdUsageRow[],
   prices: PricePoint[],
@@ -72,19 +52,19 @@ function computeHints(
   selectedSide: 'from' | 'to',
   kwhToShift: number,
 ): { color: ButtonColor; disabled: boolean }[] {
-  const selectedTs = baseTs + TIME_GROUPS[selectedIdx].slotIdx * HALF_HOUR_MS;
+  const selectedSlots = periodSlots(baseTs, TIME_GROUPS[selectedIdx]);
 
   return TIME_GROUPS.map((g, i) => {
     if (i === selectedIdx) return { color: 'mono' as ButtonColor, disabled: true };
 
-    const otherTs = baseTs + g.slotIdx * HALF_HOUR_MS;
+    const otherSlots = periodSlots(baseTs, g);
 
-    const fromTs = selectedSide === 'from' ? selectedTs : otherTs;
-    const toTs = selectedSide === 'from' ? otherTs : selectedTs;
-    const fromRow = usage.find((r) => r.ts === fromTs);
-    const kWh = Math.min(kwhToShift, fromRow ? fromRow[household] : 0);
+    const fromSlots = selectedSide === 'from' ? selectedSlots : otherSlots;
+    const toSlots = selectedSide === 'from' ? otherSlots : selectedSlots;
+    const available = sumPeriodUsage(usage, household, fromSlots);
+    const kWh = Math.min(kwhToShift, available);
 
-    const { savingPence } = simulateShift(usage, prices, household, fromTs, toTs, kWh);
+    const { savingPence } = simulateShift(usage, prices, household, fromSlots, toSlots, kWh);
     const tone = outcomeTone(savingPence);
 
     return {
@@ -100,28 +80,6 @@ export interface ShiftSimulatorProps {
   household: HouseholdKey;
 }
 
-/**
- * Interactive shift-simulation card.
- *
- * ## State machine
- *
- *   IDLE   (fromIdx=null, toIdx=null)
- *     All buttons show household color, outline variant.
- *     Slider disabled, no result shown.
- *
- *   ONE_SELECTED   (one of fromIdx/toIdx is set)
- *     Selected button → soft, household color.
- *     Opposite side → guided hints (green/red/disabled).
- *     Same side unselected → idle household outline.
- *     Slider disabled, no result shown.
- *
- *   COMPLETE   (both fromIdx and toIdx set)
- *     Both selected buttons → soft, outcome color (success/error/mono).
- *     All unselected → mono outline.
- *     Slider enabled, result displayed.
- *
- * Clicking an already-selected button deselects it (→ ONE_SELECTED or IDLE).
- */
 export const ShiftSimulator = ({
   usage,
   prices,
@@ -129,23 +87,30 @@ export const ShiftSimulator = ({
 }: ShiftSimulatorProps) => {
   const [fromIdx, setFromIdx] = useState<number | null>(null);
   const [toIdx, setToIdx] = useState<number | null>(null);
-  const [kwhToShift, setKwhToShift] = useState(0.5);
+  const [kwhToShift, setKwhToShift] = useState(Infinity);
 
-  // Reset selections when household changes (replaces key={household} remount)
   useEffect(() => {
     setFromIdx(null);
     setToIdx(null);
-    setKwhToShift(0.5);
+    setKwhToShift(Infinity);
   }, [household]);
 
   const baseTs = usage.length > 0 ? usage[0].ts : 0;
   const hasBoth = fromIdx != null && toIdx != null;
 
-  const fromSlotTs = fromIdx != null ? baseTs + TIME_GROUPS[fromIdx].slotIdx * HALF_HOUR_MS : 0;
-  const toSlotTs = toIdx != null ? baseTs + TIME_GROUPS[toIdx].slotIdx * HALF_HOUR_MS : 0;
+  const fromSlots = useMemo(
+    () => fromIdx != null ? periodSlots(baseTs, TIME_GROUPS[fromIdx]) : [],
+    [baseTs, fromIdx],
+  );
+  const toSlots = useMemo(
+    () => toIdx != null ? periodSlots(baseTs, TIME_GROUPS[toIdx]) : [],
+    [baseTs, toIdx],
+  );
 
-  const fromRow = fromIdx != null ? usage.find((r) => r.ts === fromSlotTs) : undefined;
-  const maxKwh = fromRow ? fromRow[household] : 5.0;
+  const maxKwh = useMemo(
+    () => fromIdx != null ? sumPeriodUsage(usage, household, fromSlots) : 0,
+    [usage, household, fromSlots, fromIdx],
+  );
   const sliderMax = Math.max(0.1, Number(maxKwh.toFixed(1)));
   const sliderStep = (sliderMax - 0.1) > 0 ? (sliderMax - 0.1) / SLIDER_SECTIONS : 0.1;
   const clampedKwh = Math.min(kwhToShift, maxKwh);
@@ -153,9 +118,9 @@ export const ShiftSimulator = ({
   const result = useMemo(
     () =>
       hasBoth
-        ? simulateShift(usage, prices, household, fromSlotTs, toSlotTs, clampedKwh)
+        ? simulateShift(usage, prices, household, fromSlots, toSlots, clampedKwh)
         : null,
-    [usage, prices, household, fromSlotTs, toSlotTs, clampedKwh, hasBoth],
+    [usage, prices, household, fromSlots, toSlots, clampedKwh, hasBoth],
   );
 
   const tone = result ? outcomeTone(result.savingPence) : 'mono';
@@ -178,17 +143,17 @@ export const ShiftSimulator = ({
 
       if (hasBoth) {
         const color = isSelected ? tone : 'mono' as ButtonColor;
-        return { color, variant: buttonVariant(isSelected, color), disabled: false };
+        return { color, variant: buttonVariant(isSelected), disabled: i === toIdx };
       }
 
       if (fromHints) {
         const { color, disabled } = fromHints[i];
-        return { color, variant: buttonVariant(false, color), disabled };
+        return { color, variant: buttonVariant(false), disabled };
       }
 
-      return { color: householdColor, variant: buttonVariant(isSelected, householdColor), disabled: false };
+      return { color: householdColor, variant: buttonVariant(isSelected), disabled: false };
     },
-    [fromIdx, hasBoth, tone, fromHints, householdColor],
+    [fromIdx, toIdx, hasBoth, tone, fromHints, householdColor],
   );
 
   const getToButton = useCallback(
@@ -197,17 +162,17 @@ export const ShiftSimulator = ({
 
       if (hasBoth) {
         const color = isSelected ? tone : 'mono' as ButtonColor;
-        return { color, variant: buttonVariant(isSelected, color), disabled: false };
+        return { color, variant: buttonVariant(isSelected), disabled: i === fromIdx };
       }
 
       if (toHints) {
         const { color, disabled } = toHints[i];
-        return { color, variant: buttonVariant(false, color), disabled };
+        return { color, variant: buttonVariant(false), disabled };
       }
 
-      return { color: householdColor, variant: buttonVariant(isSelected, householdColor), disabled: false };
+      return { color: householdColor, variant: buttonVariant(isSelected), disabled: false };
     },
-    [toIdx, hasBoth, tone, toHints, householdColor],
+    [toIdx, fromIdx, hasBoth, tone, toHints, householdColor],
   );
 
   const handleFromChange = useCallback(
@@ -223,7 +188,7 @@ export const ShiftSimulator = ({
   const handleClear = useCallback(() => {
     setFromIdx(null);
     setToIdx(null);
-    setKwhToShift(0.5);
+    setKwhToShift(Infinity);
   }, []);
 
   const sliderGradient = useMemo(() => {
@@ -342,7 +307,7 @@ export const ShiftSimulator = ({
           min={0.1}
           max={sliderMax}
           step={sliderStep}
-          value={hasBoth ? clampedKwh : sliderMax / 2}
+          value={hasBoth ? clampedKwh : sliderMax}
           onChange={setKwhToShift}
           disabled={!hasBoth || maxKwh <= 0.1}
           tickInterval={hasBoth ? sliderStep : undefined}

@@ -75,32 +75,65 @@ export function computeFlexEarnings(
 }
 
 /**
- * Simulate shifting `kwhToShift` from one time slot to another.
+ * Sum the household usage across a set of timestamps.
+ */
+export function sumPeriodUsage(
+  usage: HouseholdUsageRow[],
+  household: HouseholdKey,
+  slotTimestamps: number[],
+): number {
+  const tsSet = new Set(slotTimestamps);
+  let total = 0;
+  for (const row of usage) {
+    if (tsSet.has(row.ts)) total += row[household];
+  }
+  return total;
+}
+
+/**
+ * Simulate shifting `kwhToShift` from one time period to another.
+ *
+ * Energy is removed from the from-period slots proportionally to their
+ * existing usage (preserving the consumption shape) and distributed
+ * evenly across the to-period slots.
+ *
  * Returns the original cost, new cost, and the saving in pence.
  */
 export function simulateShift(
   usage: HouseholdUsageRow[],
   prices: PricePoint[],
   household: HouseholdKey,
-  fromSlotTs: number,
-  toSlotTs: number,
+  fromSlots: number[],
+  toSlots: number[],
   kwhToShift: number,
 ): ShiftResult {
   const originalCostPence = computeDailyCost(usage, prices, household);
 
-  // Work out the actual amount removed (clamped so the from-slot doesn't go negative).
-  // Only add this same amount to the to-slot — no energy is created.
-  const fromRow = usage.find((r) => r.ts === fromSlotTs);
-  const actualShift = fromRow
-    ? Math.min(kwhToShift, fromRow[household])
-    : 0;
+  // Strip overlapping timestamps — shifting within the same slot is a no-op
+  const toCheck = new Set(toSlots);
+  const overlap = new Set(fromSlots.filter(ts => toCheck.has(ts)));
+  const from = overlap.size > 0 ? fromSlots.filter(ts => !overlap.has(ts)) : fromSlots;
+  const to = overlap.size > 0 ? toSlots.filter(ts => !overlap.has(ts)) : toSlots;
+
+  const totalFromKwh = sumPeriodUsage(usage, household, from);
+  const actualShift = Math.min(kwhToShift, totalFromKwh);
+
+  if (actualShift <= 0 || to.length === 0) {
+    return { originalCostPence, newCostPence: originalCostPence, savingPence: 0 };
+  }
+
+  const fromSet = new Set(from);
+  const toSet = new Set(to);
+  const addPerSlot = actualShift / to.length;
 
   const modified = usage.map((row) => {
-    if (row.ts === fromSlotTs) {
-      return { ...row, [household]: row[household] - actualShift };
+    if (fromSet.has(row.ts)) {
+      // Remove proportionally — slots with more usage give up more
+      const weight = totalFromKwh > 0 ? row[household] / totalFromKwh : 0;
+      return { ...row, [household]: row[household] - actualShift * weight };
     }
-    if (row.ts === toSlotTs) {
-      return { ...row, [household]: row[household] + actualShift };
+    if (toSet.has(row.ts)) {
+      return { ...row, [household]: row[household] + addPerSlot };
     }
     return row;
   });
