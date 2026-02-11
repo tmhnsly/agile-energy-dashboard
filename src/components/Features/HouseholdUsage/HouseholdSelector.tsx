@@ -27,7 +27,6 @@ export const HouseholdSelector = memo(function HouseholdSelector({
     const next = new Set(selected);
     if (next.has(key)) {
       next.delete(key);
-      // Last one deselected — re-enable all
       if (next.size === 0) {
         onToggle(new Set(ALL_HOUSEHOLD_KEYS));
         return;

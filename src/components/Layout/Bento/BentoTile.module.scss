@@ -9,15 +9,12 @@
   container-type: inline-size;
   container-name: tile;
 
-  /* Golden inner radius: inner = outer − padding */
   --radius-inner: max(var(--radius-1), calc(var(--radius-card) - var(--card-padding-compact)));
 
   @include bp.tablet {
     padding: var(--card-padding);
     --radius-inner: max(var(--radius-1), calc(var(--radius-card) - var(--card-padding)));
   }
-
-  /* ── span placement ─────────────────────────────── */
 
   &[data-span='feature'] {
     @include bp.tablet {
@@ -45,11 +42,7 @@
     min-height: auto;
   }
 
-  /* ── Tone overrides ──────────────────────────────────
-   * Remaps surface + mono tokens so the entire card and
-   * all children adopt the semantic color scale.
-   * ─────────────────────────────────────────────────── */
-
+  /* Remaps surface + mono tokens so the entire card adopts the tone */
   &[data-tone='accent'] {
     --surface-panel: var(--accent-subtle-bg);
     --surface-panel-border: var(--accent-border-subtle);
@@ -102,8 +95,6 @@
   }
 }
 
-/* Default skeleton fallback — slightly taller than tile min-height
-   to hint that real content will be larger */
 .skelFallback {
   height: var(--space-24);
   border-radius: var(--radius-inner, var(--radius-2));

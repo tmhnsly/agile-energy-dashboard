@@ -7,7 +7,6 @@
   padding: var(--statcard-padding-y) var(--statcard-padding-x);
   border-radius: var(--radius-inner, var(--radius-2));
 
-  /* ── Tone palette (scoped custom props) ──────── */
   --_bg: var(--mono-subtle-bg);
   --_border: var(--mono-border-subtle);
   --_solid: var(--mono-solid);
@@ -89,10 +88,9 @@
 
   @include cq.medium {
     font-size: var(--text-lg);
-    min-width: 9ch; /* prevents layout shift between "0.00p" and "99.99p" style values */
+    min-width: 9ch;
   }
 
-  /* Wide tile at desktop — enough room for full-size stat values */
   @include cq.at(900px) {
     font-size: var(--text-2xl);
   }

@@ -71,8 +71,7 @@
   gap: var(--space-2);
 }
 
-/* Clear selection button — pushed to the bottom of the card when
-   the grid row is taller than the panel's natural height. */
+/* Pushes clear button to the bottom when grid row is taller than content */
 .content > :last-child {
   margin-top: auto;
   width: 100%;

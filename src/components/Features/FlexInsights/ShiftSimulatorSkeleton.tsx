@@ -39,5 +39,7 @@ export const ShiftSimulatorSkeleton = () => (
         <Skeleton width="8rem" height="1rem" radius="small" />
       </div>
     </div>
+
+    <Skeleton width="100%" height="2.75rem" radius="pill" />
   </div>
 );

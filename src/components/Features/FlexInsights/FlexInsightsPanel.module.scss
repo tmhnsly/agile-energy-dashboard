@@ -46,7 +46,6 @@
   }
 }
 
-/* Right-side column: date range above buttons */
 .controlGroup {
   @include layout.stack(var(--space-2));
 

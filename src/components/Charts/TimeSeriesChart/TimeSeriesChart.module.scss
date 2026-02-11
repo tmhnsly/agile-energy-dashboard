@@ -6,35 +6,32 @@
   position: relative;
 }
 
-/* Alternating horizontal stripes */
 .stripe {
   fill: var(--mono-subtle-bg);
 }
 
-/* Horizontal gridlines */
 .gridLine {
   stroke: var(--mono-border-subtle);
   stroke-width: var(--chart-stroke-thin);
-  opacity: 0.25; /* subtle guide — barely visible */
+  opacity: 0.25;
 }
 
-/* Day boundary separators */
 .dayBoundary {
   stroke: var(--mono-border-subtle);
   stroke-width: var(--chart-stroke-thin);
   stroke-dasharray: 4 4;
-  opacity: 0.35; /* slightly stronger than gridlines to mark day breaks */
+  opacity: 0.35;
 }
 
 .dayLabel {
   @include type.typography(meta);
   fill: var(--mono-text-low-contrast);
   font-size: var(--text-xs);
-  opacity: 0.5; /* secondary label — visible but recedes behind data */
+  opacity: 0.5;
 }
 
-/* Bands — progressive opacity for rest → hover → selected states.
-   pointer-events: none so only the interaction overlay handles events */
+/* Progressive opacity: rest → hover → selected. pointer-events: none
+   so only the interaction overlay handles events. */
 .band {
   opacity: 0.18;
   pointer-events: none;
@@ -68,18 +65,16 @@
   pointer-events: none;
 }
 
-/* Series line */
 .seriesLine {
   fill: none;
   stroke-width: var(--chart-stroke-thick);
 }
 
-/* Min / Max markers */
 .minMarker {
   fill: var(--success-solid);
   stroke: var(--mono-app-bg);
   stroke-width: var(--chart-stroke-thick);
-  opacity: 0.8; /* strong presence — key data points */
+  opacity: 0.8;
   pointer-events: none;
 }
 
@@ -97,7 +92,7 @@
   fill: var(--mono-text-low-contrast);
   text-anchor: middle;
   text-transform: none;
-  opacity: 0.7; /* secondary to the marker dots themselves */
+  opacity: 0.7;
   pointer-events: none;
 }
 
@@ -109,16 +104,15 @@
   fill: var(--error-text-low-contrast);
 }
 
-/* Selection overlay — pointer-events: none; interaction overlay handles all events */
 .dimOverlay {
   fill: var(--mono-app-bg);
-  opacity: 0.55; /* dims unselected region without hiding it */
+  opacity: 0.55;
   pointer-events: none;
 }
 
 .selectionFill {
   fill: var(--accent-bg);
-  opacity: 0.04; /* near-invisible tint inside selected range */
+  opacity: 0.04;
   pointer-events: none;
 }
 
@@ -140,7 +134,6 @@
   pointer-events: none;
 }
 
-/* Tooltip — border/fill system aligned with StatCard (neutral tone) */
 .crosshair {
   stroke: var(--mono-border);
   stroke-width: var(--chart-stroke-medium);
@@ -238,7 +231,6 @@
   line-height: var(--leading-snug);
 }
 
-/* Drag range pill */
 .dragPill {
   @include type.typography(meta);
   position: absolute;
@@ -247,7 +239,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1) var(--space-3); /* 4px vertical — compact pill shape */
+  padding: var(--space-1) var(--space-3);
   background-color: var(--mono-subtle-bg);
   border: 1px solid var(--mono-border-subtle);
   border-radius: var(--radius-full);
@@ -273,7 +265,6 @@
   font-weight: var(--weight-regular);
 }
 
-/* Keyboard focus indicator — pulsing accent ring */
 @keyframes focusPulse {
   0%,
   100% {
@@ -289,7 +280,7 @@
   stroke: var(--accent-solid);
   stroke-width: var(--chart-stroke-thick);
   pointer-events: none;
-  animation: focusPulse 1.5s ease-in-out infinite; /* gentle attention pulse for keyboard focus */
+  animation: focusPulse 1.5s ease-in-out infinite;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -297,12 +288,11 @@
   }
 }
 
-/* Selection start boundary placed via Space key */
 .selectionStartLine {
   stroke: var(--accent-solid);
   stroke-width: var(--chart-stroke-medium);
   stroke-dasharray: 4 3;
-  opacity: 0.6; /* matches band-edge hover emphasis */
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -313,7 +303,6 @@
   pointer-events: none;
 }
 
-/* Screen-reader-only — visually hidden, accessible to assistive tech */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -326,7 +315,6 @@
   border: 0;
 }
 
-/* Interaction overlay — cursor via data-cursor attribute */
 .interactionOverlay {
   cursor: crosshair;
   -webkit-user-select: none;
@@ -353,7 +341,6 @@
     outline-offset: -2px;
   }
 
-  /* Suppress focus ring when interacting via touch/pointer */
   &[data-keyboard="false"]:focus {
     outline: none;
   }

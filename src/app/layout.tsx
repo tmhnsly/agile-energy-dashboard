@@ -39,9 +39,9 @@ export default function RootLayout({
         <Providers>
           <Navbar title="Shuffle Energy" />
           {children}
+          <SpeedInsights />
         </Providers>
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

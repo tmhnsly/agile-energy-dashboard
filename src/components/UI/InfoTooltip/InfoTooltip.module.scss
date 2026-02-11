@@ -1,8 +1,6 @@
 @use 'mixins/typography' as type;
 @use 'mixins/layout' as layout;
 
-/* ── Trigger: inline (i) icon at current text size ──────── */
-
 .trigger {
   display: inline-flex;
   align-items: center;
@@ -12,12 +10,11 @@
   border: none;
   background: none;
   color: var(--mono-solid);
-  font-size: 1.15em; /* slightly larger than surrounding text for legibility */
+  font-size: 1.15em;
   line-height: 1;
   vertical-align: middle;
   cursor: pointer;
   border-radius: var(--radius-full);
-  /* Ensure minimum 24px tap target regardless of parent font size */
   min-width: 1.5rem;
   min-height: 1.5rem;
 
@@ -33,8 +30,6 @@
   }
 }
 
-/* ── Tooltip panel ──────── */
-
 .content {
   @include layout.stack(var(--tooltip-gap));
   background-color: var(--mono-subtle-bg);
@@ -45,7 +40,6 @@
   color: var(--mono-text);
   z-index: 50;
 
-  /* Radix animation */
   animation-duration: 0.15s;
   animation-timing-function: ease-out;
 

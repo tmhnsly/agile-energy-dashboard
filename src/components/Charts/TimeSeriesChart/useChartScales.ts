@@ -3,10 +3,6 @@ import { scaleTime, scaleLinear } from '@visx/scale';
 import type { TimeRange } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
 
-/* ------------------------------------------------------------------ */
-/* Constants                                                           */
-/* ------------------------------------------------------------------ */
-
 /** Estimated width of a single character for y-axis label measurement. */
 const CHAR_WIDTH_PX = 7.5;
 /** Padding between the longest y-axis label and the chart area. */
@@ -16,7 +12,6 @@ export const Y_TICK_COUNT = 5;
 /** Temporary scale range used only to measure y-axis tick label widths. */
 const TEMP_SCALE_RANGE: [number, number] = [100, 0];
 
-// Chart margins (defaults when not overridden)
 const DEFAULT_MARGIN_TOP = 12;
 const DEFAULT_MARGIN_RIGHT = 4;
 const DEFAULT_MARGIN_BOTTOM = 28;
@@ -30,10 +25,6 @@ function estimateTextWidth(text: string): number {
 function defaultFormatYTick(v: number): string {
   return String(v);
 }
-
-/* ------------------------------------------------------------------ */
-/* Pure helpers                                                        */
-/* ------------------------------------------------------------------ */
 
 export function computeYDomain(series: ChartSeries[]): [number, number] {
   let hasData = false;
@@ -61,10 +52,6 @@ export function computeAutoLeftMargin(
   const maxWidth = Math.max(...ticks.map((t) => estimateTextWidth(fmt(t))));
   return Math.ceil(maxWidth + AXIS_LABEL_PAD);
 }
-
-/* ------------------------------------------------------------------ */
-/* Hook                                                                */
-/* ------------------------------------------------------------------ */
 
 interface UseChartScalesOptions {
   series: ChartSeries[];

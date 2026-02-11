@@ -44,7 +44,6 @@ export const HouseholdUsagePanel = ({
     () => new Set(ALL_HOUSEHOLD_KEYS),
   );
 
-  // Stable array of selected keys for hooks (avoids Set reference changes)
   const selectedKeys = useMemo(
     () => ALL_HOUSEHOLD_KEYS.filter(k => selected.has(k)),
     [selected],
@@ -56,10 +55,8 @@ export const HouseholdUsagePanel = ({
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
   const displayRange = previewRange ?? activeRange;
 
-  // Stats summed across all visible households
   const stats = useUsageStats(usage, prices, displayRange, selectedKeys);
 
-  // Build chart series from selected households
   const chartSeries: ChartSeries[] = useMemo(() =>
     selectedKeys.map(key => ({
       id: key,

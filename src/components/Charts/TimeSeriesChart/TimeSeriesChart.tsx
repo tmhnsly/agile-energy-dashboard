@@ -32,10 +32,6 @@ import { useDayBoundaries } from './useDayBoundaries';
 import type { ChartMargin } from './useChartScales';
 import styles from './TimeSeriesChart.module.scss';
 
-/* ------------------------------------------------------------------ */
-/* Constants                                                           */
-/* ------------------------------------------------------------------ */
-
 /** Maximum number of x-axis tick labels. */
 const MAX_X_TICKS = 8;
 /** Minimum horizontal spacing (px) between x-axis ticks. */
@@ -89,10 +85,6 @@ const TONE_STROKE: Record<string, string> = {
   warning: 'var(--warning-solid)',
 };
 
-/* ------------------------------------------------------------------ */
-/* Types                                                               */
-/* ------------------------------------------------------------------ */
-
 export interface TimeSeriesChartProps {
   series: ChartSeries[];
   bands?: ChartBand[];
@@ -119,10 +111,6 @@ export interface TimeSeriesChartProps {
   showMinMaxMarkers?: boolean;
 }
 
-/* ------------------------------------------------------------------ */
-/* Component                                                           */
-/* ------------------------------------------------------------------ */
-
 export const TimeSeriesChart = ({
   series,
   bands,
@@ -146,7 +134,7 @@ export const TimeSeriesChart = ({
 
   const stableBands = bands ?? EMPTY_BANDS;
 
-  /* ---- formatters (stable refs to avoid re-render cascades) ---- */
+  // Stable refs to avoid re-render cascades from formatter prop changes
   const fmtYTickRef = useRef(formatYTickProp);
   useEffect(() => { fmtYTickRef.current = formatYTickProp; }, [formatYTickProp]);
   const fmtYTick = useCallback(
@@ -161,10 +149,7 @@ export const TimeSeriesChart = ({
     [],
   );
 
-  /* ---- primary data (first series) ---- */
   const primaryData = useMemo(() => series[0]?.data ?? [], [series]);
-
-  /* ---- scales & layout ---- */
 
   const { margin, innerWidth, innerHeight, xScale, yScale, yTicks } = useChartScales({
     series,
@@ -174,8 +159,6 @@ export const TimeSeriesChart = ({
     margin: marginProp,
     formatYTick: formatYTickProp,
   });
-
-  /* ---- derived data ---- */
 
   const visibleBands = useMemo(
     () =>
@@ -193,8 +176,6 @@ export const TimeSeriesChart = ({
   }, [visibleBands, activeRange]);
 
   const dayBoundaries = useDayBoundaries(fullRange);
-
-  /* ---- keyboard hook ---- */
 
   const {
     focusedIndex,
@@ -229,8 +210,6 @@ export const TimeSeriesChart = ({
       [primaryData],
     ),
   });
-
-  /* ---- interaction hook adapters ---- */
 
   const chartFullRange = useMemo<ChartRange>(
     () => ({ from: fullRange.fromTs, to: fullRange.toTs }),
@@ -298,8 +277,6 @@ export const TimeSeriesChart = ({
     [onRangePreview],
   );
 
-  /* ---- interaction hook ---- */
-
   const {
     displayRange: chartDisplayRange,
     displaySelLeftX,
@@ -327,17 +304,12 @@ export const TimeSeriesChart = ({
     onPointerActivity: dismissKeyboard,
   });
 
-  /* Convert generic ChartRange back to TimeRange for downstream consumers */
   const displayRange: TimeRange = useMemo(
     () => ({ fromTs: chartDisplayRange.from, toTs: chartDisplayRange.to }),
     [chartDisplayRange],
   );
 
-  /* ---- min/max stats (live during drag) ---- */
-
   const displayStats = useMinMaxStats(primaryData, displayRange, showMinMaxMarkers);
-
-  /* ---- pill position ---- */
 
   const pillLeft = margin.left + (displaySelLeftX + displaySelRightX) / 2;
   const pillLeftClamped = clamp(pillLeft, PILL_EDGE_PAD, width - PILL_EDGE_PAD);
@@ -348,8 +320,6 @@ export const TimeSeriesChart = ({
   const pillToTs = isDragging
     ? snapToHalfHour(displayRange.toTs)
     : displayRange.toTs;
-
-  /* ---- keyboard tooltip data ---- */
 
   const keyboardTooltipData: TooltipData | null = useMemo(() => {
     const point = primaryData[focusedIndex];
@@ -369,11 +339,7 @@ export const TimeSeriesChart = ({
     };
   }, [primaryData, focusedIndex, series]);
 
-  /* ---- early exit ---- */
-
   if (width < 10 || height < 10) return null;
-
-  /* ---- render ---- */
 
   return (
     <div className={styles.container}>
@@ -388,7 +354,7 @@ export const TimeSeriesChart = ({
       >
         {ariaDescription && <desc id="chart-desc">{ariaDescription}</desc>}
         <Group left={margin.left} top={margin.top}>
-          {/* 1 — Alternating horizontal stripes */}
+          {/* Alternating horizontal stripes */}
           {yTicks.slice(0, -1).map((tick, i) => {
             if (i % 2 !== 0) return null;
             const nextTick = yTicks[i + 1];
@@ -406,7 +372,7 @@ export const TimeSeriesChart = ({
             );
           })}
 
-          {/* 1b — Horizontal gridlines */}
+          {/* Horizontal gridlines */}
           {yTicks.map((tick, i) => (
             <line
               key={`grid-${i}`}
@@ -418,7 +384,7 @@ export const TimeSeriesChart = ({
             />
           ))}
 
-          {/* 2 — Day boundaries */}
+          {/* Day boundaries */}
           {dayBoundaries.map((ts) => {
             const bx = xScale(new Date(ts));
             return (
@@ -437,7 +403,7 @@ export const TimeSeriesChart = ({
             );
           })}
 
-          {/* 3 — Bands */}
+          {/* Bands */}
           <BandsLayer
             bands={visibleBands}
             innerWidth={innerWidth}
@@ -447,7 +413,7 @@ export const TimeSeriesChart = ({
             hoveredBandId={hoveredBandId}
           />
 
-          {/* 4 — Series lines */}
+          {/* Series lines */}
           {series.map((s) => {
             const stroke = TONE_STROKE[s.tone ?? 'accent'] ?? TONE_STROKE.accent;
             return (
@@ -463,7 +429,7 @@ export const TimeSeriesChart = ({
             );
           })}
 
-          {/* 5 — Min / Max markers (live during drag) */}
+          {/* Min/max markers (update live during drag) */}
           {showMinMaxMarkers && (
             <MinMaxMarkers
               min={displayStats.min}
@@ -474,7 +440,7 @@ export const TimeSeriesChart = ({
             />
           )}
 
-          {/* 6 — Axes (before selection so handles paint above axis lines) */}
+          {/* Axes — rendered before selection so drag handles paint above axis lines */}
           <AxisBottom
             top={innerHeight}
             scale={xScale}
@@ -493,7 +459,7 @@ export const TimeSeriesChart = ({
             tickLabelProps={AXIS_LEFT_TICK_LABEL_PROPS}
           />
 
-          {/* 7 — Selection overlay */}
+          {/* Selection overlay */}
           {!isFullSelection && (
             <SelectionOverlay
               leftX={displaySelLeftX}
@@ -503,7 +469,7 @@ export const TimeSeriesChart = ({
             />
           )}
 
-          {/* 7b — Keyboard focus indicator */}
+          {/* Keyboard focus indicator */}
           {primaryData.length > 0 && (
             <FocusIndicator
               x={xScale(new Date(primaryData[focusedIndex]?.ts ?? 0))}
@@ -512,7 +478,7 @@ export const TimeSeriesChart = ({
             />
           )}
 
-          {/* 7c — Selection start boundary marker (Space to place) */}
+          {/* Selection start marker (placed via Space key) */}
           {isKeyboardActive && selectionStart != null && primaryData[selectionStart] && (
             <g>
               <line
@@ -531,7 +497,7 @@ export const TimeSeriesChart = ({
             </g>
           )}
 
-          {/* 8 — Tooltip crosshair (hidden during drag) */}
+          {/* Tooltip crosshair — hidden during drag */}
           {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && (
             <TooltipCrosshair
               tooltipData={tooltip.tooltipData}
@@ -541,7 +507,7 @@ export const TimeSeriesChart = ({
             />
           )}
 
-          {/* 9 — Interaction overlay (must be last) */}
+          {/* Interaction overlay — must be last so it captures all pointer events */}
           <rect
             ref={overlayRef}
             x={0}
@@ -577,7 +543,7 @@ export const TimeSeriesChart = ({
         </Group>
       </svg>
 
-      {/* Tooltip (inline with bounds detection — flips at container edges) */}
+      {/* Pointer tooltip — flips at container edges */}
       {tooltip.tooltipOpen && tooltip.tooltipData && !isDragging && !isKeyboardActive && (
         <TooltipWithBounds
           left={tooltip.tooltipLeft}
@@ -593,7 +559,7 @@ export const TimeSeriesChart = ({
         </TooltipWithBounds>
       )}
 
-      {/* Keyboard-driven tooltip at focused data point */}
+      {/* Keyboard tooltip */}
       {isKeyboardActive && keyboardTooltipData && primaryData[focusedIndex] && (
         <TooltipWithBounds
           left={xScale(new Date(primaryData[focusedIndex].ts)) + margin.left}
@@ -609,12 +575,12 @@ export const TimeSeriesChart = ({
         </TooltipWithBounds>
       )}
 
-      {/* Screen-reader announcements */}
+      {/* Screen-reader live region */}
       <div aria-live="polite" className={styles.srOnly}>
         {announcement}
       </div>
 
-      {/* Drag range pill */}
+      {/* Drag range pill — shows selected time window during drag */}
       {isDragging && (
         <div
           className={styles.dragPill}

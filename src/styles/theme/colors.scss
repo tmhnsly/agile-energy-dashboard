@@ -1,6 +1,4 @@
-/* =================================================================
- * Light — Radix raw values on :root, .light, .light-theme
- * ================================================================= */
+/* Light mode */
 @use "@radix-ui/colors/slate.css";
 @use "@radix-ui/colors/blue.css";
 @use "@radix-ui/colors/red.css";
@@ -12,9 +10,7 @@
 @use "@radix-ui/colors/purple.css";
 @use "@radix-ui/colors/pink.css";
 
-/* =================================================================
- * Dark — Radix raw values on .dark, .dark-theme (+ P3 support)
- * ================================================================= */
+/* Dark mode */
 @use "@radix-ui/colors/slate-dark.css";
 @use "@radix-ui/colors/blue-dark.css";
 @use "@radix-ui/colors/red-dark.css";
@@ -26,20 +22,10 @@
 @use "@radix-ui/colors/purple-dark.css";
 @use "@radix-ui/colors/pink-dark.css";
 
-/* =================================================================
- * Semantic token layer
- *
- * These reference the raw steps via var() so they resolve
- * correctly in both light and dark modes automatically.
- *
- * Radix scale steps:
- *  1  App background            2  Subtle background
- *  3  UI element background     4  Hovered UI element background
- *  5  Active / selected         6  Subtle borders (non-interactive)
- *  7  Interactive borders       8  Hovered interactive borders
- *  9  Solid backgrounds        10  Hovered solid backgrounds
- * 11  Low-contrast text        12  High-contrast text
- * ================================================================= */
+/*
+ * Semantic token layer — maps Radix steps 1–12 to role-based names.
+ * Resolves automatically in both light and dark modes via var().
+ */
 :root {
   /* Mono (Slate) */
   --mono-app-bg: var(--slate-1);
@@ -100,7 +86,7 @@
   --success-text: var(--teal-12);
   --success-on-solid: #fff;
 
-  /* Secondary (Amber) — dark foreground on solid 9/10 */
+  /* Secondary (Amber) */
   --secondary-app-bg: var(--amber-1);
   --secondary-subtle-bg: var(--amber-2);
   --secondary-bg: var(--amber-3);
@@ -115,7 +101,7 @@
   --secondary-text: var(--amber-12);
   --secondary-on-solid: #21201c;
 
-  /* Warning (Orange) — dark foreground on solid 9/10 */
+  /* Warning (Orange) */
   --warning-app-bg: var(--orange-1);
   --warning-subtle-bg: var(--orange-2);
   --warning-bg: var(--orange-3);
@@ -145,14 +131,11 @@
   --info-text: var(--indigo-12);
   --info-on-solid: #fff;
 
-  /* Focus ring */
   --focus-ring: var(--blue-8);
 
-  /* App-level aliases */
   --app-bg: var(--slate-1);
   --app-text: var(--slate-12);
 
-  /* ── Surface tokens (aliases to existing roles) ───── */
   --surface-page: var(--mono-subtle-bg);
   --surface-panel: color-mix(in srgb, var(--mono-app-bg) 60%, transparent);
   --surface-panel-border: color-mix(
@@ -178,21 +161,16 @@
   --surface-shimmer-via: var(--mono-bg);
 }
 
-/* ─── WCAG AA contrast overrides (light mode only) ────────────
- * Radix steps 9/11 don't always meet 4.5:1 contrast on step 3
- * backgrounds or with white foreground text. These overrides
- * darken the minimum amount needed to reach ~4.6:1.
- * Dark-mode Radix values are left untouched.
- * ─────────────────────────────────────────────────────────── */
+/* WCAG AA contrast overrides (light mode only).
+ * Radix steps 9/11 don't always meet 4.5:1 on step-3 backgrounds
+ * or with white foreground — these darken to ~4.6:1 minimum. */
 :root:not(.dark) {
-  /* text-low-contrast: ~4.6:1 on step 3 backgrounds */
   --accent-text-low-contrast: #0c6ec4;
   --success-text-low-contrast: #007c6b;
   --error-text-low-contrast: #cc2c31;
   --secondary-text-low-contrast: #9d5c00;
   --warning-text-low-contrast: #b54300;
 
-  /* solid + solid-hover: ≥ 4.5:1 with white foreground */
   --accent-solid: #006dc2;
   --accent-solid-hover: #2d7ac0;
   --success-solid: #0d7a6e;

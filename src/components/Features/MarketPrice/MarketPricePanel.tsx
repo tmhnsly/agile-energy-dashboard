@@ -71,9 +71,6 @@ export const MarketPricePanel = ({
     return `Half-hourly energy prices in pence per kWh from ${from} to ${to}.${bandText} Drag to select a time range, or use keyboard arrows to navigate.`;
   }, [fullRange, flexEvents]);
 
-  /* ── Cheapest-window presets ────────────────────── */
-
-  /** Memoised cheapest window per preset duration. Recomputes only when data or fullRange changes. */
   const cheapestWindows = useMemo(() => {
     const data = chartSeries[0]?.data ?? [];
     const windows = new Map<number, TimeRange | null>();
@@ -83,7 +80,6 @@ export const MarketPricePanel = ({
     return windows;
   }, [chartSeries, fullRange]);
 
-  /** Derive active preset label from current range duration (duration-locked matching). */
   const activePreset = useMemo((): string | null => {
     if (
       activeRange.fromTs === fullRange.fromTs &&

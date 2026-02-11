@@ -9,10 +9,13 @@ export const FlexInsightsSkeleton = () => (
         <Skeleton width="12rem" height="1.4rem" radius="small" />
         <Skeleton width="16rem" height="1rem" radius="small" />
       </div>
-      <div className={panelStyles.selector}>
-        <Skeleton width="5rem" height="2.25rem" radius="pill" />
-        <Skeleton width="5.5rem" height="2.25rem" radius="pill" />
-        <Skeleton width="5.5rem" height="2.25rem" radius="pill" />
+      <div className={panelStyles.controlGroup}>
+        <Skeleton width="10rem" height="0.9rem" radius="small" />
+        <div className={panelStyles.selector}>
+          <Skeleton width="5rem" height="2.25rem" radius="pill" />
+          <Skeleton width="5.5rem" height="2.25rem" radius="pill" />
+          <Skeleton width="5.5rem" height="2.25rem" radius="pill" />
+        </div>
       </div>
     </div>
 

@@ -4,10 +4,8 @@
 .cards {
   @include layout.stack(var(--space-3));
 
-  /* Larger stat values on mobile so the cards don't feel empty */
   --statcard-value-size: var(--text-lg);
 
-  /* 2 cards — side by side when there's room */
   &[data-count='2'] {
     @include cq.medium {
       display: flex;
@@ -19,7 +17,6 @@
     }
   }
 
-  /* 3+ cards — cost card full width, earnings grid below */
   &[data-count='3'],
   &[data-count='4'] {
     @include cq.medium {
@@ -27,7 +24,7 @@
       grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
       gap: var(--space-3);
 
-      /* Daily cost card spans the full row */
+      /* First card (daily cost) spans the full row */
       > *:first-child {
         grid-column: 1 / -1;
       }

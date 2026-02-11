@@ -1,6 +1,7 @@
 import { TbTriangleInvertedFilled, TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
+import { cx } from '@/utils/cx';
 import panelStyles from './MarketPricePanel.module.scss';
 import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
 import skelStyles from './MarketPriceSkeleton.module.scss';
@@ -16,27 +17,27 @@ export const MarketPriceSkeleton = () => (
         <Skeleton width="10rem" height="1.4rem" radius="small" />
         <Skeleton width="14rem" height="1.25rem" radius="small" />
       </div>
-      <div className={statsStyles.statsRow}>
+      <div className={statsStyles.statsRow} data-count="3">
         <StatCard
           label="Low"
           value="00.0p/kWh"
           subValue="Mon 00:00"
           icon={<TbTriangleInvertedFilled />}
-          className={skelStyles.statSkel}
+          className={cx(statsStyles.stat, skelStyles.statSkel)}
         />
         <StatCard
           label="High"
           value="00.0p/kWh"
           subValue="Mon 00:00"
           icon={<TbTriangleFilled />}
-          className={skelStyles.statSkel}
+          className={cx(statsStyles.stat, skelStyles.statSkel)}
         />
         <StatCard
           label="Total"
           value="00.0p"
           subValue="0 kWh"
           icon={<TbBoltFilled />}
-          className={skelStyles.statSkel}
+          className={cx(statsStyles.stat, skelStyles.statSkel)}
         />
       </div>
     </div>

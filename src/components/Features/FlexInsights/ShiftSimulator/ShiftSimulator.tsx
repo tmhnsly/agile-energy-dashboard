@@ -12,8 +12,6 @@ import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/Clear
 import { Slider } from '@/components/UI/Slider/Slider';
 import styles from './ShiftSimulator.module.scss';
 
-/* ── Constants ──────────────────────────────────────────────── */
-
 /** Time-of-day slots. `slotIdx` is the half-hour offset from midnight. */
 const TIME_GROUPS = [
   { label: 'Morning',   slotIdx: 16, range: '06:00–12:00', icon: <TbSunrise /> },
@@ -33,14 +31,11 @@ const HOUSEHOLD_LABEL: Record<HouseholdKey, string> = {
   heatPumpBattery: 'Heat Pump + Battery',
 };
 
-/** Household-colour for idle (unselected) buttons. */
 const HOUSEHOLD_BUTTON_COLOR: Record<HouseholdKey, ButtonColor> = {
   standard: 'accent',
   heatPump: 'secondary',
   heatPumpBattery: 'warning',
 };
-
-/* ── Helpers ────────────────────────────────────────────────── */
 
 /**
  * Classify a saving value into an outcome tone.
@@ -84,21 +79,17 @@ function computeHints(
   prices: PricePoint[],
   household: HouseholdKey,
   baseTs: number,
-  /** The index of the already-selected slot (so we can mark it as "self"). */
   selectedIdx: number,
-  /** Which side is the selected slot on? Determines the shift direction. */
   selectedSide: 'from' | 'to',
   kwhToShift: number,
 ): { color: ButtonColor; disabled: boolean }[] {
   const selectedTs = baseTs + TIME_GROUPS[selectedIdx].slotIdx * HALF_HOUR_MS;
 
   return TIME_GROUPS.map((g, i) => {
-    // Can't shift to/from yourself
     if (i === selectedIdx) return { color: 'mono' as ButtonColor, disabled: true };
 
     const otherTs = baseTs + g.slotIdx * HALF_HOUR_MS;
 
-    // Clamp kWh to what's actually available in the "from" slot
     const fromTs = selectedSide === 'from' ? selectedTs : otherTs;
     const toTs = selectedSide === 'from' ? otherTs : selectedTs;
     const fromRow = usage.find((r) => r.ts === fromTs);
@@ -109,12 +100,10 @@ function computeHints(
 
     return {
       color: tone,
-      disabled: tone === 'mono', // negligible difference — grey out
+      disabled: tone === 'mono',
     };
   });
 }
-
-/* ── Component ──────────────────────────────────────────────── */
 
 export interface ShiftSimulatorProps {
   usage: HouseholdUsageRow[];
@@ -159,15 +148,11 @@ export const ShiftSimulator = ({
   const fromSlotTs = fromIdx != null ? baseTs + TIME_GROUPS[fromIdx].slotIdx * HALF_HOUR_MS : 0;
   const toSlotTs = toIdx != null ? baseTs + TIME_GROUPS[toIdx].slotIdx * HALF_HOUR_MS : 0;
 
-  /* ── Slider range: capped to the from-slot's actual usage ── */
-
   const fromRow = fromIdx != null ? usage.find((r) => r.ts === fromSlotTs) : undefined;
   const maxKwh = fromRow ? fromRow[household] : 5.0;
   const sliderMax = Math.max(0.1, Number(maxKwh.toFixed(1)));
   const sliderStep = (sliderMax - 0.1) > 0 ? (sliderMax - 0.1) / SLIDER_SECTIONS : 0.1;
   const clampedKwh = Math.min(kwhToShift, maxKwh);
-
-  /* ── Simulation result (only when both sides selected) ───── */
 
   const result = useMemo(
     () =>
@@ -179,8 +164,6 @@ export const ShiftSimulator = ({
 
   const tone = result ? outcomeTone(result.savingPence) : 'mono';
 
-  /* ── Guided hints (only when one side selected) ──────────── */
-
   const toHints = useMemo(() => {
     if (fromIdx == null) return null;
     return computeHints(usage, prices, household, baseTs, fromIdx, 'from', clampedKwh);
@@ -191,27 +174,22 @@ export const ShiftSimulator = ({
     return computeHints(usage, prices, household, baseTs, toIdx, 'to', kwhToShift);
   }, [usage, prices, household, baseTs, toIdx, kwhToShift]);
 
-  /* ── Button appearance per slot ──────────────────────────── */
-
   const householdColor = HOUSEHOLD_BUTTON_COLOR[household];
 
   const getFromButton = useCallback(
     (i: number) => {
       const isSelected = i === fromIdx;
 
-      // COMPLETE: selected pair button shows outcome tone, others mono
       if (hasBoth) {
         const color = isSelected ? tone : 'mono' as ButtonColor;
         return { color, variant: buttonVariant(isSelected, color), disabled: false };
       }
 
-      // ONE_SELECTED (to picked): show guided hints on the from side
       if (fromHints) {
         const { color, disabled } = fromHints[i];
         return { color, variant: buttonVariant(false, color), disabled };
       }
 
-      // IDLE or ONE_SELECTED (from picked): household color, selected=soft
       return { color: householdColor, variant: buttonVariant(isSelected, householdColor), disabled: false };
     },
     [fromIdx, hasBoth, tone, fromHints, householdColor],
@@ -236,8 +214,6 @@ export const ShiftSimulator = ({
     [toIdx, hasBoth, tone, toHints, householdColor],
   );
 
-  /* ── Click handlers ──────────────────────────────────────── */
-
   const handleFromChange = useCallback(
     (idx: number) => setFromIdx((prev) => (prev === idx ? null : idx)),
     [],
@@ -254,12 +230,6 @@ export const ShiftSimulator = ({
     setKwhToShift(0.5);
   }, []);
 
-  /* ── Slider + result appearance ──────────────────────────── */
-
-  // Gradient and thumb colour match the outcome tone:
-  //   success → mono ➜ green
-  //   error   → mono ➜ red
-  //   mono    → default track (no gradient)
   const sliderGradient = useMemo(() => {
     if (!hasBoth) return undefined;
     if (tone === 'success')
@@ -286,8 +256,6 @@ export const ShiftSimulator = ({
 
   const savingTone =
     tone === 'success' ? 'positive' : tone === 'error' ? 'negative' : 'neutral';
-
-  /* ── Render ──────────────────────────────────────────────── */
 
   return (
     <Tooltip.Provider delayDuration={300} skipDelayDuration={150}>

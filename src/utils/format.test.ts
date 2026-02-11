@@ -11,12 +11,7 @@ import {
   formatCostPence,
 } from './format';
 
-// Fixed timestamp: 2025-03-13T14:30:00Z
 const TS = Date.UTC(2025, 2, 13, 14, 30, 0);
-
-// ---------------------------------------------------------------------------
-// formatTime
-// ---------------------------------------------------------------------------
 
 describe('formatTime', () => {
   it('formats a UTC timestamp as HH:mm', () => {
@@ -33,10 +28,6 @@ describe('formatTime', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// formatDateTime
-// ---------------------------------------------------------------------------
-
 describe('formatDateTime', () => {
   it('formats as dd MMM, HH:mm', () => {
     expect(formatDateTime(TS)).toBe('13 Mar, 14:30');
@@ -50,10 +41,6 @@ describe('formatDateTime', () => {
     expect(formatDateTime(Infinity)).toBe('—');
   });
 });
-
-// ---------------------------------------------------------------------------
-// formatPricePerKwh
-// ---------------------------------------------------------------------------
 
 describe('formatPricePerKwh', () => {
   it('formats a positive price', () => {
@@ -69,10 +56,6 @@ describe('formatPricePerKwh', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// formatDayShort
-// ---------------------------------------------------------------------------
-
 describe('formatDayShort', () => {
   it('formats as dd MMM', () => {
     expect(formatDayShort(TS)).toBe('13 Mar');
@@ -86,10 +69,6 @@ describe('formatDayShort', () => {
     expect(formatDayShort(NaN)).toBe('—');
   });
 });
-
-// ---------------------------------------------------------------------------
-// formatStatTime
-// ---------------------------------------------------------------------------
 
 describe('formatStatTime', () => {
   it('formats as dd MMM, HH:mm', () => {
@@ -105,10 +84,6 @@ describe('formatStatTime', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// formatKwhValue
-// ---------------------------------------------------------------------------
-
 describe('formatKwhValue', () => {
   it('formats to two decimal places', () => {
     expect(formatKwhValue(1.234)).toBe('1.23 kWh');
@@ -122,10 +97,6 @@ describe('formatKwhValue', () => {
     expect(formatKwhValue(0)).toBe('0.00 kWh');
   });
 });
-
-// ---------------------------------------------------------------------------
-// formatCostPence
-// ---------------------------------------------------------------------------
 
 describe('formatCostPence', () => {
   it('formats below 100p as pence', () => {
@@ -148,10 +119,6 @@ describe('formatCostPence', () => {
     expect(formatCostPence(25)).toBe('25p');
   });
 });
-
-// ---------------------------------------------------------------------------
-// formatDuration
-// ---------------------------------------------------------------------------
 
 describe('formatDuration', () => {
   it('formats hours and minutes', () => {
