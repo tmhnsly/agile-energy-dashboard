@@ -16,13 +16,13 @@ export const SizeScale = () => (
       ['--text-4xl', '2.25rem', '36px'],
     ].map(([token, rem, px]) => (
       <div key={token} style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
-        <code style={{ fontSize: 'var(--text-xs)', width: '7rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>
+        <code style={{ fontSize: '0.75rem', width: '7rem', flexShrink: 0, color: '#60646c' }}>
           {token}
         </code>
         <span style={{ fontSize: `var(${token})`, fontFamily: 'var(--font-body)', lineHeight: 1.3 }}>
           The quick brown fox
         </span>
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: '0.75rem', color: '#60646c', whiteSpace: 'nowrap' }}>
           {rem} / {px}
         </span>
       </div>
@@ -31,7 +31,7 @@ export const SizeScale = () => (
 );
 
 export const Preset = ({ name, family, size, weight, leading, tracking, transform, text, useCase }) => (
-  <div style={{ padding: '0.625rem 0', borderBottom: '1px solid var(--mono-border-subtle)' }}>
+  <div style={{ padding: '0.625rem 0', borderBottom: '1px solid #d9d9e0' }}>
     <div style={{
       fontFamily: `var(--font-${family})`,
       fontSize: `var(--text-${size})`,
@@ -39,11 +39,11 @@ export const Preset = ({ name, family, size, weight, leading, tracking, transfor
       lineHeight: `var(--leading-${leading})`,
       letterSpacing: tracking ? `var(--tracking-${tracking})` : undefined,
       textTransform: transform || undefined,
-      color: 'var(--mono-text)',
+      color: '#1c2024',
     }}>{text}</div>
     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginTop: '0.25rem' }}>
-      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--accent-text-low-contrast)' }}>{name}</code>
-      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>{useCase}</span>
+      <code style={{ fontSize: '0.75rem', color: '#0d74ce' }}>{name}</code>
+      <span style={{ fontSize: '0.75rem', color: '#60646c' }}>{useCase}</span>
     </div>
   </div>
 );
@@ -62,14 +62,14 @@ Two font families, an 8-step size scale, and 9 semantic presets.
   <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: '0.5rem' }}>
     Space Grotesk — Headings, numbers, labels
   </div>
-  <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--font-heading</code>
+  <code style={{ fontSize: '0.75rem', color: '#60646c' }}>--font-heading</code>
 </div>
 
 <div style={{ margin: '0.5rem 0 1.5rem' }}>
   <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xl)', fontWeight: 400 }}>
     Inter — Body text, buttons, meta
   </div>
-  <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--font-body</code>
+  <code style={{ fontSize: '0.75rem', color: '#60646c' }}>--font-body</code>
 </div>
 
 Both are loaded via `next/font` and resolve through CSS custom properties with
@@ -109,7 +109,7 @@ Use via SCSS mixin: `@include type.typography(preset-name)`
   {[['regular', 400], ['medium', 500], ['semibold', 600]].map(([name, val]) => (
     <div key={name}>
       <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: val }}>Aa Bb 123</div>
-      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--weight-{name} ({val})</code>
+      <code style={{ fontSize: '0.75rem', color: '#60646c' }}>--weight-{name} ({val})</code>
     </div>
   ))}
 </div>
@@ -119,10 +119,10 @@ Use via SCSS mixin: `@include type.typography(preset-name)`
 <div style={{ display: 'flex', gap: '2rem', margin: '0.5rem 0 1.5rem' }}>
   {[['tight', '1.15'], ['snug', '1.25'], ['normal', '1.45']].map(([name, val]) => (
     <div key={name} style={{ width: '10rem' }}>
-      <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: val, background: 'var(--mono-subtle-bg)', padding: '0.5rem', borderRadius: '4px' }}>
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: val, background: '#f9f9fb', padding: '0.5rem', borderRadius: '4px' }}>
         The quick brown fox jumps over the lazy dog near the river.
       </div>
-      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', marginTop: '0.25rem', display: 'block' }}>--leading-{name} ({val})</code>
+      <code style={{ fontSize: '0.75rem', color: '#60646c', marginTop: '0.25rem', display: 'block' }}>--leading-{name} ({val})</code>
     </div>
   ))}
 </div>
@@ -133,7 +133,7 @@ Use via SCSS mixin: `@include type.typography(preset-name)`
   {[['tight', '-0.015em'], ['normal', '0em'], ['wide', '0.04em']].map(([name, val]) => (
     <div key={name} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}>
       <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: 600, letterSpacing: val }}>ABCDEFGHIJKLM</span>
-      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--tracking-{name} ({val})</code>
+      <code style={{ fontSize: '0.75rem', color: '#60646c' }}>--tracking-{name} ({val})</code>
     </div>
   ))}
 </div>

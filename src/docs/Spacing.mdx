@@ -5,14 +5,14 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 export const SpaceBlock = ({ n }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.125rem 0' }}>
-    <code style={{ fontSize: 'var(--text-xs)', width: '5.5rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>
+    <code style={{ fontSize: '0.75rem', width: '5.5rem', flexShrink: 0, color: '#60646c' }}>
       --space-{n}
     </code>
     <div style={{
       width: `var(--space-${n})`, height: '1rem',
-      background: 'var(--accent-solid)', borderRadius: '2px', flexShrink: 0,
+      background: '#0090ff', borderRadius: '2px', flexShrink: 0,
     }} />
-    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>
+    <span style={{ fontSize: '0.75rem', color: '#60646c' }}>
       {`var(--space-${n})`}
     </span>
   </div>
@@ -20,50 +20,50 @@ export const SpaceBlock = ({ n }) => (
 
 export const TokenBar = ({ token, width, label }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.2rem 0' }}>
-    <code style={{ fontSize: 'var(--text-xs)', width: '14rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{token}</code>
-    <div style={{ width, height: '0.625rem', background: 'var(--accent-bg-active)', borderRadius: '2px', flexShrink: 0, maxWidth: '12rem' }} />
-    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>{label}</span>
+    <code style={{ fontSize: '0.75rem', width: '14rem', flexShrink: 0, color: '#60646c' }}>{token}</code>
+    <div style={{ width, height: '0.625rem', background: '#c2e5ff', borderRadius: '2px', flexShrink: 0, maxWidth: '12rem' }} />
+    <span style={{ fontSize: '0.75rem', color: '#60646c', whiteSpace: 'nowrap' }}>{label}</span>
   </div>
 );
 
 export const StrokeDemo = ({ token, thickness, label }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.2rem 0' }}>
-    <code style={{ fontSize: 'var(--text-xs)', width: '14rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{token}</code>
-    <div style={{ width: '4rem', height: `${Math.max(thickness * 2, 1)}px`, background: 'var(--accent-solid)', borderRadius: '0.5px' }} />
-    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>{label}</span>
+    <code style={{ fontSize: '0.75rem', width: '14rem', flexShrink: 0, color: '#60646c' }}>{token}</code>
+    <div style={{ width: '4rem', height: `${Math.max(thickness * 2, 1)}px`, background: '#0090ff', borderRadius: '0.5px' }} />
+    <span style={{ fontSize: '0.75rem', color: '#60646c', whiteSpace: 'nowrap' }}>{label}</span>
   </div>
 );
 
 export const BreakpointBar = ({ label, start, maxW, target }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.375rem 0' }}>
-    <code style={{ fontSize: 'var(--text-xs)', width: '10rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{label}</code>
-    <div style={{ width: '14rem', height: '1.25rem', background: 'var(--mono-subtle-bg)', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+    <code style={{ fontSize: '0.75rem', width: '10rem', flexShrink: 0, color: '#60646c' }}>{label}</code>
+    <div style={{ width: '14rem', height: '1.25rem', background: '#f9f9fb', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
       <div style={{
         position: 'absolute', left: `${(start / maxW) * 100}%`, right: 0, top: 0, bottom: 0,
-        background: 'var(--accent-bg-active)',
+        background: '#c2e5ff',
         borderRadius: start === 0 ? '4px' : '0 4px 4px 0',
       }} />
     </div>
-    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>
+    <span style={{ fontSize: '0.75rem', color: '#60646c', whiteSpace: 'nowrap' }}>
       {start > 0 ? `≥ ${start}px` : '0'} · {target}
     </span>
   </div>
 );
 
 export const CQBreakpoint = ({ label, width, activates, drives }) => (
-  <div style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--mono-border-subtle)' }}>
+  <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #d9d9e0' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-      <code style={{ fontSize: 'var(--text-xs)', width: '8rem', flexShrink: 0 }}>{label}</code>
-      <div style={{ width: '10rem', height: '1rem', background: 'var(--mono-subtle-bg)', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+      <code style={{ fontSize: '0.75rem', width: '8rem', flexShrink: 0 }}>{label}</code>
+      <div style={{ width: '10rem', height: '1rem', background: '#f9f9fb', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
         <div style={{
           position: 'absolute', left: `${(width / 1000) * 100}%`, right: 0, top: 0, bottom: 0,
-          background: 'var(--success-bg-active)',
+          background: '#b8eae0',
           borderRadius: '0 4px 4px 0',
         }} />
       </div>
-      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>{width}px</span>
+      <span style={{ fontSize: '0.75rem', color: '#60646c' }}>{width}px</span>
     </div>
-    <div style={{ marginLeft: 'calc(8rem + 0.75rem)', fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', marginTop: '0.125rem' }}>
+    <div style={{ marginLeft: 'calc(8rem + 0.75rem)', fontSize: '0.75rem', color: '#60646c', marginTop: '0.125rem' }}>
       {activates} — {drives}
     </div>
   </div>
