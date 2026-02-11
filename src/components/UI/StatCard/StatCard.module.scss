@@ -30,6 +30,14 @@
     --_text-lc: var(--error-text-low-contrast);
   }
 
+  &[data-tone="warning"] {
+    --_bg: var(--warning-bg);
+    --_border: var(--warning-border);
+    --_solid: var(--warning-solid);
+    --_text: var(--warning-text);
+    --_text-lc: var(--warning-text-low-contrast);
+  }
+
   &[data-tone="accent"] {
     --_bg: var(--accent-bg);
     --_border: var(--accent-border);

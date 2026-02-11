@@ -1,5 +1,5 @@
 /** Colour token shared across series, bands, and tooltip value rows. */
-export type ChartTone = 'accent' | 'secondary' | 'positive' | 'negative' | 'warning' | 'cyan' | 'purple' | 'pink';
+export type ChartTone = 'accent' | 'secondary' | 'positive' | 'negative' | 'warning';
 
 /** A single data point on a time-series chart. */
 export interface ChartDataPoint {

@@ -1,5 +1,26 @@
 @use 'mixins/typography' as type;
 @use 'mixins/container-queries' as cq;
+@use 'mixins/breakpoints' as bp;
+
+/* Push ShiftSimulator after FlexInsights on mobile */
+.simulatorTile {
+  order: 1;
+
+  @include bp.tablet {
+    order: 0;
+  }
+}
+
+/* FlexInsights: compact on mobile + desktop, feature-width on tablet only */
+.insightsTile {
+  @include bp.tablet {
+    grid-column: span 2;
+  }
+
+  @include bp.desktop {
+    grid-column: span 1;
+  }
+}
 
 .error {
   display: flex;
@@ -41,14 +62,3 @@
   }
 }
 
-.tileTitle {
-  @include type.typography(card-title);
-  color: var(--mono-text);
-  margin: 0 0 var(--space-2) 0;
-}
-
-.tileText {
-  @include type.typography(meta);
-  color: var(--mono-text-low-contrast);
-  margin: 0;
-}

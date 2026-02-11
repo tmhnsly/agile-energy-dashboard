@@ -140,11 +140,12 @@
   pointer-events: none;
 }
 
-/* Tooltip */
+/* Tooltip — border/fill system aligned with StatCard (neutral tone) */
 .crosshair {
-  stroke: var(--mono-text-low-contrast);
-  stroke-width: var(--chart-stroke-thin);
-  opacity: 0.25; /* matches gridline visibility */
+  stroke: var(--mono-border);
+  stroke-width: var(--chart-stroke-medium);
+  stroke-dasharray: 4 3;
+  opacity: 0.5;
 }
 
 .tooltipDot {
@@ -155,8 +156,8 @@
 
 .tooltip {
   @include layout.stack(var(--tooltip-gap));
-  background-color: var(--mono-bg) !important;
-  border: 1px solid var(--mono-border) !important;
+  background-color: var(--mono-subtle-bg) !important;
+  border: 1px solid var(--mono-border-subtle) !important;
   border-radius: var(--radius-3) !important;
   padding: var(--tooltip-padding-y) var(--tooltip-padding-x) !important;
   box-shadow: 0 4px 12px var(--surface-shadow-lg), 0 1px 3px var(--surface-shadow) !important;
@@ -247,8 +248,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3); /* 4px vertical — compact pill shape */
-  background-color: var(--mono-bg);
-  border: 1px solid var(--mono-border);
+  background-color: var(--mono-subtle-bg);
+  border: 1px solid var(--mono-border-subtle);
   border-radius: var(--radius-full);
   box-shadow: 0 2px 8px var(--surface-shadow-lg);
   font-size: var(--text-xs);

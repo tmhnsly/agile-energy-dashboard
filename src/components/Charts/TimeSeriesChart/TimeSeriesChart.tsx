@@ -26,7 +26,7 @@ import { bisectNearest } from '@/utils/binarySearch';
 import { useChartInteraction } from '../hooks/useChartInteraction';
 import { useChartKeyboardNav } from '../hooks/useChartKeyboardNav';
 import type { ChartRange } from '../hooks/useChartInteraction';
-import { useChartScales } from './useChartScales';
+import { useChartScales, Y_TICK_COUNT } from './useChartScales';
 import { useMinMaxStats } from './useMinMaxStats';
 import { useDayBoundaries } from './useDayBoundaries';
 import type { ChartMargin } from './useChartScales';
@@ -40,9 +40,6 @@ import styles from './TimeSeriesChart.module.scss';
 const MAX_X_TICKS = 8;
 /** Minimum horizontal spacing (px) between x-axis ticks. */
 const X_TICK_MIN_SPACING_PX = 80;
-/** Number of ticks on the y-axis. */
-const Y_TICK_COUNT = 5;
-
 /** Minimum distance (px) from the viewport edge for the drag pill. */
 const PILL_EDGE_PAD = 80;
 /** Vertical offset (px) of the drag pill from the top of the chart area. */
@@ -88,9 +85,6 @@ const TONE_STROKE: Record<string, string> = {
   positive: 'var(--success-solid)',
   negative: 'var(--error-solid)',
   warning: 'var(--warning-solid)',
-  cyan: 'var(--cyan-solid)',
-  purple: 'var(--purple-solid)',
-  pink: 'var(--pink-solid)',
 };
 
 /* ------------------------------------------------------------------ */

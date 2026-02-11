@@ -40,6 +40,7 @@
   --card-gap: var(--space-4);
   --card-header-gap: var(--space-1);
   --card-header-to-body: var(--space-4);
+  --card-subtitle-measure: 32ch; /* typographic measure — keeps subtitle readable */
 
   /* StatCard */
   --statcard-padding-x: var(--space-3);

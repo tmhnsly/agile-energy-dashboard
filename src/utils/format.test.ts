@@ -129,7 +129,11 @@ describe('formatCostPence', () => {
   });
 
   it('handles zero', () => {
-    expect(formatCostPence(0)).toBe('0.0p');
+    expect(formatCostPence(0)).toBe('0p');
+  });
+
+  it('drops trailing .0 for round values', () => {
+    expect(formatCostPence(25)).toBe('25p');
   });
 });
 

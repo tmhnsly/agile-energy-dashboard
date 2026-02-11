@@ -11,7 +11,7 @@ import skelStyles from './MarketPriceSkeleton.module.scss';
  */
 export const MarketPriceSkeleton = () => (
   <div className={panelStyles.content}>
-    <div className={panelStyles.headerTop}>
+    <div className={panelStyles.headerRow}>
       <div className={panelStyles.headerGroup}>
         <Skeleton width="10rem" height="1.4rem" radius="small" />
         <Skeleton width="14rem" height="1.25rem" radius="small" />

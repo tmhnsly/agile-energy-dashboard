@@ -2,7 +2,7 @@ import { memo, type ReactNode } from 'react';
 import { cx } from '@/utils/cx';
 import styles from './StatCard.module.scss';
 
-export type StatCardTone = 'neutral' | 'positive' | 'negative' | 'accent' | 'secondary';
+export type StatCardTone = 'neutral' | 'positive' | 'negative' | 'warning' | 'accent' | 'secondary';
 
 export interface StatCardProps {
   label: string;

@@ -36,10 +36,11 @@ export function formatKwhValue(kwh: number): string {
   return `${kwh.toFixed(2)} kWh`;
 }
 
-/** Format a cost in pence — switches to pounds above 100p (e.g. "42.5p" or "£1.43"). */
+/** Format a cost in pence — switches to pounds above 100p (e.g. "42.5p" or "£1.43"). Drops trailing ".0" for round values. */
 export function formatCostPence(pence: number): string {
   if (pence >= 100) return `£${(pence / 100).toFixed(2)}`;
-  return `${pence.toFixed(1)}p`;
+  const fixed = pence.toFixed(1);
+  return fixed.endsWith('.0') ? `${Math.round(pence)}p` : `${fixed}p`;
 }
 
 /**

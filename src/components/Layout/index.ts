@@ -7,4 +7,4 @@ export type { ContainerProps } from './Container/Container';
 export { BentoGrid } from './Bento/BentoGrid';
 export type { BentoGridProps } from './Bento/BentoGrid';
 export { BentoTile } from './Bento/BentoTile';
-export type { BentoTileProps } from './Bento/BentoTile';
+export type { BentoTileProps, BentoTileTone } from './Bento/BentoTile';

@@ -1,14 +1,9 @@
 import { memo } from 'react';
-import { HALF_HOUR_MS } from '@/utils/constants';
 import { TbTriangleFilled, TbTriangleInvertedFilled, TbBoltFilled } from 'react-icons/tb';
+import { HALF_HOUR_MS } from '@/utils/constants';
 import type { PriceStats, TimeRange } from '@/types/energy';
-import { formatPricePerKwh, formatCostPence, formatStatTime } from '@/utils/format';
+import { formatPricePerKwh, formatCostPence, formatStatTime, formatKwhValue } from '@/utils/format';
 import { StatsBar } from '@/components/UI';
-
-function formatKwh(range: TimeRange): string {
-  const kWh = (range.toTs - range.fromTs) / HALF_HOUR_MS;
-  return `${Number.isInteger(kWh) ? kWh : kWh.toFixed(1)} kWh`;
-}
 
 export interface PriceStatsBarProps {
   stats: PriceStats;
@@ -45,9 +40,11 @@ export const PriceStatsBar = memo(function PriceStatsBar({
           key: 'total',
           label: 'Total',
           value: stats.total != null ? formatCostPence(stats.total) : '—',
-          subValue: stats.count > 0 ? formatKwh(range) : '\u00A0',
+          subValue: stats.count > 0
+            ? formatKwhValue((range.toTs - range.fromTs) / HALF_HOUR_MS)
+            : '\u00A0',
           icon: <TbBoltFilled aria-hidden="true" />,
-          tone: 'secondary',
+          tone: 'neutral',
         },
       ]}
     />

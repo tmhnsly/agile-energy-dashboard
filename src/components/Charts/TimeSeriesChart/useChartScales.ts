@@ -12,7 +12,7 @@ const CHAR_WIDTH_PX = 7.5;
 /** Padding between the longest y-axis label and the chart area. */
 const AXIS_LABEL_PAD = 12;
 /** Number of ticks to show on the y-axis. */
-const Y_TICK_COUNT = 5;
+export const Y_TICK_COUNT = 5;
 /** Temporary scale range used only to measure y-axis tick label widths. */
 const TEMP_SCALE_RANGE: [number, number] = [100, 0];
 

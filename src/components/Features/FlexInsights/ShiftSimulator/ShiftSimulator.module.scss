@@ -5,6 +5,14 @@
 .content {
   @include layout.stack(var(--card-gap));
   min-width: 0;
+  height: 100%;
+}
+
+/* Clear selection button — pushed to the bottom of the card when
+   the grid row is taller than the panel's natural height. */
+.content > :last-child {
+  margin-top: auto;
+  width: 100%;
 }
 
 .headerGroup {
@@ -15,12 +23,21 @@
   @include type.typography(card-title);
   color: var(--mono-text);
   margin: 0;
+
+  @include cq.large {
+    font-size: var(--text-xl);
+  }
 }
 
 .subtitle {
   @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   margin: 0;
+  max-width: var(--card-subtitle-measure);
+
+  @include cq.large {
+    font-size: var(--text-md);
+  }
 }
 
 .controlGroup {
@@ -35,7 +52,7 @@
 
 .controlLabel {
   @include type.typography(meta);
-  color: var(--mono-text);
+  color: var(--mono-text-low-contrast);
 }
 
 .controlHint {
@@ -51,30 +68,55 @@
   gap: var(--space-2);
 }
 
-/* ── Tooltip time table ──────── */
 
-.timeTable {
-  border-spacing: var(--space-1) var(--space-2);
-}
 
-.timeTableLabel {
-  padding-right: var(--space-3);
-  color: inherit;
-  font-weight: var(--weight-semibold);
-}
+/* ── Radix tooltip for time-of-day buttons ──────── */
 
-.timeTableRange {
-  color: var(--mono-text-low-contrast);
+.tooltip {
+  @include type.typography(meta);
+  background-color: var(--mono-subtle-bg);
+  border: 1px solid var(--mono-border-subtle);
+  border-radius: var(--radius-2);
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  box-shadow: 0 4px 12px var(--surface-shadow-lg), 0 1px 3px var(--surface-shadow);
+  color: var(--mono-text);
   font-variant-numeric: tabular-nums;
+  z-index: 50;
+  animation-duration: 0.15s;
+  animation-timing-function: ease-out;
+
+  &[data-state='delayed-open'][data-side='top'],
+  &[data-state='instant-open'][data-side='top'] {
+    animation-name: slideDown;
+  }
+
+  &[data-state='delayed-open'][data-side='bottom'],
+  &[data-state='instant-open'][data-side='bottom'] {
+    animation-name: slideUp;
+  }
 }
 
-/* ── Result row ──────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-.savingRow {
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Result area — reserves space so toggling between
+   placeholder and result doesn't shift the layout. ──── */
+
+.resultArea {
+  min-height: 3.25rem;
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.savingStack {
+  @include layout.stack(var(--space-1));
 }
 
 .savingValue {
@@ -85,7 +127,7 @@
   }
 
   &[data-tone='negative'] {
-    color: var(--danger-text);
+    color: var(--error-text);
   }
 
   &[data-tone='neutral'] {
@@ -96,4 +138,10 @@
 .savingBreakdown {
   @include type.typography(meta);
   color: var(--mono-text-low-contrast);
+}
+
+.savingPlaceholder {
+  @include type.typography(meta);
+  color: var(--mono-text-low-contrast);
+  margin: 0;
 }

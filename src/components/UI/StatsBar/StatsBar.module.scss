@@ -1,16 +1,34 @@
 @use 'mixins/container-queries' as cq;
 
 .statsRow {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
 
   @include cq.medium {
     gap: var(--space-3);
   }
+
+  /* 3 cards: switch to a single row of equal thirds when there's room */
+  &[data-count='3'] {
+    @include cq.medium {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
 }
 
 .stat {
-  flex: 1 1 0;
-  min-width: 6rem; /* floor prevents cards collapsing too narrow on small screens */
+  min-width: 0;
+
+  /* At 2-col mobile, last odd card spans the full row */
+  &:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* Reset span when in 3-col layout */
+  .statsRow[data-count='3'] > &:last-child:nth-child(odd) {
+    @include cq.medium {
+      grid-column: auto;
+    }
+  }
 }

@@ -93,42 +93,6 @@
     --_on-solid: var(--info-on-solid);
   }
 
-  &[data-color="cyan"] {
-    --_bg: var(--cyan-bg);
-    --_bg-hover: var(--cyan-bg-hover);
-    --_bg-active: var(--cyan-bg-active);
-    --_border: var(--cyan-border);
-    --_border-hover: var(--cyan-border-hover);
-    --_solid: var(--cyan-solid);
-    --_solid-hover: var(--cyan-solid-hover);
-    --_text-lc: var(--cyan-text-low-contrast);
-    --_on-solid: var(--cyan-on-solid);
-  }
-
-  &[data-color="purple"] {
-    --_bg: var(--purple-bg);
-    --_bg-hover: var(--purple-bg-hover);
-    --_bg-active: var(--purple-bg-active);
-    --_border: var(--purple-border);
-    --_border-hover: var(--purple-border-hover);
-    --_solid: var(--purple-solid);
-    --_solid-hover: var(--purple-solid-hover);
-    --_text-lc: var(--purple-text-low-contrast);
-    --_on-solid: var(--purple-on-solid);
-  }
-
-  &[data-color="pink"] {
-    --_bg: var(--pink-bg);
-    --_bg-hover: var(--pink-bg-hover);
-    --_bg-active: var(--pink-bg-active);
-    --_border: var(--pink-border);
-    --_border-hover: var(--pink-border-hover);
-    --_solid: var(--pink-solid);
-    --_solid-hover: var(--pink-solid-hover);
-    --_text-lc: var(--pink-text-low-contrast);
-    --_on-solid: var(--pink-on-solid);
-  }
-
   &[data-variant="solid"] {
     background-color: var(--_solid);
     color: var(--_on-solid);

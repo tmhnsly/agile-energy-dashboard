@@ -111,7 +111,7 @@ export const MarketPricePanel = ({
 
   return (
     <div className={styles.content}>
-      <div className={styles.headerTop}>
+      <div className={styles.headerRow}>
         <div className={styles.headerGroup}>
           <h2 className={styles.title}>Market Price</h2>
           <div className={styles.rangeSummary}>

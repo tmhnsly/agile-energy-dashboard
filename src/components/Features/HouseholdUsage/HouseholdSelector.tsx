@@ -8,8 +8,8 @@ import styles from './HouseholdSelector.module.scss';
 
 const HOUSEHOLD_OPTIONS: { label: string; key: HouseholdKey; color: ButtonColor }[] = [
   { label: 'Standard', key: 'standard', color: 'accent' },
-  { label: 'Heat Pump', key: 'heatPump', color: 'cyan' },
-  { label: 'Heat Pump + Battery', key: 'heatPumpBattery', color: 'purple' },
+  { label: 'Heat Pump', key: 'heatPump', color: 'secondary' },
+  { label: 'Heat Pump + Battery', key: 'heatPumpBattery', color: 'warning' },
 ];
 
 export interface HouseholdSelectorProps {

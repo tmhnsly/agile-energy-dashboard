@@ -7,7 +7,7 @@
   min-width: 0;
 }
 
-.headerTop {
+.headerRow {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -28,12 +28,20 @@
   @include type.typography(card-title);
   color: var(--mono-text);
   margin: 0;
+
+  @include cq.large {
+    font-size: var(--text-xl);
+  }
 }
 
 .rangeSummary {
   @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   font-variant-numeric: tabular-nums;
+
+  @include cq.large {
+    font-size: var(--text-md);
+  }
   display: flex;
   flex-wrap: wrap;
   column-gap: var(--space-1);

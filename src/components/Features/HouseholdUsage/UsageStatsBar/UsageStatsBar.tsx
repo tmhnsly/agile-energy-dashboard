@@ -1,7 +1,7 @@
 import { memo } from 'react';
-import { TbActivityHeartbeat, TbBoltFilled } from 'react-icons/tb';
+import { TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import type { UsageStats, TimeRange } from '@/types/energy';
-import { formatKwhValue, formatCostPence, formatPricePerKwh } from '@/utils/format';
+import { formatKwhValue, formatCostPence, formatStatTime } from '@/utils/format';
 import { StatsBar } from '@/components/UI';
 
 export interface UsageStatsBarProps {
@@ -13,30 +13,25 @@ export const UsageStatsBar = memo(function UsageStatsBar({
   stats,
   range,
 }: UsageStatsBarProps) {
-  const avgRate =
-    stats.count > 0 && stats.totalKwh > 0
-      ? stats.estimatedCostPence / stats.totalKwh
-      : null;
-
   return (
     <StatsBar
       ariaLabel="Usage statistics"
       cards={[
         {
-          key: 'avgRate',
-          label: 'Avg. Rate',
-          value: avgRate != null ? formatPricePerKwh(avgRate) : '—',
-          subValue: stats.count > 0 ? `${stats.count} periods` : '\u00A0',
-          icon: <TbActivityHeartbeat aria-hidden="true" />,
+          key: 'peak',
+          label: 'Peak',
+          value: stats.peak ? formatKwhValue(stats.peak.kwh) : '—',
+          subValue: stats.peak ? formatStatTime(stats.peak.ts) : '\u00A0',
+          icon: <TbTriangleFilled aria-hidden="true" />,
           tone: 'neutral',
         },
         {
           key: 'total',
-          label: 'Total',
-          value: stats.count > 0 ? `Est. ${formatCostPence(stats.estimatedCostPence)}` : '—',
+          label: 'Total (est.)',
+          value: stats.count > 0 ? formatCostPence(stats.estimatedCostPence) : '—',
           subValue: stats.count > 0 ? formatKwhValue(stats.totalKwh) : '\u00A0',
           icon: <TbBoltFilled aria-hidden="true" />,
-          tone: 'secondary',
+          tone: 'neutral',
         },
       ]}
     />

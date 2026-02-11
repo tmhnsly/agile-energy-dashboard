@@ -33,9 +33,11 @@ export const ShiftSimulatorSkeleton = () => (
       <Skeleton width="100%" height="2.75rem" radius="small" />
     </div>
 
-    <div className={styles.savingRow}>
-      <Skeleton width="5rem" height="1.4rem" radius="small" />
-      <Skeleton width="8rem" height="1rem" radius="small" />
+    <div className={styles.resultArea}>
+      <div className={styles.savingStack}>
+        <Skeleton width="5rem" height="1.4rem" radius="small" />
+        <Skeleton width="8rem" height="1rem" radius="small" />
+      </div>
     </div>
   </div>
 );

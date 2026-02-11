@@ -24,7 +24,7 @@ export const StatsBar = memo(function StatsBar({
   className,
 }: StatsBarProps) {
   return (
-    <div className={className ?? styles.statsRow} role="region" aria-label={ariaLabel}>
+    <div className={className ?? styles.statsRow} data-count={cards.length} role="region" aria-label={ariaLabel}>
       {cards.map(({ key, ...cardProps }) => (
         <StatCard key={key} className={styles.stat} {...cardProps} />
       ))}

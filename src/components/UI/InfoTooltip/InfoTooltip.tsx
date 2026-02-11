@@ -25,7 +25,6 @@ export const InfoTooltip = ({ children, label = 'More info' }: InfoTooltipProps)
       <Tooltip.Portal>
         <Tooltip.Content className={styles.content} sideOffset={8} collisionPadding={12} align="start">
           {children}
-          <Tooltip.Arrow className={styles.arrow} />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>

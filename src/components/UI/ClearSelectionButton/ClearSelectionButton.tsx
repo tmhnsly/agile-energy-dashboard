@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { Button } from '@/components/UI/Button/Button';
+import { memo } from "react";
+import { Button } from "@/components/UI/Button/Button";
 
 export interface ClearSelectionButtonProps {
   disabled: boolean;

@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, type ReactNode } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import {
   TbTriangleInvertedFilled,
   TbTriangleFilled,
@@ -18,33 +18,51 @@ const HOUSEHOLD_LABELS: Record<HouseholdKey, string> = {
   heatPumpBattery: 'Heat Pump + Battery',
 };
 
-/** Map a flex event label to an appropriate icon and verb. All are positive opportunities. */
-function eventAppearance(label?: string): { icon: ReactNode; verb: string } {
+type EventType = 'use-more' | 'use-less' | 'other';
+
+function classifyEvent(label?: string): EventType {
   const lower = label?.toLowerCase() ?? '';
-
-  if (lower.includes('turn down') || lower.includes('reduce')) {
-    return { icon: <TbTriangleInvertedFilled />, verb: 'Use less' };
-  }
-
-  if (lower.includes('turn up') || lower.includes('increase')) {
-    return { icon: <TbTriangleFilled />, verb: 'Use more' };
-  }
-
-  return { icon: <TbBoltFilled />, verb: 'Flex opportunity' };
+  if (lower.includes('turn down') || lower.includes('reduce')) return 'use-less';
+  if (lower.includes('turn up') || lower.includes('increase')) return 'use-more';
+  return 'other';
 }
+
+function eventAppearance(type: EventType): { icon: ReactNode; verb: string; tone: StatCardTone } {
+  switch (type) {
+    case 'use-less':
+      return { icon: <TbTriangleInvertedFilled />, verb: 'Use less', tone: 'positive' };
+    case 'use-more':
+      return { icon: <TbTriangleFilled />, verb: 'Use more', tone: 'positive' };
+    default:
+      return { icon: <TbBoltFilled />, verb: 'Flex opportunity', tone: 'positive' };
+  }
+}
+
+/** Sort order: use-more first, then use-less, then other. */
+const TYPE_ORDER: Record<EventType, number> = { 'use-more': 0, 'use-less': 1, other: 2 };
 
 interface InsightCardListProps {
   household: HouseholdKey;
   dailyCost: number;
+  dailyCostTone: StatCardTone;
   flexEarnings: FlexEarningResult[];
 }
 
 export const InsightCardList = memo(function InsightCardList({
   household,
   dailyCost,
+  dailyCostTone,
   flexEarnings,
 }: InsightCardListProps) {
-  const count = 1 + flexEarnings.length;
+  const sorted = useMemo(() => {
+    return [...flexEarnings].sort((a, b) => {
+      const ta = TYPE_ORDER[classifyEvent(a.event.label)];
+      const tb = TYPE_ORDER[classifyEvent(b.event.label)];
+      return ta - tb;
+    });
+  }, [flexEarnings]);
+
+  const count = 1 + sorted.length;
 
   return (
     <div className={styles.cards} data-count={Math.min(count, 4)}>
@@ -52,11 +70,12 @@ export const InsightCardList = memo(function InsightCardList({
         label={`${HOUSEHOLD_LABELS[household]} daily cost`}
         value={formatCostPence(dailyCost)}
         icon={<TbBoltFilled />}
-        tone="secondary"
+        tone={dailyCostTone}
       />
 
-      {flexEarnings.map((earning) => {
-        const { icon, verb } = eventAppearance(earning.event.label);
+      {sorted.map((earning) => {
+        const type = classifyEvent(earning.event.label);
+        const { icon, verb, tone } = eventAppearance(type);
         return (
           <StatCard
             key={earning.event.id}
@@ -64,7 +83,7 @@ export const InsightCardList = memo(function InsightCardList({
             value={formatCostPence(earning.earningsPence)}
             subValue={`${earning.shiftableKwh.toFixed(1)} kWh shiftable`}
             icon={icon}
-            tone="positive"
+            tone={tone}
           />
         );
       })}

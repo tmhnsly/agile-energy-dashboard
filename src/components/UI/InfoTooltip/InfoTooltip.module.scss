@@ -1,5 +1,5 @@
 @use 'mixins/typography' as type;
-@use 'mixins/surfaces' as surface;
+@use 'mixins/layout' as layout;
 
 /* ── Trigger: inline (i) icon at current text size ──────── */
 
@@ -11,7 +11,7 @@
   margin: 0;
   border: none;
   background: none;
-  color: var(--info-solid);
+  color: var(--mono-solid);
   font-size: 1.15em; /* slightly larger than surrounding text for legibility */
   line-height: 1;
   vertical-align: middle;
@@ -23,7 +23,7 @@
 
   @media (hover: hover) {
     &:hover {
-      color: var(--info-solid-hover);
+      color: var(--mono-solid-hover);
     }
   }
 
@@ -33,16 +33,16 @@
   }
 }
 
-/* ── Tooltip panel: translucent glass ──────── */
+/* ── Tooltip panel ──────── */
 
 .content {
-  @include surface.glass-panel;
-  @include type.typography(body);
-  min-width: 14rem;
-  max-width: 20rem;
-  padding: var(--space-3) var(--space-4);
+  @include layout.stack(var(--tooltip-gap));
+  background-color: var(--mono-subtle-bg);
+  border: 1px solid var(--mono-border-subtle);
+  border-radius: var(--radius-3);
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  box-shadow: 0 4px 12px var(--surface-shadow-lg), 0 1px 3px var(--surface-shadow);
   color: var(--mono-text);
-  border-radius: var(--radius-4);
   z-index: 50;
 
   /* Radix animation */
@@ -58,10 +58,6 @@
   &[data-state='instant-open'][data-side='bottom'] {
     animation-name: slideUp;
   }
-}
-
-.arrow {
-  fill: var(--surface-2);
 }
 
 @keyframes slideUp {

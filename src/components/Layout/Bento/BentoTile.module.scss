@@ -44,12 +44,68 @@
   &[data-span='compact'] {
     min-height: auto;
   }
+
+  /* ── Tone overrides ──────────────────────────────────
+   * Remaps surface + mono tokens so the entire card and
+   * all children adopt the semantic color scale.
+   * ─────────────────────────────────────────────────── */
+
+  &[data-tone='accent'] {
+    --surface-panel: var(--accent-subtle-bg);
+    --surface-panel-border: var(--accent-border-subtle);
+    --surface-highlight: var(--accent-bg);
+    --surface-shadow: color-mix(in srgb, var(--accent-solid) 8%, transparent);
+    --mono-app-bg: var(--accent-app-bg);
+    --mono-subtle-bg: var(--accent-subtle-bg);
+    --mono-bg: var(--accent-bg);
+    --mono-bg-hover: var(--accent-bg-hover);
+    --mono-bg-active: var(--accent-bg-active);
+    --mono-border-subtle: var(--accent-border-subtle);
+    --mono-border: var(--accent-border);
+    --mono-border-hover: var(--accent-border-hover);
+    --mono-solid: var(--accent-solid);
+    --mono-solid-hover: var(--accent-solid-hover);
+  }
+
+  &[data-tone='secondary'] {
+    --surface-panel: var(--secondary-subtle-bg);
+    --surface-panel-border: var(--secondary-border-subtle);
+    --surface-highlight: var(--secondary-bg);
+    --surface-shadow: color-mix(in srgb, var(--secondary-solid) 8%, transparent);
+    --mono-app-bg: var(--secondary-app-bg);
+    --mono-subtle-bg: var(--secondary-subtle-bg);
+    --mono-bg: var(--secondary-bg);
+    --mono-bg-hover: var(--secondary-bg-hover);
+    --mono-bg-active: var(--secondary-bg-active);
+    --mono-border-subtle: var(--secondary-border-subtle);
+    --mono-border: var(--secondary-border);
+    --mono-border-hover: var(--secondary-border-hover);
+    --mono-solid: var(--secondary-solid);
+    --mono-solid-hover: var(--secondary-solid-hover);
+  }
+
+  &[data-tone='warning'] {
+    --surface-panel: var(--warning-subtle-bg);
+    --surface-panel-border: var(--warning-border-subtle);
+    --surface-highlight: var(--warning-bg);
+    --surface-shadow: color-mix(in srgb, var(--warning-solid) 8%, transparent);
+    --mono-app-bg: var(--warning-app-bg);
+    --mono-subtle-bg: var(--warning-subtle-bg);
+    --mono-bg: var(--warning-bg);
+    --mono-bg-hover: var(--warning-bg-hover);
+    --mono-bg-active: var(--warning-bg-active);
+    --mono-border-subtle: var(--warning-border-subtle);
+    --mono-border: var(--warning-border);
+    --mono-border-hover: var(--warning-border-hover);
+    --mono-solid: var(--warning-solid);
+    --mono-solid-hover: var(--warning-solid-hover);
+  }
 }
 
 /* Default skeleton fallback — slightly taller than tile min-height
    to hint that real content will be larger */
 .skelFallback {
-  height: 6rem;
+  height: var(--space-24);
   border-radius: var(--radius-inner, var(--radius-2));
   @include surface.skeleton-pulse;
 }

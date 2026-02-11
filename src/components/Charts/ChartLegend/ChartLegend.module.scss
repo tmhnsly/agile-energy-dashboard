@@ -43,18 +43,6 @@
   &[data-tone='warning'] {
     background-color: var(--warning-solid);
   }
-
-  &[data-tone='cyan'] {
-    background-color: var(--cyan-solid);
-  }
-
-  &[data-tone='purple'] {
-    background-color: var(--purple-solid);
-  }
-
-  &[data-tone='pink'] {
-    background-color: var(--pink-solid);
-  }
 }
 
 .swatchBand {
@@ -89,21 +77,6 @@
   &[data-tone='warning'] {
     background-color: var(--warning-bg);
     border-left-color: var(--warning-border);
-  }
-
-  &[data-tone='cyan'] {
-    background-color: var(--cyan-bg);
-    border-left-color: var(--cyan-border);
-  }
-
-  &[data-tone='purple'] {
-    background-color: var(--purple-bg);
-    border-left-color: var(--purple-border);
-  }
-
-  &[data-tone='pink'] {
-    background-color: var(--pink-bg);
-    border-left-color: var(--pink-border);
   }
 }
 

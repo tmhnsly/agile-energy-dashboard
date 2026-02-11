@@ -10,13 +10,15 @@ import { lowerBound } from '@/utils/binarySearch';
 
 /**
  * Look up the price for a given usage row timestamp.
- * Uses binary search — matches exact ts or falls back to the preceding slot.
+ * Uses binary search — matches exact ts, falls back to the preceding slot,
+ * or uses the first available price if the timestamp is before all price data.
  */
 function priceAt(prices: PricePoint[], ts: number): number {
+  if (prices.length === 0) return 0;
   const pi = lowerBound(prices, ts);
   if (pi < prices.length && prices[pi].ts === ts) return prices[pi].price;
   if (pi > 0) return prices[pi - 1].price;
-  return 0;
+  return prices[0].price;
 }
 
 /**
@@ -57,12 +59,12 @@ export function computeFlexEarnings(
       totalKwh += usage[i][household];
     }
 
-    let shiftableKwh = totalKwh;
-    if (event.minFlexKwh != null) shiftableKwh = Math.max(shiftableKwh, event.minFlexKwh);
-    if (event.maxFlexKwh != null) shiftableKwh = Math.min(shiftableKwh, event.maxFlexKwh);
-
-    // If min > max or clamped to 0, clamp floor at 0
-    shiftableKwh = Math.max(0, shiftableKwh);
+    // Clamp to [minFlexKwh, maxFlexKwh]. If the event data is malformed
+    // (min > max), prefer max as the hard ceiling to avoid over-promising.
+    const floor = Math.max(0, event.minFlexKwh ?? 0);
+    const ceiling = event.maxFlexKwh ?? Infinity;
+    const effectiveCeiling = Math.max(floor, ceiling); // guard against min > max
+    const shiftableKwh = Math.min(Math.max(totalKwh, floor), effectiveCeiling);
 
     const earningsPence = shiftableKwh * event.pricePerKwh * 100;
 
@@ -86,13 +88,19 @@ export function simulateShift(
 ): ShiftResult {
   const originalCostPence = computeDailyCost(usage, prices, household);
 
-  // Create modified usage with the shift applied
+  // Work out the actual amount removed (clamped so the from-slot doesn't go negative).
+  // Only add this same amount to the to-slot — no energy is created.
+  const fromRow = usage.find((r) => r.ts === fromSlotTs);
+  const actualShift = fromRow
+    ? Math.min(kwhToShift, fromRow[household])
+    : 0;
+
   const modified = usage.map((row) => {
     if (row.ts === fromSlotTs) {
-      return { ...row, [household]: Math.max(0, row[household] - kwhToShift) };
+      return { ...row, [household]: row[household] - actualShift };
     }
     if (row.ts === toSlotTs) {
-      return { ...row, [household]: row[household] + kwhToShift };
+      return { ...row, [household]: row[household] + actualShift };
     }
     return row;
   });

@@ -141,7 +141,7 @@ describe('simulateShift', () => {
     expect(result.savingPence).toBeCloseTo(-15);
   });
 
-  it('does not let from-slot go negative', () => {
+  it('does not let from-slot go negative and only shifts what was removed', () => {
     // Shift more than available (standard slot 0 has 1.0 kWh)
     const result = simulateShift(
       usage, prices, 'standard',
@@ -150,10 +150,9 @@ describe('simulateShift', () => {
       5.0,
     );
 
-    // from-slot clamped to 0, so effectively shifting 1.0 kWh
-    // Original: 66, new: (0*20) + (0.5+5.0)*10 + 0.8*40 + 0.3*30 = 0 + 55 + 32 + 9 = 96
-    // But from is clamped: max(0, 1-5) = 0, to: 0.5+5 = 5.5
-    expect(result.newCostPence).toBeCloseTo(0 * 20 + 5.5 * 10 + 0.8 * 40 + 0.3 * 30);
+    // from-slot has 1.0 kWh, so only 1.0 kWh is actually shifted (not 5.0).
+    // Original: 66, new: (0*20) + (0.5+1.0)*10 + 0.8*40 + 0.3*30 = 0 + 15 + 32 + 9 = 56
+    expect(result.newCostPence).toBeCloseTo(0 * 20 + 1.5 * 10 + 0.8 * 40 + 0.3 * 30);
   });
 
   it('handles zero kwhToShift', () => {

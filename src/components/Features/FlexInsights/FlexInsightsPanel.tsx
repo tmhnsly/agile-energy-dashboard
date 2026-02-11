@@ -4,15 +4,16 @@ import { useMemo } from 'react';
 import type { PricePoint, HouseholdUsageRow, FlexEvent, HouseholdKey } from '@/types/energy';
 import { ALL_HOUSEHOLD_KEYS } from '@/types/energy';
 import { Button, type ButtonColor } from '@/components/UI/Button/Button';
+import type { StatCardTone } from '@/components/UI/StatCard/StatCard';
 import { formatDateTime } from '@/utils/format';
 import { computeFlexEarnings, computeDailyCost } from './computeFlexInsights';
 import { InsightCardList } from './InsightCardList/InsightCardList';
 import styles from './FlexInsightsPanel.module.scss';
 
-const HOUSEHOLD_CONFIG: Record<HouseholdKey, { label: string; color: ButtonColor }> = {
-  standard: { label: 'Standard', color: 'accent' },
-  heatPump: { label: 'Heat Pump', color: 'cyan' },
-  heatPumpBattery: { label: 'Heat Pump + Battery', color: 'purple' },
+const HOUSEHOLD_CONFIG: Record<HouseholdKey, { label: string; color: ButtonColor; tone: StatCardTone }> = {
+  standard: { label: 'Standard', color: 'accent', tone: 'accent' },
+  heatPump: { label: 'Heat Pump', color: 'secondary', tone: 'secondary' },
+  heatPumpBattery: { label: 'Heat Pump + Battery', color: 'warning', tone: 'warning' },
 };
 
 export interface FlexInsightsPanelProps {
@@ -56,28 +57,33 @@ export const FlexInsightsPanel = ({
         <div className={styles.headerGroup}>
           <h2 className={styles.title}>Flexibility Insights</h2>
           <p className={styles.subtitle}>
-            Opportunities to save by shifting usage to cheaper periods.
-            {rangeSummary && <> {rangeSummary}</>}
+            Earn by adjusting your usage during grid flexibility events.
           </p>
         </div>
-        <div className={styles.selector} role="group" aria-label="Household type">
-          {ALL_HOUSEHOLD_KEYS.map((key) => (
-            <Button
-              key={key}
-              label={HOUSEHOLD_CONFIG[key].label}
-              size="small"
-              color={HOUSEHOLD_CONFIG[key].color}
-              variant={key === household ? 'soft' : 'ghost'}
-              pressed={key === household}
-              onClick={() => onHouseholdChange(key)}
-            />
-          ))}
+        <div className={styles.controlGroup}>
+          {rangeSummary && (
+            <span className={styles.rangeSummary}>{rangeSummary}</span>
+          )}
+          <div className={styles.selector} role="group" aria-label="Household type">
+            {ALL_HOUSEHOLD_KEYS.map((key) => (
+              <Button
+                key={key}
+                label={HOUSEHOLD_CONFIG[key].label}
+                size="small"
+                color={HOUSEHOLD_CONFIG[key].color}
+                variant={key === household ? 'soft' : 'ghost'}
+                pressed={key === household}
+                onClick={() => onHouseholdChange(key)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       <InsightCardList
         household={household}
         dailyCost={dailyCosts[household]}
+        dailyCostTone={HOUSEHOLD_CONFIG[household].tone}
         flexEarnings={flexEarnings}
       />
     </div>

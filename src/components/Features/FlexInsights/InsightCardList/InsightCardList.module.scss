@@ -4,6 +4,9 @@
 .cards {
   @include layout.stack(var(--space-3));
 
+  /* Larger stat values on mobile so the cards don't feel empty */
+  --statcard-value-size: var(--text-lg);
+
   /* 2 cards — side by side when there's room */
   &[data-count='2'] {
     @include cq.medium {

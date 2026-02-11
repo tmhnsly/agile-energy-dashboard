@@ -11,7 +11,7 @@ import skelStyles from './HouseholdUsageSkeleton.module.scss';
  */
 export const HouseholdUsageSkeleton = () => (
   <div className={panelStyles.content}>
-    <div className={panelStyles.headerTop}>
+    <div className={panelStyles.headerRow}>
       <div className={panelStyles.headerGroup}>
         <Skeleton width="12rem" height="1.4rem" radius="small" />
         <Skeleton width="14rem" height="1.25rem" radius="small" />

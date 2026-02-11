@@ -15,8 +15,8 @@ import styles from './HouseholdUsagePanel.module.scss';
 
 const SERIES_CONFIG: Record<HouseholdKey, { label: string; tone: ChartSeries['tone'] }> = {
   standard: { label: 'Standard', tone: 'accent' },
-  heatPump: { label: 'Heat Pump', tone: 'cyan' },
-  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'purple' },
+  heatPump: { label: 'Heat Pump', tone: 'secondary' },
+  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning' },
 };
 
 function formatYTick(v: number): string {
@@ -85,7 +85,7 @@ export const HouseholdUsagePanel = ({
 
   return (
     <div className={styles.content}>
-      <div className={styles.headerTop}>
+      <div className={styles.headerRow}>
         <div className={styles.headerGroup}>
           <h2 className={styles.title}>Household Usage</h2>
           <div className={styles.rangeSummary}>
