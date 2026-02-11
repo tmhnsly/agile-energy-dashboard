@@ -5,8 +5,10 @@ export const revalidate = 900; // ISR: cache for 15 minutes
 const TIMEOUT_MS = 10_000;
 
 export async function GET() {
-  const product = process.env.OCTOPUS_PRODUCT_CODE ?? 'AGILE-24-10-01';
-  const region = process.env.OCTOPUS_REGION ?? 'L';
+  // Public Octopus Energy Agile tariff identifiers — hardcoded as they're
+  // non-secret defaults from the Octopus API docs, not per-environment config.
+  const product = 'AGILE-24-10-01';
+  const region = 'L';
 
   const now = new Date();
   const periodFrom = new Date(

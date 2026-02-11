@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { TbMoonStars, TbSunrise, TbSun, TbSunset2 } from 'react-icons/tb';
 import type { HouseholdUsageRow, PricePoint, HouseholdKey } from '@/types/energy';
 import { HALF_HOUR_MS } from '@/utils/constants';
@@ -130,6 +130,13 @@ export const ShiftSimulator = ({
   const [fromIdx, setFromIdx] = useState<number | null>(null);
   const [toIdx, setToIdx] = useState<number | null>(null);
   const [kwhToShift, setKwhToShift] = useState(0.5);
+
+  // Reset selections when household changes (replaces key={household} remount)
+  useEffect(() => {
+    setFromIdx(null);
+    setToIdx(null);
+    setKwhToShift(0.5);
+  }, [household]);
 
   const baseTs = usage.length > 0 ? usage[0].ts : 0;
   const hasBoth = fromIdx != null && toIdx != null;

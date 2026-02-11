@@ -39,17 +39,24 @@ pnpm install
 
 ```
 src/
-├── app/                    App Router + API route
+├── app/              Pages and API routes (Next.js App Router)
 ├── components/
-│   ├── Features/           Dashboard panels (MarketPrice, HouseholdUsage, FlexInsights)
-│   ├── Charts/             TimeSeriesChart + interaction hooks
-│   ├── Layout/             Bento grid, Navbar, Container
-│   └── UI/                 Button, StatCard, Skeleton, Slider, Spinner
-├── docs/                   Design system + domain docs (MDX)
-├── hooks/                  Data fetching + derived stats
-├── styles/                 Tokens + mixins
-├── types/                  Domain + chart types
-└── utils/                  Formatters, binary search, energy mappers
+│   ├── Features/     Full dashboard panels — each owns its own data display,
+│   │                 skeleton, and stories (e.g. MarketPrice, FlexInsights)
+│   ├── Charts/       Shared chart primitives and interaction layers
+│   │                 (e.g. TimeSeriesChart, TooltipLayer)
+│   ├── Layout/       Structural components — grid, navigation, containers
+│   └── UI/           Generic, reusable building blocks — buttons, cards,
+│                     skeletons, sliders (no domain logic)
+├── docs/             Storybook MDX pages — design system guides, domain docs
+├── hooks/            React hooks — data fetching, derived stats, interaction
+│                     state (e.g. useMarketData, usePriceStats)
+├── styles/           Global tokens (colours, spacing, type scale) and SCSS
+│                     mixins (e.g. container query breakpoints)
+├── types/            Shared TypeScript interfaces — domain models and
+│                     chart types (e.g. AgilePrice, HouseholdProfile)
+└── utils/            Pure helper functions — formatters, data transforms,
+                      energy mapping (e.g. formatCurrency, findCheapestWindow)
 ```
 
 ## Architecture
@@ -70,12 +77,3 @@ Octopus Energy API
 ## Storybook
 
 `pnpm storybook` serves component docs and design system guides covering colours, typography, spacing, surfaces, icons, chart interactions, and domain models.
-
-## Environment
-
-| Variable | Default | |
-|----------|---------|---|
-| `OCTOPUS_PRODUCT_CODE` | `AGILE-24-10-01` | Tariff product code |
-| `OCTOPUS_REGION` | `L` | DNO region |
-
-No `.env` file required — defaults apply.

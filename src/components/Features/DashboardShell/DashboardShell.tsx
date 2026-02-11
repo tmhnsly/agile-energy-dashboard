@@ -112,7 +112,6 @@ export const DashboardShell = () => {
           </div>
         ) : marketData.status === "ready" ? (
           <ShiftSimulator
-            key={household}
             usage={marketData.householdUsage}
             prices={marketData.prices}
             household={household}
