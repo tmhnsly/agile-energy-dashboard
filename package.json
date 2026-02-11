@@ -63,5 +63,11 @@
     "vite": "^6.4.1",
     "vitest": "^4.0.18"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "packageManager": "pnpm@10.29.2+sha256.8402f675a1f4cc9d4f27bbfab35c2d4a2e1d7eb0131df03dad09619e86674d0c"
 }

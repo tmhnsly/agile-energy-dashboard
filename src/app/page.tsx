@@ -1,6 +1,13 @@
-import { DashboardShell } from "@/components/Features/DashboardShell/DashboardShell";
+import dynamic from "next/dynamic";
 import { Section, Container } from "@/components/Layout";
 import styles from "./page.module.scss";
+
+const DashboardShell = dynamic(
+  () =>
+    import("@/components/Features/DashboardShell/DashboardShell").then((m) => ({
+      default: m.DashboardShell,
+    }))
+);
 
 export default function Home() {
   return (

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Young_Serif } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Layout";
