@@ -16,14 +16,14 @@ export const HouseholdUsageSkeleton = () => (
       </div>
       <div className={statsStyles.statsRow} data-count="2">
         {[0, 1].map((i) => (
-          <div key={i} className={`${statsStyles.stat}`}>
+          <div key={i} className={statsStyles.stat}>
             <div className={statCardStyles.card}>
               <div className={statCardStyles.header}>
                 <Skeleton width="0.75rem" height="0.75rem" radius="small" />
                 <Skeleton width="3rem" height="0.75rem" radius="small" />
               </div>
-              <Skeleton width="5rem" height="1rem" radius="small" />
-              <Skeleton width="7rem" height="0.75rem" radius="small" />
+              <Skeleton className={statCardStyles.skeletonValue} radius="small" />
+              <Skeleton className={statCardStyles.skeletonSubValue} radius="small" />
             </div>
           </div>
         ))}

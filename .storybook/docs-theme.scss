@@ -3,9 +3,45 @@ html.dark .docs-story {
   background: var(--mono-app-bg);
 }
 
-/* Apply project fonts to docs pages */
-h1, h2, h3, h4, h5, h6 {
+/*
+ * Apply the project's font system to Storybook docs pages.
+ * These override Storybook's default system font stack so MDX content
+ * uses Space Grotesk for headings and Inter for body text.
+ */
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-tight);
+}
+
+p,
+li,
+td,
+th,
+dd,
+dt,
+label,
+blockquote,
+figcaption {
+  font-family: var(--font-body);
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.875em;
 }

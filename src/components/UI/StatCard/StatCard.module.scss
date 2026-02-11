@@ -108,3 +108,31 @@
     font-size: var(--text-sm);
   }
 }
+
+/* Skeleton placeholders — CQ-responsive to match real StatCard sizing. */
+
+.skeletonValue {
+  width: 5rem;
+  height: var(--text-sm);
+
+  @include cq.medium {
+    width: 7rem;
+    height: var(--text-lg);
+  }
+
+  @include cq.xlarge {
+    width: 9rem;
+    height: var(--text-2xl);
+  }
+}
+
+.skeletonSubValue {
+  width: 7rem;
+  height: var(--text-xs);
+  margin-top: auto;
+
+  @include cq.medium {
+    width: 8rem;
+    height: var(--text-sm);
+  }
+}

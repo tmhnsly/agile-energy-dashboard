@@ -4,6 +4,10 @@ import type { Preview } from '@storybook/nextjs-vite'
 import '@/styles/globals.scss'
 import './docs-theme.scss'
 
+const browserPrefersDark =
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+
 const preview: Preview = {
   tags: ['autodocs'],
   globalTypes: {
@@ -21,7 +25,7 @@ const preview: Preview = {
     },
   },
   initialGlobals: {
-    theme: 'light',
+    theme: browserPrefersDark ? 'dark' : 'light',
   },
   decorators: [
     (Story, context) => {
