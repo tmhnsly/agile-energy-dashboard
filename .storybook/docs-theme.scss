@@ -2,3 +2,10 @@
 html.dark .docs-story {
   background: var(--mono-app-bg);
 }
+
+/* Apply project fonts to docs pages */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}

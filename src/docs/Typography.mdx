@@ -1,0 +1,146 @@
+{/* src/docs/Typography.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design System/Typography" />
+
+export const SizeScale = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', margin: '0.5rem 0 1.5rem' }}>
+    {[
+      ['--text-xs', '0.75rem', '12px'],
+      ['--text-sm', '0.875rem', '14px'],
+      ['--text-md', '1rem', '16px'],
+      ['--text-lg', '1.125rem', '18px'],
+      ['--text-xl', '1.25rem', '20px'],
+      ['--text-2xl', '1.5rem', '24px'],
+      ['--text-3xl', '1.875rem', '30px'],
+      ['--text-4xl', '2.25rem', '36px'],
+    ].map(([token, rem, px]) => (
+      <div key={token} style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
+        <code style={{ fontSize: 'var(--text-xs)', width: '7rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>
+          {token}
+        </code>
+        <span style={{ fontSize: `var(${token})`, fontFamily: 'var(--font-body)', lineHeight: 1.3 }}>
+          The quick brown fox
+        </span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>
+          {rem} / {px}
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
+export const Preset = ({ name, family, size, weight, leading, tracking, transform, text, useCase }) => (
+  <div style={{ padding: '0.625rem 0', borderBottom: '1px solid var(--mono-border-subtle)' }}>
+    <div style={{
+      fontFamily: `var(--font-${family})`,
+      fontSize: `var(--text-${size})`,
+      fontWeight: `var(--weight-${weight})`,
+      lineHeight: `var(--leading-${leading})`,
+      letterSpacing: tracking ? `var(--tracking-${tracking})` : undefined,
+      textTransform: transform || undefined,
+      color: 'var(--mono-text)',
+    }}>{text}</div>
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginTop: '0.25rem' }}>
+      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--accent-text-low-contrast)' }}>{name}</code>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>{useCase}</span>
+    </div>
+  </div>
+);
+
+# Typography
+
+Two font families, an 8-step size scale, and 9 semantic presets.
+
+**Source:** `src/styles/theme/typography.scss` (tokens), `src/styles/mixins/_typography.scss` (presets)
+
+---
+
+## Font families
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: '0.5rem' }}>
+    Space Grotesk — Headings, numbers, labels
+  </div>
+  <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--font-heading</code>
+</div>
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xl)', fontWeight: 400 }}>
+    Inter — Body text, buttons, meta
+  </div>
+  <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--font-body</code>
+</div>
+
+Both are loaded via `next/font` and resolve through CSS custom properties with
+system-font fallbacks.
+
+---
+
+## Size scale
+
+<SizeScale />
+
+---
+
+## Presets
+
+Use via SCSS mixin: `@include type.typography(preset-name)`
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <Preset name="page-title" family="heading" size="3xl" weight="semibold" leading="tight" tracking="tight" text="Dashboard Overview" useCase="Top-level page heading" />
+  <Preset name="card-title" family="heading" size="lg" weight="semibold" leading="snug" tracking="tight" text="Market Price" useCase="Card/panel headings" />
+  <Preset name="number" family="heading" size="2xl" weight="semibold" leading="tight" tracking="tight" text="24.7p/kWh" useCase="Stat card values" />
+  <Preset name="label" family="heading" size="xs" weight="semibold" leading="snug" tracking="wide" transform="uppercase" text="Current Price" useCase="Uppercase labels, badges" />
+  <Preset name="tooltip-value" family="heading" size="xl" weight="semibold" leading="tight" tracking="tight" text="18.3p" useCase="Tooltip primary value" />
+  <Preset name="body" family="body" size="md" weight="regular" leading="normal" text="Prices are fetched from the Octopus Agile tariff and updated every half hour." useCase="Default body text" />
+  <Preset name="meta" family="body" size="sm" weight="medium" leading="normal" text="09 Mar, 14:30 · 1.23 kWh" useCase="Timestamps, sub-values" />
+  <Preset name="button" family="body" size="sm" weight="medium" leading="snug" text="Load more" useCase="Button text" />
+  <Preset name="tooltip-date" family="body" size="sm" weight="medium" leading="snug" text="Sat 09 Mar, 14:30" useCase="Tooltip date row" />
+</div>
+
+---
+
+## Supporting tokens
+
+### Weights
+
+<div style={{ display: 'flex', gap: '2rem', margin: '0.5rem 0 1.5rem' }}>
+  {[['regular', 400], ['medium', 500], ['semibold', 600]].map(([name, val]) => (
+    <div key={name}>
+      <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: val }}>Aa Bb 123</div>
+      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--weight-{name} ({val})</code>
+    </div>
+  ))}
+</div>
+
+### Line heights
+
+<div style={{ display: 'flex', gap: '2rem', margin: '0.5rem 0 1.5rem' }}>
+  {[['tight', '1.15'], ['snug', '1.25'], ['normal', '1.45']].map(([name, val]) => (
+    <div key={name} style={{ width: '10rem' }}>
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: val, background: 'var(--mono-subtle-bg)', padding: '0.5rem', borderRadius: '4px' }}>
+        The quick brown fox jumps over the lazy dog near the river.
+      </div>
+      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', marginTop: '0.25rem', display: 'block' }}>--leading-{name} ({val})</code>
+    </div>
+  ))}
+</div>
+
+### Letter spacing
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.5rem 0 1.5rem' }}>
+  {[['tight', '-0.015em'], ['normal', '0em'], ['wide', '0.04em']].map(([name, val]) => (
+    <div key={name} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}>
+      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: 600, letterSpacing: val }}>ABCDEFGHIJKLM</span>
+      <code style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>--tracking-{name} ({val})</code>
+    </div>
+  ))}
+</div>
+
+---
+
+**See also:**
+[Colors](?path=/docs/design-system-colors--docs) ·
+[Spacing & Layout](?path=/docs/design-system-spacing--docs) ·
+[Surfaces & Effects](?path=/docs/design-system-surfaces--docs)

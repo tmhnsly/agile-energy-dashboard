@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 32" width="180" height="32">
+  <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.08"/>
+  <g transform="translate(2.3,2.57) scale(1.37)">
+    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" fill="#ffc53d"/>
+  </g>
+  <text x="40" y="21.5" font-family="'Space Grotesk', system-ui, sans-serif" font-size="15" font-weight="600" fill="currentColor">Shuffle Energy</text>
+</svg>

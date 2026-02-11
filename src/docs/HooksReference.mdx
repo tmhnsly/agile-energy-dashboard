@@ -15,14 +15,12 @@ function useMarketData(retryKey?: number): MarketDataState
 
 **Source:** `src/hooks/useMarketData.ts`
 
-Fetches prices, flex events, and household usage in parallel on mount. Returns a
-discriminated union:
+Fetches [prices, flex events, and household usage](?path=/docs/domain-energy-model--docs)
+in parallel on mount. Returns a discriminated union:
 
-| Status | Shape |
-|--------|-------|
-| `loading` | `{ status: 'loading' }` |
-| `ready` | `{ status: 'ready', prices: PricePoint[], flexEvents: FlexEvent[], householdUsage: HouseholdUsageRow[] }` |
-| `error` | `{ status: 'error', error: string }` |
+- **`loading`** — `{ status: 'loading' }`
+- **`ready`** — `{ status: 'ready', prices: PricePoint[], flexEvents: FlexEvent[], householdUsage: HouseholdUsageRow[] }`
+- **`error`** — `{ status: 'error', error: string }`
 
 **Retry:** increment `retryKey` to re-trigger the fetch (useful for a "try
 again" button after an error).
@@ -52,7 +50,8 @@ function useTimeRange(items: { ts: number }[]): {
 
 **Source:** `src/hooks/useTimeRange.ts`
 
-Manages a zoomable time window over any timestamped dataset.
+Manages a zoomable [time window](?path=/docs/domain-energy-model--docs) over any
+timestamped dataset.
 
 - **`fullRange`** — derived from the first and last item via `computeFullRange`.
 - **`activeRange`** — the current view; equals `fullRange` when no zoom is active.
@@ -76,7 +75,8 @@ function usePriceStats(points: PricePoint[], range: TimeRange): PriceStats
 
 **Source:** `src/hooks/usePriceStats.ts`
 
-Computes min, max, total, and count for price points within `range`.
+Computes min, max, total, and count for
+[price points](?path=/docs/domain-energy-model--docs) within `range`.
 
 Uses **binary search** (`lowerBound`) to find the slice boundaries — avoids a
 full scan on every call, which matters because this hook runs on every frame
@@ -108,7 +108,7 @@ function useUsageStats(
 
 **Source:** `src/hooks/useUsageStats.ts`
 
-Multi-household aggregation with cost estimation.
+[Multi-household](?path=/docs/domain-energy-model--docs) aggregation with cost estimation.
 
 - Accepts a **single key** or an **array of keys**. When multiple keys are
   provided, totals and cost are summed across all of them.
@@ -166,12 +166,17 @@ Finds the cheapest contiguous window of a given duration within a time range.
 
 Three O(log n) helpers for timestamp-sorted arrays, used throughout the hooks:
 
-| Function | Returns |
-|----------|---------|
-| `lowerBound(arr, target)` | Index of first element with `ts >= target` |
-| `upperBound(arr, target)` | Index past last element with `ts <= target` |
-| `bisectNearest(arr, target)` | Index of element with closest `ts` to target |
+- **`lowerBound(arr, target)`** — index of first element with `ts >= target`
+- **`upperBound(arr, target)`** — index past last element with `ts <= target`
+- **`bisectNearest(arr, target)`** — index of element with closest `ts` to target
 
 `lowerBound` and `upperBound` together give a half-open `[start, end)` slice —
 the standard pattern for range queries across the codebase. `bisectNearest` is
 used by chart tooltips to snap to the nearest data point.
+
+---
+
+**See also:**
+[Energy Model](?path=/docs/domain-energy-model--docs) ·
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) ·
+[Chart System](?path=/docs/domain-chart-system--docs)

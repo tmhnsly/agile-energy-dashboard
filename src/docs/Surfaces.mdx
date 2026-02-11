@@ -1,0 +1,214 @@
+{/* src/docs/Surfaces.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design System/Surfaces" />
+
+export const GlassDemo = ({ label, bg, border, blur, shadow, highlight }) => (
+  <div style={{
+    padding: '1.5rem', borderRadius: '1rem',
+    backgroundColor: `var(${bg})`,
+    border: `1px solid var(${border})`,
+    backdropFilter: `blur(var(${blur}))`,
+    WebkitBackdropFilter: `blur(var(${blur}))`,
+    boxShadow: `0 1px 3px 0 var(${shadow}), inset 0 1px 0 0 var(${highlight})`,
+    color: 'var(--mono-text)',
+  }}>
+    <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, marginBottom: '0.25rem' }}>{label}</div>
+    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--mono-text-low-contrast)' }}>
+      Translucent surface with backdrop blur and inset highlight.
+    </div>
+  </div>
+);
+
+export const TokenChip = ({ token, value }) => (
+  <span style={{
+    display: 'inline-flex', alignItems: 'baseline', gap: '0.375rem',
+    padding: '0.125rem 0.5rem', background: 'var(--mono-subtle-bg)',
+    borderRadius: '4px', marginRight: '0.375rem', marginBottom: '0.25rem',
+    fontSize: 'var(--text-xs)',
+  }}>
+    <code>{token}</code>
+    <span style={{ color: 'var(--mono-text-low-contrast)' }}>{value}</span>
+  </span>
+);
+
+export const RadiusSwatch = ({ token, value }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.25rem 0' }}>
+    <div style={{
+      width: '3rem', height: '3rem',
+      background: 'var(--accent-bg)',
+      border: '2px solid var(--accent-border)',
+      borderRadius: `var(${token})`,
+    }} />
+    <div>
+      <code style={{ fontSize: 'var(--text-xs)' }}>{token}</code>
+      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>{value}</div>
+    </div>
+  </div>
+);
+
+export const SkeletonBar = () => (
+  <div style={{
+    height: '1.5rem', width: '60%', borderRadius: '0.375rem',
+    backgroundColor: 'var(--mono-bg)',
+    animation: 'skeleton-pulse 1.8s ease-in-out infinite',
+  }} />
+);
+
+# Surfaces & Effects
+
+Glass panels, border radii, skeleton loading, and z-index layering.
+
+**Source:** `src/styles/mixins/_surfaces.scss` (mixins),
+`src/styles/theme/radius.scss` (radii),
+`src/styles/theme/z-index.scss` (layers)
+
+---
+
+## Glass panel
+
+Used for bento tile cards and floating panels. Provides a translucent surface
+with backdrop blur and saturation boost.
+
+<div style={{ background: 'linear-gradient(135deg, var(--accent-bg), var(--secondary-bg))', padding: '2rem', borderRadius: '1rem', margin: '0.5rem 0 1rem' }}>
+  <GlassDemo
+    label="glass-panel"
+    bg="--surface-panel"
+    border="--surface-panel-border"
+    blur="--glass-blur"
+    shadow="--surface-shadow"
+    highlight="--surface-highlight"
+  />
+</div>
+
+```scss
+@use 'mixins/surfaces' as surface;
+@include surface.glass-panel;
+```
+
+<div style={{ margin: '0.25rem 0 1.5rem', lineHeight: 2 }}>
+  <TokenChip token="--surface-panel" value="mono-app-bg @ 60%" />
+  <TokenChip token="--surface-panel-border" value="mono-border-subtle @ 50%" />
+  <TokenChip token="--glass-blur" value="12px" />
+  <TokenChip token="--glass-saturate" value="1.3" />
+</div>
+
+---
+
+## Glass chrome
+
+Heavier glass for sticky elements (navbar, popovers). Higher opacity and
+stronger blur for readability over scrolling content.
+
+<div style={{ background: 'linear-gradient(135deg, var(--accent-bg), var(--secondary-bg))', padding: '2rem', borderRadius: '1rem', margin: '0.5rem 0 1rem' }}>
+  <GlassDemo
+    label="glass-chrome"
+    bg="--surface-chrome"
+    border="--surface-chrome-border"
+    blur="--glass-chrome-blur"
+    shadow="--surface-shadow"
+    highlight="--surface-highlight"
+  />
+</div>
+
+```scss
+@include surface.glass-chrome;
+```
+
+<div style={{ margin: '0.25rem 0 1.5rem', lineHeight: 2 }}>
+  <TokenChip token="--surface-chrome" value="mono-app-bg @ 72%" />
+  <TokenChip token="--glass-chrome-blur" value="4px" />
+</div>
+
+---
+
+## Border radius
+
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem', margin: '0.5rem 0 1.5rem' }}>
+  <RadiusSwatch token="--radius-1" value="0.25rem (4px)" />
+  <RadiusSwatch token="--radius-2" value="0.5rem (8px)" />
+  <RadiusSwatch token="--radius-3" value="0.75rem (12px)" />
+  <RadiusSwatch token="--radius-4" value="1rem (16px)" />
+  <RadiusSwatch token="--radius-full" value="9999px (pill)" />
+  <RadiusSwatch token="--radius-card" value="2rem (32px)" />
+</div>
+
+### Nested radius pattern
+
+Cards use `--radius-inner` to create concentric arcs between the outer shell
+and inner elements. The card ancestor computes:
+
+```
+--radius-inner: max(--radius-1, --radius-card − padding)
+```
+
+Standalone elements (tooltips, badges) that aren't inside a card fall back to
+a sensible primitive value.
+
+---
+
+## Skeleton loading
+
+A compositing-only pulse animation with zero layout/paint cost. A short
+fade-in masks container-query layout shifts on first paint.
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.5rem 0 1rem', padding: '1rem', background: 'var(--mono-subtle-bg)', borderRadius: '0.75rem' }}>
+  <SkeletonBar />
+  <SkeletonBar />
+</div>
+
+```scss
+@include surface.skeleton-pulse;
+```
+
+<div style={{ margin: '0.25rem 0 1.5rem', lineHeight: 2 }}>
+  <TokenChip token="--skeleton-fade-in" value="0.15s" />
+  <TokenChip token="--skeleton-pulse" value="1.8s cycle" />
+</div>
+
+Respects `prefers-reduced-motion` — both animations are disabled when the
+user has requested reduced motion.
+
+---
+
+## Z-index layers
+
+Three layers, ordered from top to bottom:
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', margin: '0.5rem 0 1.5rem' }}>
+  {[
+    ['--z-navbar', '50', 'Sticky navigation bar', 'var(--success-bg)', 'var(--success-border)'],
+    ['--z-chart-tooltip', '1', 'Chart tooltip & drag pill', 'var(--accent-bg)', 'var(--accent-border)'],
+    ['--z-page-wash', '-1', 'Page backdrop aurora', 'var(--mono-subtle-bg)', 'var(--mono-border-subtle)'],
+  ].map(([token, value, label, bg, border]) => (
+    <div key={token} style={{
+      padding: '0.5rem 0.75rem', borderRadius: '6px',
+      background: bg, border: `1px solid ${border}`,
+      display: 'flex', alignItems: 'baseline', gap: '0.5rem',
+      fontSize: 'var(--text-xs)',
+    }}>
+      <code>{token}</code>
+      <span style={{ color: 'var(--mono-text-low-contrast)' }}>z-index: {value}</span>
+      <span style={{ color: 'var(--mono-text-low-contrast)' }}>— {label}</span>
+    </div>
+  ))}
+</div>
+
+---
+
+## Page wash
+
+The page background uses a layered aurora effect (edge vignette, accent-tinted
+radial gradients, top sheen) applied via `surface.page-wash`. It renders as a
+fixed `::before` pseudo-element behind all content.
+
+```scss
+@include surface.page-wash;
+```
+
+---
+
+**See also:**
+[Colors](?path=/docs/design-system-colors--docs) ·
+[Spacing & Layout](?path=/docs/design-system-spacing--docs) ·
+[Typography](?path=/docs/design-system-typography--docs)

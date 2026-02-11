@@ -53,7 +53,9 @@ interface HouseholdUsageRow {
 Parsed from a static CSV (`/data/household_usage.csv`) by
 `parseHouseholdUsageCsv()`. Time-only values in the CSV (e.g. `"06:00"`) are
 anchored to a reference date derived from the price data so both datasets share
-the same timeline.
+the same timeline. See also
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) for how flex events
+extend this model.
 
 ## HouseholdKey & ALL_HOUSEHOLD_KEYS
 
@@ -67,20 +69,6 @@ type HouseholdKey = (typeof ALL_HOUSEHOLD_KEYS)[number];
 `ALL_HOUSEHOLD_KEYS` is the single source of truth — components iterate it for
 tabs, selectors, and chart series. The `as const` assertion keeps the type
 narrow so TypeScript can index into `HouseholdUsageRow` safely.
-
-## HOUSEHOLD_THEMES
-
-Centralised label and colour-tone config for each household profile, defined in
-`src/config/households.ts`:
-
-| Key | Label | Tone |
-|-----|-------|------|
-| `standard` | Standard | `accent` |
-| `heatPump` | Heat Pump | `secondary` |
-| `heatPumpBattery` | Heat Pump + Battery | `warning` |
-
-Tones map to CSS custom properties and are used by `Button`, `StatCard`,
-`BentoTile`, and chart components for consistent colour theming.
 
 ## TimeRange
 
@@ -99,7 +87,8 @@ sorted arrays with `lowerBound`.
 
 ## Data loading pipeline
 
-The `useMarketData` hook orchestrates the full loading sequence:
+The [`useMarketData`](?path=/docs/domain-hooks-reference--docs) hook orchestrates the full
+loading sequence:
 
 1. **Fetch** — three parallel requests: Agile prices (API), flex events (JSON),
    household usage (CSV).
@@ -112,3 +101,86 @@ The `useMarketData` hook orchestrates the full loading sequence:
 
 Components consume the union with a simple `switch` on `status` to render a
 skeleton, error banner, or data view.
+
+---
+
+## Household themes
+
+**Source:** `src/config/households.ts`
+
+Each `HouseholdKey` maps to a display label and a colour tone that flows through
+the entire UI — buttons, stat cards, chart series, and
+[BentoTile tone remapping](#dashboard-wiring):
+
+```ts
+const HOUSEHOLD_THEMES: Record<HouseholdKey, HouseholdTheme> = {
+  standard:        { label: 'Standard',            tone: 'accent' },
+  heatPump:        { label: 'Heat Pump',           tone: 'secondary' },
+  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning' },
+};
+```
+
+The `HOUSEHOLD_THEMES` map is the single source of truth for household display
+names and colours. Changing a tone here updates every component that renders
+that household.
+
+---
+
+## API route
+
+**Source:** `src/app/api/agile-prices/route.ts`
+
+The `/api/agile-prices` endpoint proxies the Octopus Energy Agile tariff API.
+
+- **Product:** `OCTOPUS_PRODUCT_CODE` env var (default: `AGILE-24-10-01`)
+- **Region:** `OCTOPUS_REGION` env var (default: `L` — South East England)
+- **Window:** yesterday → day-after-tomorrow (UTC)
+- **Caching:** ISR with 15-minute revalidation (`revalidate = 900`)
+- **Timeout:** 10-second abort signal for upstream requests
+- **Error codes:** 504 for timeouts/network, upstream status code for HTTP
+  errors, 502 for invalid JSON
+
+---
+
+## Format utilities
+
+**Source:** `src/utils/format.ts`
+
+Formatting functions used across stat cards, tooltips, and chart labels. All
+timestamp formatters use `UTCDate` for timezone safety and return `"—"` for
+non-finite inputs.
+
+- **`formatTime(ts)`** → `"14:30"` — time only (`HH:mm`)
+- **`formatDateTime(ts)`** → `"09 Mar, 14:30"` — date and time
+- **`formatDayShort(ts)`** → `"09 Mar"` — date only
+- **`formatPricePerKwh(price)`** → `"22.4p/kWh"` — one decimal place
+- **`formatKwhValue(kwh)`** → `"1.23 kWh"` — two decimal places
+- **`formatCostPence(pence)`** → `"42.5p"` or `"£1.43"` — switches to
+  pounds above 100p, drops trailing `.0` for round values
+- **`formatDuration(fromTs, toTs)`** → `"6h 00m"` or `"45m"` — compact
+  duration, omits hours when zero
+
+---
+
+## Dashboard wiring
+
+**Source:** `src/components/Features/DashboardShell/DashboardShell.tsx`
+
+The `DashboardShell` is the top-level data orchestrator:
+
+1. A single `useMarketData()` call fetches all data.
+2. Data fans out to four `BentoTile` panels: MarketPrice, HouseholdUsage,
+   FlexInsights, and ShiftSimulator.
+3. A shared `household` state drives both FlexInsights and ShiftSimulator.
+   The simulator tile uses `key={household}` to force a full remount on
+   household change, resetting its internal selection state.
+4. Each tile's `tone` is dynamically bound to `HOUSEHOLD_THEMES[household].tone`,
+   so changing the household re-colours the entire tile and all its children
+   via CSS custom property remapping on `BentoTile`.
+
+---
+
+**See also:**
+[Hooks Reference](?path=/docs/domain-hooks-reference--docs) ·
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) ·
+[Chart System](?path=/docs/domain-chart-system--docs)

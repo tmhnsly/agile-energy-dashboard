@@ -1,0 +1,204 @@
+{/* src/docs/Spacing.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design System/Spacing" />
+
+export const SpaceBlock = ({ n }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.125rem 0' }}>
+    <code style={{ fontSize: 'var(--text-xs)', width: '5.5rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>
+      --space-{n}
+    </code>
+    <div style={{
+      width: `var(--space-${n})`, height: '1rem',
+      background: 'var(--accent-solid)', borderRadius: '2px', flexShrink: 0,
+    }} />
+    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>
+      {`var(--space-${n})`}
+    </span>
+  </div>
+);
+
+export const TokenBar = ({ token, width, label }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.2rem 0' }}>
+    <code style={{ fontSize: 'var(--text-xs)', width: '14rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{token}</code>
+    <div style={{ width, height: '0.625rem', background: 'var(--accent-bg-active)', borderRadius: '2px', flexShrink: 0, maxWidth: '12rem' }} />
+    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>{label}</span>
+  </div>
+);
+
+export const StrokeDemo = ({ token, thickness, label }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.2rem 0' }}>
+    <code style={{ fontSize: 'var(--text-xs)', width: '14rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{token}</code>
+    <div style={{ width: '4rem', height: `${Math.max(thickness * 2, 1)}px`, background: 'var(--accent-solid)', borderRadius: '0.5px' }} />
+    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>{label}</span>
+  </div>
+);
+
+export const BreakpointBar = ({ label, start, maxW, target }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.375rem 0' }}>
+    <code style={{ fontSize: 'var(--text-xs)', width: '10rem', flexShrink: 0, color: 'var(--mono-text-low-contrast)' }}>{label}</code>
+    <div style={{ width: '14rem', height: '1.25rem', background: 'var(--mono-subtle-bg)', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+      <div style={{
+        position: 'absolute', left: `${(start / maxW) * 100}%`, right: 0, top: 0, bottom: 0,
+        background: 'var(--accent-bg-active)',
+        borderRadius: start === 0 ? '4px' : '0 4px 4px 0',
+      }} />
+    </div>
+    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', whiteSpace: 'nowrap' }}>
+      {start > 0 ? `≥ ${start}px` : '0'} · {target}
+    </span>
+  </div>
+);
+
+export const CQBreakpoint = ({ label, width, activates, drives }) => (
+  <div style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--mono-border-subtle)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <code style={{ fontSize: 'var(--text-xs)', width: '8rem', flexShrink: 0 }}>{label}</code>
+      <div style={{ width: '10rem', height: '1rem', background: 'var(--mono-subtle-bg)', borderRadius: '4px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+        <div style={{
+          position: 'absolute', left: `${(width / 1000) * 100}%`, right: 0, top: 0, bottom: 0,
+          background: 'var(--success-bg-active)',
+          borderRadius: '0 4px 4px 0',
+        }} />
+      </div>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)' }}>{width}px</span>
+    </div>
+    <div style={{ marginLeft: 'calc(8rem + 0.75rem)', fontSize: 'var(--text-xs)', color: 'var(--mono-text-low-contrast)', marginTop: '0.125rem' }}>
+      {activates} — {drives}
+    </div>
+  </div>
+);
+
+# Spacing & Layout
+
+A rem-based spacing scale, semantic layout tokens, and responsive systems.
+
+**Source:** `src/styles/theme/spacing.scss` (tokens),
+`src/styles/mixins/_layout.scss` (mixins),
+`src/styles/mixins/_breakpoints.scss` (breakpoints),
+`src/styles/mixins/_container-queries.scss` (container queries)
+
+---
+
+## Space scale
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  {[0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24].map(n => <SpaceBlock key={n} n={n} />)}
+</div>
+
+Each step is `n × 0.25rem` (4px base), with jumps at 12+ for larger layout gaps.
+
+---
+
+## Semantic tokens
+
+### Layout
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <TokenBar token="--content-max" width="12rem" label="90rem — page max-width" />
+  <TokenBar token="--gutter-x" width="var(--gutter-x)" label="space-2 → space-8 — side padding" />
+  <TokenBar token="--section-gap" width="var(--section-gap)" label="space-12 → space-16 — between sections" />
+  <TokenBar token="--navbar-height" width="var(--navbar-height)" label="3.5rem — sticky navbar" />
+  <TokenBar token="--tile-min-height" width="var(--tile-min-height)" label="space-20 — min bento tile" />
+  <TokenBar token="--stack-gap" width="var(--stack-gap)" label="space-6 — default vertical gap" />
+  <TokenBar token="--cluster-gap" width="var(--cluster-gap)" label="space-3 — default horizontal gap" />
+</div>
+
+### Cards
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <TokenBar token="--card-padding" width="var(--card-padding)" label="space-6 — outer padding" />
+  <TokenBar token="--card-padding-compact" width="var(--card-padding-compact)" label="space-5 — compact variant" />
+  <TokenBar token="--card-gap" width="var(--card-gap)" label="space-4 — between sections" />
+  <TokenBar token="--card-header-gap" width="var(--card-header-gap)" label="space-1 — title/subtitle" />
+  <TokenBar token="--card-header-to-body" width="var(--card-header-to-body)" label="space-4 — header to body" />
+  <TokenBar token="--card-subtitle-measure" width="8rem" label="32ch — subtitle max-width" />
+</div>
+
+### Stat cards
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <TokenBar token="--statcard-padding-x" width="var(--statcard-padding-x)" label="space-3 — horizontal padding" />
+  <TokenBar token="--statcard-padding-y" width="var(--statcard-padding-y)" label="space-2 — vertical padding" />
+  <TokenBar token="--statcard-gap" width="var(--statcard-gap)" label="space-1 — label/value/subValue gap" />
+</div>
+
+### Charts
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <TokenBar token="--chart-height-sm" width="60px" label="240px — small chart" />
+  <TokenBar token="--chart-height-md" width="75px" label="300px — medium / desktop standard" />
+  <TokenBar token="--chart-height-lg" width="95px" label="380px — large / wide tiles" />
+  <StrokeDemo token="--chart-stroke-thin" thickness={1} label="1 — grid lines" />
+  <StrokeDemo token="--chart-stroke-medium" thickness={1.5} label="1.5 — secondary series" />
+  <StrokeDemo token="--chart-stroke-thick" thickness={2} label="2 — primary series" />
+</div>
+
+### Buttons
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <TokenBar token="--btn-height-sm" width="var(--btn-height-sm)" label="2.75rem — small" />
+  <TokenBar token="--btn-height-md" width="var(--btn-height-md)" label="3rem — medium" />
+  <TokenBar token="--btn-height-lg" width="var(--btn-height-lg)" label="3.5rem — large" />
+</div>
+
+---
+
+## Layout mixins
+
+```scss
+@use 'mixins/layout' as layout;
+
+// Vertical flex column
+@include layout.stack($gap: var(--stack-gap));
+
+// Horizontal flex with wrapping
+@include layout.cluster($gap: var(--cluster-gap), $wrap: wrap, $align: center);
+```
+
+---
+
+## Responsive breakpoints
+
+Viewport-based, mobile-first (`min-width`).
+
+```scss
+@use 'mixins/breakpoints' as bp;
+```
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <BreakpointBar label="(default)" start={0} maxW={1440} target="Mobile" />
+  <BreakpointBar label="bp.tablet" start={768} maxW={1440} target="Tablet landscape+" />
+  <BreakpointBar label="bp.desktop" start={1280} maxW={1440} target="Desktop+" />
+</div>
+
+---
+
+## Container query breakpoints
+
+Tile-scoped, inline-size based. Requires the ancestor `BentoTile` to set
+`container-type: inline-size` and `container-name: tile`.
+
+```scss
+@use 'mixins/container-queries' as cq;
+```
+
+<div style={{ margin: '0.5rem 0 1.5rem' }}>
+  <CQBreakpoint label="cq.small" width={290} activates="Standard tile @ tablet" drives="Base text, compact spacing" />
+  <CQBreakpoint label="cq.medium" width={340} activates="Standard tile @ desktop 1280px" drives="Stat values sm→lg, chart heights sm→md" />
+  <CQBreakpoint label="cq.large" width={640} activates="Wide / feature tile" drives="Multi-column layouts" />
+  <CQBreakpoint label="cq.xlarge" width={900} activates="Wide tile @ desktop" drives="Stat values at 2xl, max spacing" />
+</div>
+
+`cq.at($w)` is available as an escape hatch for one-off widths (e.g. `cq.at(475px)` for the StatsBar 3-card row).
+
+**Tile content-box widths** for reference:
+- **Standard (1col):** 294px @ tablet · 345px @ desktop · 398px @ 1440px
+- **Wide (2-3col):** 654px @ tablet · 1166px @ desktop · 1326px @ 1440px
+
+---
+
+**See also:**
+[Typography](?path=/docs/design-system-typography--docs) ·
+[Colors](?path=/docs/design-system-colors--docs) ·
+[Surfaces & Effects](?path=/docs/design-system-surfaces--docs)

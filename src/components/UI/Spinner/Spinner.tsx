@@ -1,4 +1,4 @@
-import { CgSpinner } from 'react-icons/cg';
+import { TbLoader2 } from 'react-icons/tb';
 import styles from './Spinner.module.scss';
 
 export interface SpinnerProps {
@@ -18,7 +18,7 @@ export const Spinner = ({
       className={`${styles.spinner} ${className ?? ''}`}
       data-size={size}
     >
-      <CgSpinner className={styles.icon} aria-hidden="true" />
+      <TbLoader2 className={styles.icon} aria-hidden="true" />
       <span className={styles.srOnly}>{label}</span>
     </span>
   );

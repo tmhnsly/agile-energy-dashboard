@@ -63,6 +63,24 @@ interface FlexEarningResult {
 }
 ```
 
+## computeDailyCost
+
+Sums the total estimated cost in pence for a household over the full usage array.
+
+```
+computeDailyCost(usage, prices, household) → number
+```
+
+For every half-hour row: `cost += kWh × lookupPrice(prices, ts)`. This is the
+foundation of both `simulateShift` (called twice — before and after
+modification) and `FlexInsightsPanel` (called once per
+[household type](?path=/docs/domain-energy-model--docs) to build the daily cost
+comparison).
+
+**Source:** `src/components/Features/FlexInsights/computeFlexInsights.ts`
+
+---
+
 ## simulateShift
 
 Models the cost impact of moving energy between two half-hour slots.
@@ -90,7 +108,8 @@ more.
 
 ## lookupPrice
 
-Binary-search price lookup used by both `computeDailyCost` and `computeFlexEarnings`:
+[Binary-search](?path=/docs/domain-hooks-reference--docs) price lookup used by both
+`computeDailyCost` and `computeFlexEarnings`:
 
 1. Find the insertion point for `ts` in the sorted price array.
 2. If an exact match exists, return that price.
@@ -139,12 +158,53 @@ computeHints(usage, prices, household, baseTs, selectedIdx, selectedSide, kwhToS
 For each time-period slot, runs `simulateShift` against the already-selected
 slot and classifies the result:
 
-| Saving | Colour | Disabled |
-|--------|--------|----------|
-| > 0.05p | `success` | no |
-| < −0.05p | `error` | no |
-| negligible | `mono` | yes |
-| same slot | `mono` | yes |
+- **> 0.05p** saving → `success` colour, enabled
+- **< −0.05p** (costs more) → `error` colour, enabled
+- **negligible** difference → `mono` colour, disabled
+- **same slot** as selected → `mono` colour, disabled
 
 The 0.05p threshold (`SAVING_THRESHOLD`) prevents highlighting trivially small
 differences.
+
+---
+
+## Event classification
+
+**Source:** `src/components/Features/FlexInsights/InsightCardList/InsightCardList.tsx`
+
+The `InsightCardList` classifies flex events by their `label` text to determine
+the icon, verb, and display order:
+
+- Labels containing **"turn down"** or **"reduce"** → `use-less` (down-triangle
+  icon, "Use less")
+- Labels containing **"turn up"** or **"increase"** → `use-more` (up-triangle
+  icon, "Use more")
+- Everything else → `other` (bolt icon, "Flex opportunity")
+
+Cards are sorted: `use-more` first, then `use-less`, then `other`. A "Daily
+cost" card always appears first.
+
+---
+
+## Time groups
+
+**Source:** `src/components/Features/FlexInsights/ShiftSimulator/ShiftSimulator.tsx`
+
+The `ShiftSimulator` divides the day into four time-of-day groups, each mapped
+to a representative half-hour slot index:
+
+- **Night** (00:00–06:00) — slot index 4 (02:00)
+- **Morning** (06:00–12:00) — slot index 16 (08:00)
+- **Afternoon** (12:00–18:00) — slot index 28 (14:00)
+- **Peak** (18:00–00:00) — slot index 38 (19:00)
+
+The slot index is a half-hour offset from midnight. The actual timestamp is
+computed as `baseTs + slotIdx × HALF_HOUR_MS`, where `baseTs` is the start of
+the current day in the data.
+
+---
+
+**See also:**
+[Energy Model](?path=/docs/domain-energy-model--docs) ·
+[Hooks Reference](?path=/docs/domain-hooks-reference--docs) ·
+[Chart System](?path=/docs/domain-chart-system--docs)

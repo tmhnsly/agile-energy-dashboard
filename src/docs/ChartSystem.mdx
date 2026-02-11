@@ -1,0 +1,241 @@
+{/* src/docs/ChartSystem.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Domain/Chart System" />
+
+# Chart System
+
+The `TimeSeriesChart` component and its supporting hooks handle rendering,
+pointer/touch interaction, keyboard navigation, and accessibility for all
+time-series visualisations in the dashboard.
+
+**Source:** `src/components/Charts/`
+
+---
+
+## Chart types
+
+All chart data flows through a shared type system.
+
+**Source:** `src/types/chart.ts`
+
+```ts
+type ChartTone = 'accent' | 'secondary' | 'positive' | 'negative' | 'warning';
+
+interface ChartDataPoint { ts: number; value: number }
+
+interface ChartSeries {
+  id: string;
+  label: string;
+  data: ChartDataPoint[];
+  tone?: ChartTone;
+}
+
+interface ChartBand {
+  id: string;
+  startTs: number;
+  endTs: number;
+  label?: string;
+  tone?: ChartTone;
+}
+
+interface TooltipData {
+  ts: number;
+  values: Array<{ seriesId: string; label: string; value: number; tone?: ChartTone }>;
+  inBand: ChartBand | null;
+}
+```
+
+- **`ChartSeries`** renders as a line. Multiple series are overlaid on the same
+  axes. Each series' `tone` maps to a CSS custom property for stroke colour.
+- **`ChartBand`** renders as a translucent overlay behind the lines (e.g. a flex
+  event window or peak-rate period). Bands have default, hovered, and selected
+  visual states.
+- **`TooltipData`** is built per-frame by `bisectNearest`-ing each series to
+  the hovered timestamp. The `inBand` field adds contextual info when hovering
+  inside a band.
+
+---
+
+## Drag interaction
+
+**Source:** `src/components/Charts/hooks/useChartInteraction.ts`
+
+A pointer-driven state machine for selecting time ranges on the chart.
+
+### Drag modes
+
+When the user presses down, the hook hit-tests the pointer position against the
+current selection to determine the drag type:
+
+- **`new`** -- pointer is outside the selection (or no selection exists).
+  Draws a fresh selection from the origin point.
+- **`left`** -- pointer is near the left edge handle. Resizes the left
+  boundary while the right stays fixed.
+- **`right`** -- pointer is near the right edge handle. Resizes the right
+  boundary while the left stays fixed.
+- **`region`** -- pointer is inside the selection but not near either edge.
+  Pans the entire selection, preserving its duration. Bounces off the
+  `fullRange` edges so it can't be dragged out of bounds.
+
+Handle hit-test width adapts to input type: `24px` on mobile (viewport
+`< 480px`) and `16px` on desktop.
+
+### `computeDragRange` (pure function)
+
+```ts
+computeDragRange(drag, currentValue, fullRange, minSpan) → ChartRange
+```
+
+Computes the new `{ from, to }` for each drag type. Each mode has different
+clamping:
+
+- `left`/`right` — clamp to `[fullRange.from, fullRange.to]` with a `minSpan`
+  gap so the selection can't collapse to zero width.
+- `region` — shift both endpoints by the same delta; if either edge hits
+  `fullRange`, slide both endpoints to stay within bounds.
+- `new` — `from = min(origin, current)`, `to = max(origin, current)`, both
+  clamped to `fullRange`.
+
+### Touch gesture disambiguation
+
+On touch devices, the hook defers the drag decision to avoid hijacking vertical
+scrolling:
+
+1. `pointerDown` stores a `PendingTouch` but does **not** capture the pointer.
+2. `pointerMove` measures horizontal (`dx`) and vertical (`dy`) movement:
+   - If `|dy| > |dx|` → cancel the pending touch (let the browser scroll).
+   - If `|dx| < 10px` → wait for more movement.
+   - If `|dx| >= 10px` → promote to a real drag, capture the pointer, and set
+     `touch-action: none`.
+3. `pointerUp` on a pending touch that never became a drag → treat as a tap
+   (click-on-band).
+
+### RAF batching
+
+Drag position updates fire on every `pointermove` event (potentially 60+ times
+per second). To avoid per-pixel React re-renders:
+
+- The raw range is written to `pendingDragRange` (a ref).
+- A single `requestAnimationFrame` callback reads the ref, calls
+  `setLocalDragRange` (triggers one React render), and fires `onRangePreview`
+  (lets the parent update live stats like min/max markers).
+- Tooltip hover updates use the same RAF pattern via `pendingHoverX`.
+
+### Click vs. drag
+
+Movement below `3px` is treated as a click. On click, `handleBandClick` finds
+the **narrowest** band containing the click point and selects it.
+
+### 5-minute snapping
+
+The parent passes a `snapValue` function that rounds domain values to the
+nearest 5-minute boundary. All selection edges (new, resize, and pan) pass
+through this snap before being committed.
+
+---
+
+## Keyboard navigation
+
+**Source:** `src/components/Charts/hooks/useChartKeyboardNav.ts`
+
+Full keyboard-driven navigation and selection with screen-reader support.
+
+### Controls
+
+- **Arrow Left / Right** — move focus one data point at a time.
+- **Shift + Arrow** — expand a selection from an anchor point. The anchor is
+  set on the first Shift+Arrow press and persists until Enter or a non-shift
+  navigation.
+- **Space (first press)** — place a selection start marker.
+- **Space (second press)** — commit the selection from the marker to the
+  current focused point.
+- **Enter** — confirm a Shift+Arrow selection and clear the anchor.
+- **Escape** — clear the selection and call `onReset`.
+- **Home / End** — jump to the first or last data point.
+
+### `processKeyDown` (pure function)
+
+```ts
+processKeyDown(state: KeyNavState, action: KeyNavAction) → KeyNavResult
+```
+
+All keyboard logic is encapsulated in a pure function that takes the current
+state and key event, and returns:
+
+- `next` — the new `{ focusedIndex, selectionStart, anchor }` state.
+- `announce` — what to say to screen readers (`point`, `selection`, or custom
+  text).
+- `select` — indices to pass to `onSelect`, if a range was committed.
+- `reset` — whether `onReset` should be called.
+- `handled` — whether to `preventDefault`.
+
+This pure/effect split makes the keyboard logic unit-testable without React.
+
+### Accessibility
+
+Every navigation action generates an `announcement` string fed to an
+`aria-live="polite"` region, so screen readers describe the focused point or
+selected range.
+
+### Pointer / keyboard mode switching
+
+The chart tracks whether the user is in pointer or keyboard mode. A
+`pointerFocusingRef` prevents a mouse click on the chart overlay from
+activating keyboard mode — keyboard mode only activates on `Tab` focus or an
+actual keypress.
+
+---
+
+## Auto-sizing Y-axis
+
+**Source:** `src/components/Charts/TimeSeriesChart/useChartScales.ts`
+
+### `computeYDomain`
+
+Scans all series to find the global min/max, then adds 10% padding (or 5
+units if the data is flat). Falls back to `[0, 100]` for empty data.
+
+### `computeAutoLeftMargin`
+
+Creates a temporary Y scale, generates tick labels, measures the widest label
+using a `7.5px` per-character estimate, and returns the needed left margin so
+labels don't overlap the chart area.
+
+---
+
+## Day boundaries
+
+**Source:** `src/components/Charts/TimeSeriesChart/useDayBoundaries.ts`
+
+`computeDayBoundaries(fullRange)` generates an array of midnight timestamps
+within the visible range. These render as subtle vertical lines on the chart
+to help the user orient within multi-day data.
+
+---
+
+## Live min/max markers
+
+**Source:** `src/components/Charts/TimeSeriesChart/useMinMaxStats.ts`
+
+`computeMinMax(data, range, show)` uses `lowerBound` to binary-search the
+visible slice and return the min and max data points. Because `displayRange`
+updates on every RAF frame during drag, the markers move **live** as the user
+drags a selection.
+
+---
+
+## Rendering constants
+
+- **X-axis ticks:** max 8 ticks, spaced at least `80px` apart.
+- **Y-axis ticks:** fixed at 5.
+- **Minimum selection width:** `10px` in pixel space, `5 minutes` in domain
+  space.
+- **Drag pill edge padding:** `80px` from viewport edges.
+
+---
+
+**See also:**
+[Energy Model](?path=/docs/domain-energy-model--docs) ·
+[Hooks Reference](?path=/docs/domain-hooks-reference--docs) ·
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs)
