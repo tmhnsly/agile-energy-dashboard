@@ -1,13 +1,12 @@
 # Shuffle Energy
 
-An interactive energy dashboard built with Next.js, visualising real-time electricity market pricing from Octopus Energy's Agile tariff alongside household consumption patterns and demand-side flexibility insights.
+An interactive energy dashboard visualising real-time electricity market pricing from Octopus Energy's Agile tariff alongside household consumption patterns and demand-side flexibility insights.
 
 > **Live links**
 >
 > | Environment | URL |
 > |-------------|-----|
-> | Production  | _add link_ |
-> | Storybook   | _add link_ |
+> | Production  | _coming soon_ |
 
 ---
 
@@ -15,43 +14,34 @@ An interactive energy dashboard built with Next.js, visualising real-time electr
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:3000
-pnpm storybook    # http://localhost:6006
 ```
 
-## Scripts
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Next.js dev server |
+| Command | URL / Description |
+|---------|-------------------|
+| `pnpm dev` | [localhost:3000](http://localhost:3000) — app |
+| `pnpm storybook` | [localhost:6006](http://localhost:6006) — component library & design system docs |
 | `pnpm build` | Production build |
-| `pnpm start` | Serve production build |
 | `pnpm lint` | ESLint |
-| `pnpm storybook` | Storybook dev server (port 6006) |
-| `pnpm build-storybook` | Static Storybook build |
-| `npx vitest run` | Unit + Storybook smoke tests |
+| `npx vitest run` | Unit + Storybook smoke tests (Playwright) |
 
 ## Tech stack
 
 | | |
 |---|---|
-| **Framework** | Next.js 16 (App Router) |
-| **Language** | TypeScript (strict) |
-| **Styling** | SCSS modules, CSS custom properties, container queries |
-| **Colours** | Radix UI Colors (12-step semantic scale) |
-| **Charts** | visx |
-| **Components** | Radix UI primitives (Slider, Tooltip, Popover) |
-| **Icons** | Tabler (react-icons/tb) |
-| **Fonts** | Space Grotesk (headings), Inter (body) via next/font |
-| **Testing** | Vitest + Playwright browser tests |
-| **Docs** | Storybook 10 with MDX |
-| **Deployment** | Vercel (Analytics + Speed Insights) |
+| **Framework** | [Next.js 16](https://nextjs.org/docs) (App Router) |
+| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) (strict) |
+| **Styling** | [Sass/SCSS modules](https://sass-lang.com/documentation/), CSS custom properties, [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries) |
+| **Colours** | [Radix UI Colors](https://www.radix-ui.com/colors/docs/overview/installation) (12-step semantic scale) |
+| **Components** | [Radix UI primitives](https://www.radix-ui.com/primitives/docs/overview/introduction) |
+| **Charts** | [visx](https://airbnb.io/visx/docs) |
+| **Icons** | [Tabler](https://tabler.io/icons) via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
+| **Fonts** | [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) / [Inter](https://fonts.google.com/specimen/Inter) via next/font |
+| **Testing** | [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) |
+| **Docs** | [Storybook 10](https://storybook.js.org/docs) with MDX |
 
 ## Architecture
 
-### Dashboard
-
-`DashboardShell` is the top-level orchestrator. It calls `useMarketData()` once on mount, then fans data out to four tiles in a responsive bento grid:
+`DashboardShell` fetches data once via `useMarketData()` and fans it out to four tiles in a responsive bento grid:
 
 | Tile | Description |
 |------|-------------|
@@ -60,11 +50,7 @@ pnpm storybook    # http://localhost:6006
 | **Shift Simulator** | Drag to simulate moving load to cheaper periods |
 | **Flex Insights** | Potential earnings from demand-side flexibility events |
 
-Three household profiles drive tone-mapped theming across the UI:
-
-- **Standard** — accent (blue)
-- **Heat Pump** — secondary (amber)
-- **Heat Pump + Battery** — warning (orange)
+Three household profiles drive tone-mapped theming: **Standard** (blue), **Heat Pump** (amber), **Heat Pump + Battery** (orange).
 
 ### Data flow
 
@@ -77,14 +63,9 @@ Octopus Energy API
             └─ DashboardShell    → chart series, flex events, usage rows
 ```
 
-### Styling system
+### Styling
 
-Two-layer token architecture:
-
-1. **Tokens** (`src/styles/theme/`) — colours, spacing scale (`--space-1`..`--space-12`), typography
-2. **Mixins** (`src/styles/mixins/`) — `layout.stack()`, `layout.cluster()`, `container.fullBleed()`, container query breakpoints
-
-All responsive layout within tiles uses **container queries** (`@container tile`), not media queries, so components respond to their own width.
+Two-layer token architecture — **tokens** (`src/styles/theme/`) for colours, spacing, and typography, plus **mixins** (`src/styles/mixins/`) for layout, container queries, and surfaces. All responsive layout within tiles uses container queries so components respond to their own width.
 
 ## Project structure
 
@@ -96,7 +77,7 @@ src/
 │   └── page.tsx            Dashboard page
 ├── components/
 │   ├── Features/           Domain components (DashboardShell, MarketPrice, etc.)
-│   ├── Charts/             TimeSeriesChart, hooks (drag, keyboard nav, RAF)
+│   ├── Charts/             TimeSeriesChart, interaction hooks
 │   ├── Layout/             Bento grid, Navbar, Container, Section
 │   └── UI/                 Button, StatCard, StatsBar, Skeleton, Slider, Spinner
 ├── config/                 Household themes
@@ -109,24 +90,13 @@ src/
 └── utils/                  Formatters, binary search, energy mappers, constants
 ```
 
-## Storybook documentation
+## Storybook docs
 
-The Storybook includes auto-generated component docs alongside hand-written guides split into two categories:
+Run `pnpm storybook` for auto-generated component docs plus hand-written guides:
 
-**Design System** — visual language and tokens
+**Design System** — [Colors](src/docs/Colors.mdx) · [Typography](src/docs/Typography.mdx) · [Spacing](src/docs/Spacing.mdx) · [Surfaces](src/docs/Surfaces.mdx) · [Icons](src/docs/Icons.mdx)
 
-- [Colors](src/docs/Colors.mdx) — Radix 12-step palette, semantic tone tokens, usage guide
-- [Typography](src/docs/Typography.mdx) — Font families, text size scale, weight tokens
-- [Spacing](src/docs/Spacing.mdx) — Space scale, layout mixins
-- [Surfaces](src/docs/Surfaces.mdx) — Glass morphism, backdrop blur, border and shadow tokens
-- [Icons](src/docs/Icons.mdx) — Tabler icon set with usage examples
-
-**Domain** — application logic and patterns
-
-- [Energy Model](src/docs/EnergyModel.mdx) — Core types, settlement periods, data pipeline, format utilities
-- [Chart System](src/docs/ChartSystem.mdx) — Drag state machine, touch disambiguation, keyboard nav, accessibility
-- [Flexibility & Shifting](src/docs/FlexibilityInsights.mdx) — Flex events, cost computation, shift simulator mechanics
-- [Hooks Reference](src/docs/HooksReference.mdx) — API for useMarketData, usePriceStats, useUsageStats
+**Domain** — [Energy Model](src/docs/EnergyModel.mdx) · [Chart System](src/docs/ChartSystem.mdx) · [Flexibility & Shifting](src/docs/FlexibilityInsights.mdx) · [Hooks Reference](src/docs/HooksReference.mdx)
 
 ## Environment variables
 
@@ -137,13 +107,20 @@ The Storybook includes auto-generated component docs alongside hand-written guid
 
 No `.env` file is required — defaults are used when variables are not set.
 
-## Testing
+## Reference docs
 
-```bash
-npx vitest run
-```
+External documentation for libraries and tools used in this project.
 
-Runs two test suites:
-
-- **Unit tests** — hooks, utilities, formatters, energy mappers
-- **Storybook smoke tests** — renders every story in headless Chromium via Playwright, with a11y error-level checks enabled
+| | |
+|---|---|
+| [Next.js](https://nextjs.org/docs) | App Router, API routes, next/font |
+| [Sass](https://sass-lang.com/documentation/) | SCSS modules, mixins, functions |
+| [Radix Colors](https://www.radix-ui.com/colors/docs/overview/installation) | 12-step colour scale, dark mode |
+| [Radix Primitives](https://www.radix-ui.com/primitives/docs/overview/introduction) | Accessible headless components |
+| [visx](https://airbnb.io/visx/docs) | Low-level React + D3 chart primitives |
+| [Storybook](https://storybook.js.org/docs) | Component docs, MDX, addons |
+| [Vitest](https://vitest.dev/guide/) | Unit testing, coverage |
+| [Playwright](https://playwright.dev/docs/intro) | Browser testing |
+| [Tabler Icons](https://tabler.io/icons) | Icon set reference |
+| [Octopus Agile API](https://developer.octopus.energy/rest/) | Upstream pricing data |
+| [MDN Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries) | `@container` spec reference |
