@@ -62,12 +62,13 @@
   }
 }
 
-/* ── Tick lines inside the root, pinned to the bottom ──────── */
+/* ── Tick lines — inset by half the thumb width so percentages
+   match Radix's thumbInBoundsOffset positioning ──────── */
 
 .ticks {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 0.625rem;  /* half of 1.25rem thumb */
+  right: 0.625rem;
   bottom: 0;
   height: 8px;
   pointer-events: none;

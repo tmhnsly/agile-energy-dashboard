@@ -43,7 +43,7 @@ export const PriceStatsBar = memo(function PriceStatsBar({
           subValue: stats.count > 0
             ? formatKwhValue((range.toTs - range.fromTs) / HALF_HOUR_MS)
             : '\u00A0',
-          icon: <TbBoltFilled aria-hidden="true" />,
+          icon: <TbBoltFilled aria-hidden="true" style={{ color: 'var(--mono-solid)' }} />,
           tone: 'neutral',
         },
       ]}

@@ -30,7 +30,7 @@ export const UsageStatsBar = memo(function UsageStatsBar({
           label: 'Total (est.)',
           value: stats.count > 0 ? formatCostPence(stats.estimatedCostPence) : '—',
           subValue: stats.count > 0 ? formatKwhValue(stats.totalKwh) : '\u00A0',
-          icon: <TbBoltFilled aria-hidden="true" />,
+          icon: <TbBoltFilled aria-hidden="true" style={{ color: 'var(--mono-solid)' }} />,
           tone: 'neutral',
         },
       ]}

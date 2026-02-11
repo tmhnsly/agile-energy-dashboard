@@ -157,9 +157,10 @@
   }
 
   &:disabled {
-    opacity: 0.4; /* dimmed enough to look inactive, visible enough to show placement */
+    opacity: 0.4;
     cursor: not-allowed;
-    pointer-events: none;
+    background-color: transparent;
+    border-color: transparent;
   }
 
   &:focus-visible {

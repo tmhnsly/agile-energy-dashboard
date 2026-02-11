@@ -38,8 +38,12 @@ describe('formatTime', () => {
 // ---------------------------------------------------------------------------
 
 describe('formatDateTime', () => {
-  it('formats as d MMM, HH:mm', () => {
+  it('formats as dd MMM, HH:mm', () => {
     expect(formatDateTime(TS)).toBe('13 Mar, 14:30');
+  });
+
+  it('zero-pads single-digit days', () => {
+    expect(formatDateTime(Date.UTC(2025, 2, 3, 9, 5))).toBe('03 Mar, 09:05');
   });
 
   it('returns dash for non-finite input', () => {
@@ -70,8 +74,12 @@ describe('formatPricePerKwh', () => {
 // ---------------------------------------------------------------------------
 
 describe('formatDayShort', () => {
-  it('formats as d MMM', () => {
+  it('formats as dd MMM', () => {
     expect(formatDayShort(TS)).toBe('13 Mar');
+  });
+
+  it('zero-pads single-digit days', () => {
+    expect(formatDayShort(Date.UTC(2025, 0, 5))).toBe('05 Jan');
   });
 
   it('returns dash for non-finite input', () => {
@@ -84,8 +92,12 @@ describe('formatDayShort', () => {
 // ---------------------------------------------------------------------------
 
 describe('formatStatTime', () => {
-  it('formats as d MMM, HH:mm', () => {
+  it('formats as dd MMM, HH:mm', () => {
     expect(formatStatTime(TS)).toBe('13 Mar, 14:30');
+  });
+
+  it('zero-pads single-digit days', () => {
+    expect(formatStatTime(Date.UTC(2025, 5, 7, 8, 0))).toBe('07 Jun, 08:00');
   });
 
   it('returns dash for non-finite input', () => {

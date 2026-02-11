@@ -8,10 +8,10 @@ export function formatTime(ts: number): string {
   return format(new UTCDate(ts), 'HH:mm');
 }
 
-/** Format a timestamp as `d MMM, HH:mm` (e.g. "12 Mar, 14:30"). */
+/** Format a timestamp as `dd MMM, HH:mm` (e.g. "09 Mar, 14:30"). */
 export function formatDateTime(ts: number): string {
   if (!isFinite(ts)) return '—';
-  return format(new UTCDate(ts), 'd MMM, HH:mm');
+  return format(new UTCDate(ts), 'dd MMM, HH:mm');
 }
 
 /** Format a price in pence per kilowatt-hour (e.g. "22.4p/kWh"). */
@@ -19,16 +19,16 @@ export function formatPricePerKwh(price: number): string {
   return `${price.toFixed(1)}p/kWh`;
 }
 
-/** Format a timestamp as a short date `d MMM` (e.g. "12 Mar"). */
+/** Format a timestamp as a short date `dd MMM` (e.g. "09 Mar"). */
 export function formatDayShort(ts: number): string {
   if (!isFinite(ts)) return '—';
-  return format(new UTCDate(ts), 'd MMM');
+  return format(new UTCDate(ts), 'dd MMM');
 }
 
-/** Format a timestamp for stat-card display (e.g. "13 Mar, 14:30"). */
+/** Format a timestamp for stat-card display (e.g. "09 Mar, 14:30"). */
 export function formatStatTime(ts: number): string {
   if (!isFinite(ts)) return '—';
-  return format(new UTCDate(ts), 'd MMM, HH:mm');
+  return format(new UTCDate(ts), 'dd MMM, HH:mm');
 }
 
 /** Format a kWh value with two decimal places (e.g. "1.23 kWh"). */

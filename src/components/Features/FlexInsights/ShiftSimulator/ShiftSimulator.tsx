@@ -217,33 +217,20 @@ export const ShiftSimulator = ({
     [fromIdx, toIdx],
   );
 
-  // Slider gradient: light→strong shade of outcome color
+  // Slider gradient: mono on the left (less kWh) → green on the right (more savings)
   const sliderGradient = useMemo(() => {
-    if (!hasBoth || !result) return undefined;
-    if (result.savingPence > 0.05)
-      return 'linear-gradient(to right, var(--success-bg-hover), var(--success-solid))';
-    if (result.savingPence < -0.05)
-      return 'linear-gradient(to right, var(--error-bg-hover), var(--error-solid))';
-    return undefined;
-  }, [hasBoth, result]);
+    if (!hasBoth) return undefined;
+    return 'linear-gradient(to right, var(--mono-bg-active), var(--success-solid))';
+  }, [hasBoth]);
 
-  // Slider thumb/track overrides via CSS custom properties
+  // Slider thumb: tint toward green as saving increases
   const sliderStyle = useMemo((): React.CSSProperties | undefined => {
-    if (!hasBoth || !result) return undefined;
-    if (result.savingPence > 0.05)
-      return {
-        '--slider-thumb-border': 'var(--success-solid)',
-        '--slider-thumb-bg': 'var(--success-bg)',
-        '--slider-track': 'var(--success-bg-active)',
-      } as React.CSSProperties;
-    if (result.savingPence < -0.05)
-      return {
-        '--slider-thumb-border': 'var(--error-solid)',
-        '--slider-thumb-bg': 'var(--error-bg)',
-        '--slider-track': 'var(--error-bg-active)',
-      } as React.CSSProperties;
-    return undefined;
-  }, [hasBoth, result]);
+    if (!hasBoth) return undefined;
+    return {
+      '--slider-thumb-border': 'var(--success-border-hover)',
+      '--slider-thumb-bg': 'var(--success-bg)',
+    } as React.CSSProperties;
+  }, [hasBoth]);
 
   const savingTone =
     result && result.savingPence > 0.05

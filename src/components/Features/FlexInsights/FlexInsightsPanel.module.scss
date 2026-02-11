@@ -12,7 +12,7 @@
   flex-direction: column;
   gap: var(--space-3);
 
-  @include cq.medium {
+  @include cq.large {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
@@ -50,7 +50,7 @@
 .controlGroup {
   @include layout.stack(var(--space-2));
 
-  @include cq.medium {
+  @include cq.large {
     align-items: flex-end;
   }
 }

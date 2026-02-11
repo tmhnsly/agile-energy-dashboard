@@ -65,12 +65,14 @@ function defaultFormatTooltipValue(v: number): string {
 const AXIS_BOTTOM_TICK_LABEL_PROPS = {
   fill: 'var(--mono-text-low-contrast)',
   fontSize: 'var(--text-sm)',
+  fontVariantNumeric: 'tabular-nums',
   textAnchor: 'middle' as const,
 };
 
 const AXIS_LEFT_TICK_LABEL_PROPS = {
   fill: 'var(--mono-text-low-contrast)',
   fontSize: 'var(--text-sm)',
+  fontVariantNumeric: 'tabular-nums',
   textAnchor: 'end' as const,
   dx: '-0.25em',
   dy: '0.33em',
