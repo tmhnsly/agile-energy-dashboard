@@ -24,16 +24,16 @@ pnpm install
 
 ## Tech stack
 
-| | |
-|---|---|
-| [Next.js 16](https://nextjs.org/docs) | App Router, API routes, ISR |
-| [TypeScript](https://www.typescriptlang.org/docs/) | Strict mode |
-| [Sass](https://sass-lang.com/documentation/) | SCSS modules, [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries) |
-| [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) | Primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
-| [visx](https://airbnb.io/visx/docs) | Charts |
-| [Tabler Icons](https://tabler.io/icons) | via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
-| [Storybook 10](https://storybook.js.org/docs) | Component library + design system docs |
-| [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) | Unit + browser testing |
+| Category | Tech |
+|----------|------|
+| **Framework** | [Next.js 16](https://nextjs.org/docs) — App Router, API routes, ISR |
+| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) — strict mode |
+| **Styling** | [Sass](https://sass-lang.com/documentation/) — SCSS modules, [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries) |
+| **Components** | [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) — primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
+| **Charts** | [visx](https://airbnb.io/visx/docs) |
+| **Icons** | [Tabler Icons](https://tabler.io/icons) via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
+| **Docs** | [Storybook 10](https://storybook.js.org/docs) — component library + design system |
+| **Testing** | [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) |
 
 ## Project structure
 
