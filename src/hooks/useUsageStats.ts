@@ -43,12 +43,12 @@ export function computeUsageStats(
     const row = usage[i];
 
     // Find the matching price once per row
-    const pi = lowerBound(prices, row.ts);
+    const priceIndex = lowerBound(prices, row.ts);
     let price = 0;
-    if (pi < prices.length && prices[pi].ts === row.ts) {
-      price = prices[pi].price;
-    } else if (pi > 0) {
-      price = prices[pi - 1].price;
+    if (priceIndex < prices.length && prices[priceIndex].ts === row.ts) {
+      price = prices[priceIndex].price;
+    } else if (priceIndex > 0) {
+      price = prices[priceIndex - 1].price;
     }
 
     for (const key of keys) {

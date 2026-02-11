@@ -1,17 +1,17 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { TbTriangleFilled, TbTriangleInvertedFilled, TbBoltFilled } from 'react-icons/tb';
 import { HALF_HOUR_MS, HOUR_MS } from '@/utils/constants';
 import { ParentSize } from '@visx/responsive';
 import type { PricePoint, FlexEvent, TimeRange } from '@/types/energy';
 import type { ChartSeries, ChartBand } from '@/types/chart';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { usePriceStats } from '@/hooks/usePriceStats';
-import { formatDateTime, formatPricePerKwh } from '@/utils/format';
-import { ClearSelectionButton } from '@/components/UI';
+import { formatDateTime, formatPricePerKwh, formatCostPence, formatKwhValue } from '@/utils/format';
+import { ClearSelectionButton, StatsBar } from '@/components/UI';
 import { TimeSeriesChart, ChartLegend, DurationPresetBar } from '@/components/Charts';
 import type { ChartLegendItem } from '@/components/Charts';
-import { PriceStatsBar } from './PriceStatsBar/PriceStatsBar';
 import { findCheapestWindow } from './findCheapestWindow';
 import styles from './MarketPricePanel.module.scss';
 
@@ -115,7 +115,37 @@ export const MarketPricePanel = ({
             <span>{formatDateTime(displayRange.toTs)}</span>
           </div>
         </div>
-        <PriceStatsBar stats={stats} range={displayRange} />
+        <StatsBar
+          ariaLabel="Price statistics"
+          cards={[
+            {
+              key: 'low',
+              label: 'Low',
+              value: stats.min ? formatPricePerKwh(stats.min.price) : '—',
+              subValue: stats.min ? formatDateTime(stats.min.ts) : '\u00A0',
+              icon: <TbTriangleInvertedFilled aria-hidden="true" />,
+              tone: 'positive',
+            },
+            {
+              key: 'peak',
+              label: 'Peak',
+              value: stats.max ? formatPricePerKwh(stats.max.price) : '—',
+              subValue: stats.max ? formatDateTime(stats.max.ts) : '\u00A0',
+              icon: <TbTriangleFilled aria-hidden="true" />,
+              tone: 'negative',
+            },
+            {
+              key: 'total',
+              label: 'Total',
+              value: stats.total != null ? formatCostPence(stats.total) : '—',
+              subValue: stats.count > 0
+                ? formatKwhValue((displayRange.toTs - displayRange.fromTs) / HALF_HOUR_MS)
+                : '\u00A0',
+              icon: <TbBoltFilled aria-hidden="true" style={{ color: 'var(--mono-solid)' }} />,
+              tone: 'neutral',
+            },
+          ]}
+        />
       </div>
 
       <div className={styles.chartArea}>

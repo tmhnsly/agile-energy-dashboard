@@ -2,15 +2,9 @@
 
 import { memo, useCallback } from 'react';
 import { ALL_HOUSEHOLD_KEYS, type HouseholdKey } from '@/types/energy';
-import type { ButtonColor } from '@/components/UI/Button/Button';
+import { HOUSEHOLD_THEMES } from '@/config/households';
 import { Button } from '@/components/UI/Button/Button';
 import styles from './HouseholdSelector.module.scss';
-
-const HOUSEHOLD_OPTIONS: { label: string; key: HouseholdKey; color: ButtonColor }[] = [
-  { label: 'Standard', key: 'standard', color: 'accent' },
-  { label: 'Heat Pump', key: 'heatPump', color: 'secondary' },
-  { label: 'Heat Pump + Battery', key: 'heatPumpBattery', color: 'warning' },
-];
 
 export interface HouseholdSelectorProps {
   selected: ReadonlySet<HouseholdKey>;
@@ -21,7 +15,7 @@ export const HouseholdSelector = memo(function HouseholdSelector({
   selected,
   onToggle,
 }: HouseholdSelectorProps) {
-  const allOn = ALL_HOUSEHOLD_KEYS.every(k => selected.has(k));
+  const allSelected = ALL_HOUSEHOLD_KEYS.every(k => selected.has(k));
 
   const handleToggle = useCallback((key: HouseholdKey) => {
     const next = new Set(selected);
@@ -47,16 +41,16 @@ export const HouseholdSelector = memo(function HouseholdSelector({
         label="Show All"
         size="small"
         color="mono"
-        variant={allOn ? 'soft' : 'ghost'}
-        pressed={allOn}
+        variant={allSelected ? 'soft' : 'ghost'}
+        pressed={allSelected}
         onClick={handleAllToggle}
       />
-      {HOUSEHOLD_OPTIONS.map(({ label, key, color }) => (
+      {ALL_HOUSEHOLD_KEYS.map((key) => (
         <Button
           key={key}
-          label={label}
+          label={HOUSEHOLD_THEMES[key].label}
           size="small"
-          color={color}
+          color={HOUSEHOLD_THEMES[key].tone}
           variant={selected.has(key) ? 'soft' : 'ghost'}
           pressed={selected.has(key)}
           onClick={() => handleToggle(key)}

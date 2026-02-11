@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, useRef, useEffect } from 'react';
-import { HALF_HOUR_MS, ONE_MINUTE_MS } from '@/utils/constants';
+import { FIVE_MINUTE_MS } from '@/utils/constants';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
@@ -42,12 +42,13 @@ const PILL_EDGE_PAD = 80;
 const PILL_TOP_OFFSET = 8;
 
 /** Minimum selection duration (ms) — prevents zero-width selections. */
-const MIN_SELECTION_MS = ONE_MINUTE_MS;
+const MIN_SELECTION_MS = FIVE_MINUTE_MS;
 
 export type { ChartMargin };
 
-function snapToHalfHour(ts: number): number {
-  return Math.round(ts / HALF_HOUR_MS) * HALF_HOUR_MS;
+/** Snap a timestamp to the nearest 5-minute boundary. */
+function snapToFiveMinutes(ts: number): number {
+  return Math.round(ts / FIVE_MINUTE_MS) * FIVE_MINUTE_MS;
 }
 
 function defaultFormatYTick(v: number): string {
@@ -299,6 +300,7 @@ export const TimeSeriesChart = ({
     buildTooltipData,
     bands: chartBands,
     minSelectionSpan: MIN_SELECTION_MS,
+    snapValue: snapToFiveMinutes,
     onRangeChange: handleRangeChange,
     onRangePreview: handleRangePreview,
     onPointerActivity: dismissKeyboard,
@@ -314,12 +316,6 @@ export const TimeSeriesChart = ({
   const pillLeft = margin.left + (displaySelLeftX + displaySelRightX) / 2;
   const pillLeftClamped = clamp(pillLeft, PILL_EDGE_PAD, width - PILL_EDGE_PAD);
   const pillTop = margin.top + PILL_TOP_OFFSET;
-  const pillFromTs = isDragging
-    ? snapToHalfHour(displayRange.fromTs)
-    : displayRange.fromTs;
-  const pillToTs = isDragging
-    ? snapToHalfHour(displayRange.toTs)
-    : displayRange.toTs;
 
   const keyboardTooltipData: TooltipData | null = useMemo(() => {
     const point = primaryData[focusedIndex];
@@ -586,11 +582,11 @@ export const TimeSeriesChart = ({
           className={styles.dragPill}
           style={{ left: pillLeftClamped, top: pillTop }}
         >
-          <span>{formatTime(pillFromTs)}</span>
+          <span>{formatTime(displayRange.fromTs)}</span>
           <span className={styles.dragPillSep}>&ndash;</span>
-          <span>{formatTime(pillToTs)}</span>
+          <span>{formatTime(displayRange.toTs)}</span>
           <span className={styles.dragPillDuration}>
-            ({formatDuration(pillFromTs, pillToTs)})
+            ({formatDuration(displayRange.fromTs, displayRange.toTs)})
           </span>
         </div>
       )}

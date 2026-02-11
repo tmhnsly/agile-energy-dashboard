@@ -3,18 +3,12 @@
 import { useMemo } from 'react';
 import type { PricePoint, HouseholdUsageRow, FlexEvent, HouseholdKey } from '@/types/energy';
 import { ALL_HOUSEHOLD_KEYS } from '@/types/energy';
-import { Button, type ButtonColor } from '@/components/UI/Button/Button';
-import type { StatCardTone } from '@/components/UI/StatCard/StatCard';
+import { Button } from '@/components/UI/Button/Button';
+import { HOUSEHOLD_THEMES } from '@/config/households';
 import { formatDateTime } from '@/utils/format';
 import { computeFlexEarnings, computeDailyCost } from './computeFlexInsights';
 import { InsightCardList } from './InsightCardList/InsightCardList';
 import styles from './FlexInsightsPanel.module.scss';
-
-const HOUSEHOLD_CONFIG: Record<HouseholdKey, { label: string; color: ButtonColor; tone: StatCardTone }> = {
-  standard: { label: 'Standard', color: 'accent', tone: 'accent' },
-  heatPump: { label: 'Heat Pump', color: 'secondary', tone: 'secondary' },
-  heatPumpBattery: { label: 'Heat Pump + Battery', color: 'warning', tone: 'warning' },
-};
 
 export interface FlexInsightsPanelProps {
   prices: PricePoint[];
@@ -68,9 +62,9 @@ export const FlexInsightsPanel = ({
             {ALL_HOUSEHOLD_KEYS.map((key) => (
               <Button
                 key={key}
-                label={HOUSEHOLD_CONFIG[key].label}
+                label={HOUSEHOLD_THEMES[key].label}
                 size="small"
-                color={HOUSEHOLD_CONFIG[key].color}
+                color={HOUSEHOLD_THEMES[key].tone}
                 variant={key === household ? 'soft' : 'ghost'}
                 pressed={key === household}
                 onClick={() => onHouseholdChange(key)}
@@ -83,7 +77,7 @@ export const FlexInsightsPanel = ({
       <InsightCardList
         household={household}
         dailyCost={dailyCosts[household]}
-        dailyCostTone={HOUSEHOLD_CONFIG[household].tone}
+        dailyCostTone={HOUSEHOLD_THEMES[household].tone}
         flexEarnings={flexEarnings}
       />
     </div>

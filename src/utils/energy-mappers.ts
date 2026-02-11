@@ -51,8 +51,8 @@ function extractItems(raw: unknown): unknown[] {
 /** Try several common field names and parse to a timestamp. */
 function parseTimestamp(item: unknown): number | null {
   if (!item || typeof item !== 'object') return null;
-  const rec = item as Record<string, unknown>;
-  const raw = rec.valid_from ?? rec.timestamp ?? rec.time ?? rec.ts;
+  const record = item as Record<string, unknown>;
+  const raw = record.valid_from ?? record.timestamp ?? record.time ?? record.ts;
   if (typeof raw === 'string') {
     const d = parseISO(raw);
     return isNaN(d.getTime()) ? null : d.getTime();
@@ -64,8 +64,8 @@ function parseTimestamp(item: unknown): number | null {
 /** Try several common field names and parse to a numeric price. */
 function parsePrice(item: unknown): number | null {
   if (!item || typeof item !== 'object') return null;
-  const rec = item as Record<string, unknown>;
-  const raw = rec.value_inc_vat ?? rec.price ?? rec.value ?? rec.rate;
+  const record = item as Record<string, unknown>;
+  const raw = record.value_inc_vat ?? record.price ?? record.value ?? record.rate;
   if (typeof raw === 'number') return raw;
   if (typeof raw === 'string') {
     const n = parseFloat(raw);
@@ -99,18 +99,18 @@ export function mapFlexEvents(
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     if (!item || typeof item !== 'object') continue;
-    const rec = item as Record<string, unknown>;
+    const record = item as Record<string, unknown>;
 
-    const startRaw = rec.start_time ?? rec.start ?? rec.from;
-    const endRaw = rec.end_time ?? rec.end ?? rec.to;
+    const startRaw = record.start_time ?? record.start ?? record.from;
+    const endRaw = record.end_time ?? record.end ?? record.to;
     const label =
-      typeof rec.event_type === 'string'
-        ? rec.event_type.replace(/_/g, ' ')
+      typeof record.event_type === 'string'
+        ? record.event_type.replace(/_/g, ' ')
         : undefined;
 
-    const pricePerKwh = typeof rec.price_per_kWh === 'number' ? rec.price_per_kWh : undefined;
-    const minFlexKwh = typeof rec.min_flexibility_kWh === 'number' ? rec.min_flexibility_kWh : undefined;
-    const maxFlexKwh = typeof rec.max_flexibility_kWh === 'number' ? rec.max_flexibility_kWh : undefined;
+    const pricePerKwh = typeof record.price_per_kWh === 'number' ? record.price_per_kWh : undefined;
+    const minFlexKwh = typeof record.min_flexibility_kWh === 'number' ? record.min_flexibility_kWh : undefined;
+    const maxFlexKwh = typeof record.max_flexibility_kWh === 'number' ? record.max_flexibility_kWh : undefined;
 
     const isTimeOnly =
       typeof startRaw === 'string' && !startRaw.includes('-');
@@ -155,9 +155,9 @@ export function mapFlexEvents(
 function extractFlexItems(raw: unknown): unknown[] {
   if (Array.isArray(raw)) return raw;
   if (raw && typeof raw === 'object') {
-    const rec = raw as Record<string, unknown>;
+    const record = raw as Record<string, unknown>;
     const arr =
-      rec.flexibility_opportunities ?? rec.events ?? rec.flexibility_events;
+      record.flexibility_opportunities ?? record.events ?? record.flexibility_events;
     if (Array.isArray(arr)) return arr;
   }
   return [];

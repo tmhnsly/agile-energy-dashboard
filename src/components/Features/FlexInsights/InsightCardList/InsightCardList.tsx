@@ -12,12 +12,6 @@ import { formatCostPence, formatTime } from '@/utils/format';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import styles from './InsightCardList.module.scss';
 
-const HOUSEHOLD_LABELS: Record<HouseholdKey, string> = {
-  standard: 'Standard',
-  heatPump: 'Heat Pump',
-  heatPumpBattery: 'Heat Pump + Battery',
-};
-
 type EventType = 'use-more' | 'use-less' | 'other';
 
 function classifyEvent(label?: string): EventType {
@@ -67,7 +61,7 @@ export const InsightCardList = memo(function InsightCardList({
   return (
     <div className={styles.cards} data-count={Math.min(count, 4)}>
       <StatCard
-        label={`${HOUSEHOLD_LABELS[household]} daily cost`}
+        label="Daily cost"
         value={formatCostPence(dailyCost)}
         icon={<TbBoltFilled />}
         tone={dailyCostTone}

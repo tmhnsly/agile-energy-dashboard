@@ -1,14 +1,39 @@
-// Container-query mixins — tile-scoped, width-based.
+// Container-query breakpoints — tile-scoped, width-based.
 // Usage: @use 'mixins/container-queries' as cq; then @include cq.medium { ... }
 //
 // Requires the ancestor BentoTile to set:
 //   container-type: inline-size;
 //   container-name: tile;
 //
-// medium: tile >= 400px  (standard tile at desktop, wide tile at tablet+)
-// large:  tile >= 600px  (wide / feature tiles only)
-$_medium: 400px;
-$_large: 600px;
+// Values are derived from BentoGrid tile content-box widths:
+//
+//   Tile type      │ Tablet 768 px │ Desktop 1280 px │ Desktop 1440 px
+//   ───────────────┼───────────────┼─────────────────┼────────────────
+//   standard (1c)  │   294 px      │   345 px        │   398 px
+//   wide (2c / 3c) │   654 px      │  1166 px        │  1326 px
+//
+// small:   >= 290px  — standard tile at tablet entry
+// medium:  >= 340px  — standard tile at desktop entry (345px @ 1280px)
+// large:   >= 640px  — feature / wide tile
+// xlarge:  >= 900px  — wide tile at desktop, feature tile at larger tablet
+//
+// Text scaling policy:
+//   small  — base font sizes, compact spacing
+//   medium — stat card values step up (text-sm → text-lg), chart heights
+//            increase (chart-height-sm → chart-height-md), tooltip text
+//            becomes more readable (text-xs → text-sm)
+//   large  — multi-column layouts, expanded content areas
+//   xlarge — stat card values at full size (text-2xl), maximum spacing
+$_small: 290px;
+$_medium: 340px;
+$_large: 640px;
+$_xlarge: 900px;
+
+@mixin small {
+  @container tile (min-width: #{$_small}) {
+    @content;
+  }
+}
 
 @mixin medium {
   @container tile (min-width: #{$_medium}) {
@@ -18,6 +43,12 @@ $_large: 600px;
 
 @mixin large {
   @container tile (min-width: #{$_large}) {
+    @content;
+  }
+}
+
+@mixin xlarge {
+  @container tile (min-width: #{$_xlarge}) {
     @content;
   }
 }

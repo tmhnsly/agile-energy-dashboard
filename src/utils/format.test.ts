@@ -5,7 +5,6 @@ import {
   formatDateTime,
   formatPricePerKwh,
   formatDayShort,
-  formatStatTime,
   formatDuration,
   formatKwhValue,
   formatCostPence,
@@ -67,20 +66,6 @@ describe('formatDayShort', () => {
 
   it('returns dash for non-finite input', () => {
     expect(formatDayShort(NaN)).toBe('—');
-  });
-});
-
-describe('formatStatTime', () => {
-  it('formats as dd MMM, HH:mm', () => {
-    expect(formatStatTime(TS)).toBe('13 Mar, 14:30');
-  });
-
-  it('zero-pads single-digit days', () => {
-    expect(formatStatTime(Date.UTC(2025, 5, 7, 8, 0))).toBe('07 Jun, 08:00');
-  });
-
-  it('returns dash for non-finite input', () => {
-    expect(formatStatTime(NaN)).toBe('—');
   });
 });
 

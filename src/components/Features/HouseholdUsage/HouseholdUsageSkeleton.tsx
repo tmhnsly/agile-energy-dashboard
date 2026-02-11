@@ -1,10 +1,7 @@
-import { TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
-import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
-import { cx } from '@/utils/cx';
 import panelStyles from './HouseholdUsagePanel.module.scss';
 import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
-import skelStyles from './HouseholdUsageSkeleton.module.scss';
+import statCardStyles from '@/components/UI/StatCard/StatCard.module.scss';
 
 /**
  * Skeleton that mirrors the exact layout of the HouseholdUsagePanel content.
@@ -18,20 +15,18 @@ export const HouseholdUsageSkeleton = () => (
         <Skeleton width="14rem" height="1.25rem" radius="small" />
       </div>
       <div className={statsStyles.statsRow} data-count="2">
-        <StatCard
-          label="Peak"
-          value="0.00 kWh"
-          subValue="Mon 00:00"
-          icon={<TbTriangleFilled />}
-          className={cx(statsStyles.stat, skelStyles.statSkel)}
-        />
-        <StatCard
-          label="Total"
-          value="0.00 kWh"
-          subValue="00.0p"
-          icon={<TbBoltFilled />}
-          className={cx(statsStyles.stat, skelStyles.statSkel)}
-        />
+        {[0, 1].map((i) => (
+          <div key={i} className={`${statsStyles.stat}`}>
+            <div className={statCardStyles.card}>
+              <div className={statCardStyles.header}>
+                <Skeleton width="0.75rem" height="0.75rem" radius="small" />
+                <Skeleton width="3rem" height="0.75rem" radius="small" />
+              </div>
+              <Skeleton width="5rem" height="1rem" radius="small" />
+              <Skeleton width="7rem" height="0.75rem" radius="small" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
 

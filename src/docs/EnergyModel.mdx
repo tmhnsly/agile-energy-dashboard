@@ -1,0 +1,114 @@
+{/* src/docs/EnergyModel.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Domain/Energy Model" />
+
+# Energy Model
+
+Core data types and conventions used across the dashboard.
+
+## Settlement periods
+
+All energy data is indexed in **half-hourly settlement periods**, the standard
+interval for UK electricity markets.
+
+```ts
+// src/utils/constants.ts
+export const HALF_HOUR_MS = minutesToMilliseconds(30); // 1_800_000
+```
+
+Timestamps always represent the **start** of a settlement period. A price point
+at `ts = 1700000000000` covers the window `[ts, ts + HALF_HOUR_MS)`.
+
+## PricePoint
+
+A single half-hourly energy price from the Octopus Agile tariff.
+
+```ts
+interface PricePoint {
+  ts: number;    // Unix-ms start of the settlement period
+  price: number; // pence per kWh, inclusive of VAT
+}
+```
+
+Prices are fetched live from `/api/agile-prices` (which proxies the Octopus
+Energy API) and parsed by `mapAgilePrices()` in `energy-mappers.ts`. The mapper
+handles both the bare-array and `{ results: [...] }` envelope formats, and
+normalises common field names (`valid_from`/`timestamp`/`time`/`ts` for the
+timestamp, `value_inc_vat`/`price`/`value`/`rate` for the price).
+
+## HouseholdUsageRow
+
+Per-slot electricity consumption for three household profiles.
+
+```ts
+interface HouseholdUsageRow {
+  ts: number;
+  standard: number;        // kWh — standard household
+  heatPump: number;        // kWh — heat-pump household
+  heatPumpBattery: number; // kWh — heat-pump + battery household
+}
+```
+
+Parsed from a static CSV (`/data/household_usage.csv`) by
+`parseHouseholdUsageCsv()`. Time-only values in the CSV (e.g. `"06:00"`) are
+anchored to a reference date derived from the price data so both datasets share
+the same timeline.
+
+## HouseholdKey & ALL_HOUSEHOLD_KEYS
+
+A derived union type for selecting a household profile:
+
+```ts
+const ALL_HOUSEHOLD_KEYS = ['standard', 'heatPump', 'heatPumpBattery'] as const;
+type HouseholdKey = (typeof ALL_HOUSEHOLD_KEYS)[number];
+```
+
+`ALL_HOUSEHOLD_KEYS` is the single source of truth — components iterate it for
+tabs, selectors, and chart series. The `as const` assertion keeps the type
+narrow so TypeScript can index into `HouseholdUsageRow` safely.
+
+## HOUSEHOLD_THEMES
+
+Centralised label and colour-tone config for each household profile, defined in
+`src/config/households.ts`:
+
+| Key | Label | Tone |
+|-----|-------|------|
+| `standard` | Standard | `accent` |
+| `heatPump` | Heat Pump | `secondary` |
+| `heatPumpBattery` | Heat Pump + Battery | `warning` |
+
+Tones map to CSS custom properties and are used by `Button`, `StatCard`,
+`BentoTile`, and chart components for consistent colour theming.
+
+## TimeRange
+
+A half-open time window used throughout the app:
+
+```ts
+interface TimeRange {
+  fromTs: number; // inclusive
+  toTs: number;   // exclusive
+}
+```
+
+The half-open `[fromTs, toTs)` convention means a point at exactly `toTs` is
+**excluded**. This avoids double-counting at range boundaries when slicing
+sorted arrays with `lowerBound`.
+
+## Data loading pipeline
+
+The `useMarketData` hook orchestrates the full loading sequence:
+
+1. **Fetch** — three parallel requests: Agile prices (API), flex events (JSON),
+   household usage (CSV).
+2. **Parse** — `mapAgilePrices` normalises price JSON; `mapFlexEvents` expands
+   daily recurring events across the price-data range; `parseHouseholdUsageCsv`
+   anchors CSV time strings to the first price day.
+3. **Return** — a discriminated union state:
+   `{ status: 'loading' }` → `{ status: 'ready', prices, flexEvents, householdUsage }`
+   or `{ status: 'error', error }`.
+
+Components consume the union with a simple `switch` on `status` to render a
+skeleton, error banner, or data view.

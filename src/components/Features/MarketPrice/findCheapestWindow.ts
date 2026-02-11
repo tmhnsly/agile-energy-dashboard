@@ -23,12 +23,12 @@ export function findCheapestWindow(
   if (windowSize <= 0) return null;
 
   // Narrow to points within fullRange (linear scan — data is typically <200 points)
-  let lo = 0;
-  while (lo < data.length && data[lo].ts < fullRange.fromTs) lo++;
-  let hi = data.length;
-  while (hi > lo && data[hi - 1].ts > fullRange.toTs) hi--;
+  let rangeStart = 0;
+  while (rangeStart < data.length && data[rangeStart].ts < fullRange.fromTs) rangeStart++;
+  let rangeEnd = data.length;
+  while (rangeEnd > rangeStart && data[rangeEnd - 1].ts > fullRange.toTs) rangeEnd--;
 
-  if (hi - lo < windowSize) return null;
+  if (rangeEnd - rangeStart < windowSize) return null;
 
   // Only consider windows whose end fits within fullRange
   const maxStartTs = fullRange.toTs - durationMs;
@@ -37,22 +37,22 @@ export function findCheapestWindow(
 
   // Initial window sum
   let sum = 0;
-  for (let i = lo; i < lo + windowSize; i++) sum += data[i].value;
+  for (let i = rangeStart; i < rangeStart + windowSize; i++) sum += data[i].value;
 
   let bestSum = Infinity;
   let bestStart = -1;
 
   // Check initial window
   if (
-    data[lo].ts <= maxStartTs &&
-    Math.abs((data[lo + windowSize - 1].ts - data[lo].ts) - expectedSpan) < spanTolerance
+    data[rangeStart].ts <= maxStartTs &&
+    Math.abs((data[rangeStart + windowSize - 1].ts - data[rangeStart].ts) - expectedSpan) < spanTolerance
   ) {
     bestSum = sum;
-    bestStart = lo;
+    bestStart = rangeStart;
   }
 
   // Slide
-  for (let i = lo + 1; i <= hi - windowSize; i++) {
+  for (let i = rangeStart + 1; i <= rangeEnd - windowSize; i++) {
     sum += data[i + windowSize - 1].value - data[i - 1].value;
 
     if (data[i].ts > maxStartTs) break;

@@ -1,23 +1,18 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { ParentSize } from '@visx/responsive';
 import { ALL_HOUSEHOLD_KEYS, type HouseholdUsageRow, type PricePoint, type TimeRange, type HouseholdKey } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
+import { HOUSEHOLD_THEMES } from '@/config/households';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { useUsageStats } from '@/hooks/useUsageStats';
-import { formatDateTime, formatKwhValue } from '@/utils/format';
-import { ClearSelectionButton } from '@/components/UI';
+import { formatDateTime, formatKwhValue, formatCostPence } from '@/utils/format';
+import { ClearSelectionButton, StatsBar } from '@/components/UI';
 import { TimeSeriesChart } from '@/components/Charts';
 import { HouseholdSelector } from './HouseholdSelector';
-import { UsageStatsBar } from './UsageStatsBar/UsageStatsBar';
 import styles from './HouseholdUsagePanel.module.scss';
-
-const SERIES_CONFIG: Record<HouseholdKey, { label: string; tone: ChartSeries['tone'] }> = {
-  standard: { label: 'Standard', tone: 'accent' },
-  heatPump: { label: 'Heat Pump', tone: 'secondary' },
-  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning' },
-};
 
 function formatYTick(v: number): string {
   return v.toFixed(1);
@@ -60,16 +55,16 @@ export const HouseholdUsagePanel = ({
   const chartSeries: ChartSeries[] = useMemo(() =>
     selectedKeys.map(key => ({
       id: key,
-      label: SERIES_CONFIG[key].label,
+      label: HOUSEHOLD_THEMES[key].label,
       data: usage.map(r => ({ ts: r.ts, value: r[key] })),
-      tone: SERIES_CONFIG[key].tone,
+      tone: HOUSEHOLD_THEMES[key].tone,
     })),
   [usage, selectedKeys]);
 
   const chartDescription = useMemo(() => {
     const from = formatDateTime(fullRange.fromTs);
     const to = formatDateTime(fullRange.toTs);
-    const names = selectedKeys.map(k => SERIES_CONFIG[k].label);
+    const names = selectedKeys.map(k => HOUSEHOLD_THEMES[k].label);
     const mode = names.length === ALL_HOUSEHOLD_KEYS.length
       ? 'all three household types overlaid'
       : names.join(' and ');
@@ -90,7 +85,27 @@ export const HouseholdUsagePanel = ({
             <span>{formatDateTime(displayRange.toTs)}</span>
           </div>
         </div>
-        <UsageStatsBar stats={stats} range={displayRange} />
+        <StatsBar
+          ariaLabel="Usage statistics"
+          cards={[
+            {
+              key: 'peak',
+              label: 'Peak',
+              value: stats.peak ? formatKwhValue(stats.peak.kwh) : '—',
+              subValue: stats.peak ? formatDateTime(stats.peak.ts) : '\u00A0',
+              icon: <TbTriangleFilled aria-hidden="true" />,
+              tone: 'neutral',
+            },
+            {
+              key: 'total',
+              label: 'Total (est.)',
+              value: stats.count > 0 ? formatCostPence(stats.estimatedCostPence) : '—',
+              subValue: stats.count > 0 ? formatKwhValue(stats.totalKwh) : '\u00A0',
+              icon: <TbBoltFilled aria-hidden="true" style={{ color: 'var(--mono-solid)' }} />,
+              tone: 'neutral',
+            },
+          ]}
+        />
       </div>
 
       <div className={styles.chartArea}>

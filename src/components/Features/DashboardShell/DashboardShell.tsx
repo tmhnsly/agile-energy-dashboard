@@ -2,9 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { useMarketData } from "@/hooks/useMarketData";
-import { BentoTile, type BentoTileTone } from "@/components/Layout";
+import { BentoTile } from "@/components/Layout";
 import { BentoGrid } from "@/components/Layout";
 import type { HouseholdKey } from "@/types/energy";
+import { HOUSEHOLD_THEMES } from "@/config/households";
 import {
   MarketPricePanel,
   MarketPriceSkeleton,
@@ -21,12 +22,6 @@ import {
 } from "@/components/Features/FlexInsights";
 
 import styles from "./DashboardShell.module.scss";
-
-const HOUSEHOLD_TILE_TONE: Record<HouseholdKey, BentoTileTone> = {
-  standard: "accent",
-  heatPump: "secondary",
-  heatPumpBattery: "warning",
-};
 
 /**
  * Client component that calls `useMarketData()` once and fans data out
@@ -101,7 +96,7 @@ export const DashboardShell = () => {
       <BentoTile
         span="standard"
         className={styles.simulatorTile}
-        tone={isLoading ? undefined : HOUSEHOLD_TILE_TONE[household]}
+        tone={isLoading ? undefined : HOUSEHOLD_THEMES[household].tone}
         loading={isLoading}
         skeleton={<ShiftSimulatorSkeleton />}
       >

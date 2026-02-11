@@ -84,6 +84,8 @@ export interface UseChartInteractionOptions<TTooltip> {
   bands?: ChartBandHitArea[];
   /** Minimum selection span in domain units. Default: 0 (pixel check only). */
   minSelectionSpan?: number;
+  /** Optional function to snap domain values (e.g. to 5-minute boundaries). */
+  snapValue?: (v: number) => number;
   onRangeChange: (range: ChartRange) => void;
   onRangePreview?: (range: ChartRange | null) => void;
   /** Called on any pointer movement — lets the parent dismiss keyboard mode. */
@@ -188,6 +190,7 @@ export function useChartInteraction<TTooltip>({
   buildTooltipData,
   bands = [],
   minSelectionSpan = 0,
+  snapValue,
   onRangeChange,
   onRangePreview,
   onPointerActivity,
@@ -199,6 +202,9 @@ export function useChartInteraction<TTooltip>({
   const dragRangeRef = useRef<ChartRange | null>(null);
   const hoverRafId = useRef(0);
   const pendingHoverX = useRef<number | null>(null);
+
+  const snapValueRef = useRef(snapValue);
+  useEffect(() => { snapValueRef.current = snapValue; }, [snapValue]);
 
   const onRangePreviewRef = useRef(onRangePreview);
   useEffect(() => { onRangePreviewRef.current = onRangePreview; }, [onRangePreview]);
@@ -460,7 +466,12 @@ export function useChartInteraction<TTooltip>({
       const leftPx = valueToPixelRef.current(from);
       const rightPx = valueToPixelRef.current(to);
       if (rightPx - leftPx >= MIN_SEL_PX) {
-        const newRange: ChartRange = { from, to };
+        const snap = snapValueRef.current;
+        const snappedFrom = snap ? snap(from) : from;
+        const snappedTo = snap ? snap(to) : to;
+        const prev = dragRangeRef.current;
+        if (prev && prev.from === snappedFrom && prev.to === snappedTo) return;
+        const newRange: ChartRange = { from: snappedFrom, to: snappedTo };
         dragRangeRef.current = newRange;
         pendingDragRange.current = newRange;
         if (!rafId.current) {

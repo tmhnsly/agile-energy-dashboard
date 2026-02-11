@@ -27,10 +27,10 @@ export function computePriceStats(
   let total = points[start].price;
 
   for (let i = start + 1; i < end; i++) {
-    const p = points[i];
-    total += p.price;
-    if (p.price < min.price) min = p;
-    if (p.price > max.price) max = p;
+    const point = points[i];
+    total += point.price;
+    if (point.price < min.price) min = point;
+    if (point.price > max.price) max = point;
   }
 
   return {

@@ -7,7 +7,7 @@ import type { StorybookConfig } from '@storybook/nextjs-vite';
 // packages ship CJS-compatible builds.
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-vitest'],
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],

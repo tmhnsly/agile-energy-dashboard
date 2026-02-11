@@ -1,10 +1,7 @@
-import { TbTriangleInvertedFilled, TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
-import { StatCard } from '@/components/UI/StatCard/StatCard';
 import { Skeleton } from '@/components/UI/Skeleton/Skeleton';
-import { cx } from '@/utils/cx';
 import panelStyles from './MarketPricePanel.module.scss';
 import statsStyles from '@/components/UI/StatsBar/StatsBar.module.scss';
-import skelStyles from './MarketPriceSkeleton.module.scss';
+import statCardStyles from '@/components/UI/StatCard/StatCard.module.scss';
 
 /**
  * Skeleton that mirrors the exact layout of the MarketPricePanel content.
@@ -18,27 +15,18 @@ export const MarketPriceSkeleton = () => (
         <Skeleton width="14rem" height="1.25rem" radius="small" />
       </div>
       <div className={statsStyles.statsRow} data-count="3">
-        <StatCard
-          label="Low"
-          value="00.0p/kWh"
-          subValue="Mon 00:00"
-          icon={<TbTriangleInvertedFilled />}
-          className={cx(statsStyles.stat, skelStyles.statSkel)}
-        />
-        <StatCard
-          label="High"
-          value="00.0p/kWh"
-          subValue="Mon 00:00"
-          icon={<TbTriangleFilled />}
-          className={cx(statsStyles.stat, skelStyles.statSkel)}
-        />
-        <StatCard
-          label="Total"
-          value="00.0p"
-          subValue="0 kWh"
-          icon={<TbBoltFilled />}
-          className={cx(statsStyles.stat, skelStyles.statSkel)}
-        />
+        {[0, 1, 2].map((i) => (
+          <div key={i} className={`${statsStyles.stat}`}>
+            <div className={statCardStyles.card}>
+              <div className={statCardStyles.header}>
+                <Skeleton width="0.75rem" height="0.75rem" radius="small" />
+                <Skeleton width="3rem" height="0.75rem" radius="small" />
+              </div>
+              <Skeleton width="5rem" height="1rem" radius="small" />
+              <Skeleton width="7rem" height="0.75rem" radius="small" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
 
@@ -52,7 +40,7 @@ export const MarketPriceSkeleton = () => (
     </div>
 
     <div className={panelStyles.chartControls}>
-      <div className={skelStyles.presets}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
         <Skeleton width="2.75rem" height="2.75rem" radius="pill" />
         <Skeleton width="2.5rem" height="2.75rem" radius="pill" />
         <Skeleton width="3rem" height="2.75rem" radius="pill" />

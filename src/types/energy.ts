@@ -41,11 +41,11 @@ export interface TimeRange {
   toTs: number;
 }
 
-/** Which household profile to display. */
-export type HouseholdKey = 'standard' | 'heatPump' | 'heatPumpBattery';
-
 /** All household keys in display order. */
-export const ALL_HOUSEHOLD_KEYS: HouseholdKey[] = ['standard', 'heatPump', 'heatPumpBattery'];
+export const ALL_HOUSEHOLD_KEYS = ['standard', 'heatPump', 'heatPumpBattery'] as const;
+
+/** Which household profile to display. */
+export type HouseholdKey = (typeof ALL_HOUSEHOLD_KEYS)[number];
 
 /** Aggregated usage statistics for a household over a time range. */
 export interface UsageStats {

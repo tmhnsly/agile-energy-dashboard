@@ -25,12 +25,6 @@ export function formatDayShort(ts: number): string {
   return format(new UTCDate(ts), 'dd MMM');
 }
 
-/** Format a timestamp for stat-card display (e.g. "09 Mar, 14:30"). */
-export function formatStatTime(ts: number): string {
-  if (!isFinite(ts)) return '—';
-  return format(new UTCDate(ts), 'dd MMM, HH:mm');
-}
-
 /** Format a kWh value with two decimal places (e.g. "1.23 kWh"). */
 export function formatKwhValue(kwh: number): string {
   return `${kwh.toFixed(2)} kWh`;

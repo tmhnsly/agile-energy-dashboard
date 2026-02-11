@@ -24,18 +24,3 @@
     border-radius: 3em;
   }
 }
-
-.textGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--card-padding);
-  border-radius: var(--radius-inner, var(--radius-2));
-  border: 1px solid var(--mono-border-subtle);
-  background-color: var(--mono-app-bg);
-}

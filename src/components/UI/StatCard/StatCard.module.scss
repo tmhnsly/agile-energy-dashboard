@@ -91,7 +91,7 @@
     min-width: 9ch;
   }
 
-  @include cq.at(900px) {
+  @include cq.xlarge {
     font-size: var(--text-2xl);
   }
 }

@@ -10,7 +10,7 @@
   }
 
   &[data-count='3'] {
-    @include cq.medium {
+    @include cq.at(475px) {
       grid-template-columns: repeat(3, 1fr);
     }
   }
@@ -24,7 +24,7 @@
   }
 
   .statsRow[data-count='3'] > &:last-child:nth-child(odd) {
-    @include cq.medium {
+    @include cq.at(475px) {
       grid-column: auto;
     }
   }

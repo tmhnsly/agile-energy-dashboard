@@ -7,6 +7,7 @@ import { HALF_HOUR_MS } from '@/utils/constants';
 import { formatCostPence } from '@/utils/format';
 import { simulateShift } from '../computeFlexInsights';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import { HOUSEHOLD_THEMES } from '@/config/households';
 import { Button, type ButtonColor, type ButtonVariant } from '@/components/UI/Button/Button';
 import { ClearSelectionButton } from '@/components/UI/ClearSelectionButton/ClearSelectionButton';
 import { Slider } from '@/components/UI/Slider/Slider';
@@ -24,18 +25,6 @@ const SLIDER_SECTIONS = 4;
 
 /** Threshold in pence — below this, treat as "no meaningful difference". */
 const SAVING_THRESHOLD = 0.05;
-
-const HOUSEHOLD_LABEL: Record<HouseholdKey, string> = {
-  standard: 'Standard',
-  heatPump: 'Heat Pump',
-  heatPumpBattery: 'Heat Pump + Battery',
-};
-
-const HOUSEHOLD_BUTTON_COLOR: Record<HouseholdKey, ButtonColor> = {
-  standard: 'accent',
-  heatPump: 'secondary',
-  heatPumpBattery: 'warning',
-};
 
 /**
  * Classify a saving value into an outcome tone.
@@ -174,7 +163,7 @@ export const ShiftSimulator = ({
     return computeHints(usage, prices, household, baseTs, toIdx, 'to', kwhToShift);
   }, [usage, prices, household, baseTs, toIdx, kwhToShift]);
 
-  const householdColor = HOUSEHOLD_BUTTON_COLOR[household];
+  const householdColor = HOUSEHOLD_THEMES[household].tone;
 
   const getFromButton = useCallback(
     (i: number) => {
@@ -263,7 +252,7 @@ export const ShiftSimulator = ({
       <div className={styles.headerGroup}>
         <h2 className={styles.title}>Shift Simulator</h2>
         <p className={styles.subtitle}>
-          {HOUSEHOLD_LABEL[household]} — move usage between time periods to see how it affects your daily cost.
+          {HOUSEHOLD_THEMES[household].label} — move usage between time periods to see how it affects your daily cost.
         </p>
       </div>
 

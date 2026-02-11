@@ -13,11 +13,11 @@ import { lowerBound } from '@/utils/binarySearch';
  * Uses binary search — matches exact ts, falls back to the preceding slot,
  * or uses the first available price if the timestamp is before all price data.
  */
-function priceAt(prices: PricePoint[], ts: number): number {
+function lookupPrice(prices: PricePoint[], ts: number): number {
   if (prices.length === 0) return 0;
-  const pi = lowerBound(prices, ts);
-  if (pi < prices.length && prices[pi].ts === ts) return prices[pi].price;
-  if (pi > 0) return prices[pi - 1].price;
+  const priceIndex = lowerBound(prices, ts);
+  if (priceIndex < prices.length && prices[priceIndex].ts === ts) return prices[priceIndex].price;
+  if (priceIndex > 0) return prices[priceIndex - 1].price;
   return prices[0].price;
 }
 
@@ -32,7 +32,7 @@ export function computeDailyCost(
 ): number {
   let cost = 0;
   for (const row of usage) {
-    cost += row[household] * priceAt(prices, row.ts);
+    cost += row[household] * lookupPrice(prices, row.ts);
   }
   return cost;
 }
