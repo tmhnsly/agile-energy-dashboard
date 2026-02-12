@@ -72,6 +72,14 @@
   --warning-text-low-contrast: var(--warning-text);
   --success-text-low-contrast: var(--success-text);
   --error-text-low-contrast: var(--error-text);
+
+  /* Give success/error outline hint buttons a tinted background so the
+     colour is clearly visible in light mode. Outline still has a border,
+     which differentiates hints from soft (selected) buttons. */
+  :global([data-variant="outline"][data-color="success"]:not(:disabled)),
+  :global([data-variant="outline"][data-color="error"]:not(:disabled)) {
+    background-color: var(--_bg);
+  }
 }
 
 

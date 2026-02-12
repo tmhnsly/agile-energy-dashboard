@@ -2,6 +2,8 @@
 
 Real-time Agile tariff dashboard with household consumption tracking, flexibility insights, and load-shifting simulation.
 
+**Production:** [shuffle-tech-test.vercel.app](https://shuffle-tech-test.vercel.app/)
+
 ---
 
 ## Getting started
