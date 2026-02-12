@@ -354,7 +354,7 @@ export const KeyboardNavigation: Story = {
 };
 
 /**
- * Three overlaid lines with different tones (accent, positive for each series).
+ * Three overlaid series — one accent line and two positive lines.
  * Hover to see the coloured multi-value tooltip with a swatch and label
  * for each series.
  */

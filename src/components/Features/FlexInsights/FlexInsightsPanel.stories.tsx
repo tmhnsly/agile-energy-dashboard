@@ -9,6 +9,11 @@ import { ShiftSimulator } from './ShiftSimulator/ShiftSimulator';
 import { ShiftSimulatorSkeleton } from './ShiftSimulatorSkeleton';
 import { mockPrices, mockFlexEvents, mockUsage } from './mockData';
 
+/**
+ * Flex insights panel showing daily cost and earning potential from
+ * flexibility events. Switch household type to compare costs. Pair with
+ * `ShiftSimulator` on the dashboard to model load-shifting savings.
+ */
 const meta = {
   title: 'Features / Flex Insights / FlexInsightsPanel',
   component: FlexInsightsPanel,

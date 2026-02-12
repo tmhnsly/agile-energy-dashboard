@@ -54,16 +54,16 @@ src/
 ## Architecture
 
 ```
-Octopus Energy API
-  └─ /api/agile-prices (ISR, 15 min)
-       └─ useMarketData()
-            ├─ usePriceStats()    → stat cards
-            ├─ useUsageStats()    → stat cards
-            └─ DashboardShell     → bento grid
-                 ├─ Market Price        (chart + cheapest window)
-                 ├─ Household Usage     (chart + profile switcher)
-                 ├─ Flex Insights       (earnings breakdown)
-                 └─ Shift Simulator     (move load between periods)
+DashboardShell
+  └─ useMarketData()       ← parallel fetch
+       ├─ /api/agile-prices       (ISR, 15 min)
+       ├─ flexibility_opportunity.json
+       └─ household_usage.csv
+  └─ BentoGrid
+       ├─ Market Price        usePriceStats() · findCheapestWindow()
+       ├─ Household Usage     useUsageStats() · profile switcher
+       ├─ Flex Insights       computeFlexEarnings() · daily cost
+       └─ Shift Simulator     simulateShift()
 ```
 
 ## Assumptions
@@ -75,7 +75,7 @@ Octopus Energy API
 
 ## Interpreting the visualisations
 
-- **Market Price chart** — shows the Agile tariff over time. A shaded band highlights the cheapest contiguous window; the duration preset buttons (1h, 2h, etc.) find the cheapest window for that duration. Drag to select a time range; stat cards update to reflect the selection.
+- **Market Price chart** — shows the Agile tariff over time. Shaded bands mark flex-event windows. The duration preset buttons (6h, 12h, 24h) jump to the cheapest contiguous window for that duration. Drag to select a custom time range; stat cards update to reflect the selection.
 - **Household Usage chart** — overlays consumption for the selected household profiles. Switch profiles with the selector buttons. Drag to select a time range to see stats for that period.
 - **Flex Insights** — shows the selected household's daily cost and what you could earn by participating in flex events (turning usage up or down when asked). Switch household with the selector to compare.
 - **Shift Simulator** — pick a "from" and "to" time period to see what happens to your daily cost if you move usage between them. Green hints = saves money, red hints = costs more. The slider adjusts how much energy to shift.

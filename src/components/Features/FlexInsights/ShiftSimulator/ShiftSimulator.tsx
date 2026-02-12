@@ -80,6 +80,10 @@ export interface ShiftSimulatorProps {
   household: HouseholdKey;
 }
 
+/**
+ * Interactive load-shifting calculator. Pick a "from" and "to" time period,
+ * adjust the kWh slider, and see the cost impact on the selected household.
+ */
 export const ShiftSimulator = ({
   usage,
   prices,

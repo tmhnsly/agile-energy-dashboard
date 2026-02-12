@@ -18,6 +18,10 @@ export interface FlexInsightsPanelProps {
   onHouseholdChange: (key: HouseholdKey) => void;
 }
 
+/**
+ * Displays daily cost and per-event earning potential for flex events.
+ * Receives resolved data via props — loading/error states are owned by the parent.
+ */
 export const FlexInsightsPanel = ({
   prices,
   usage,

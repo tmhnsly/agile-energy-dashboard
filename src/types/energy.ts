@@ -1,6 +1,6 @@
 /** A single half-hourly energy price point (Octopus Agile tariff). */
 export interface PricePoint {
-  /** Timestamp. */
+  /** Unix milliseconds — start of the half-hour settlement period. */
   ts: number;
   /** Price in pence per kWh, inclusive of VAT. */
   price: number;
@@ -9,9 +9,9 @@ export interface PricePoint {
 /** A demand-side flexibility event window (e.g. "turn down" or "shift load"). */
 export interface FlexEvent {
   id: string;
-  /** Start timestamp. */
+  /** Start of the event window (Unix milliseconds). */
   startTs: number;
-  /** End timestamp. */
+  /** End of the event window (Unix milliseconds). */
   endTs: number;
   /** Event type, e.g. "turn down". */
   label?: string;
@@ -25,7 +25,7 @@ export interface FlexEvent {
 
 /** A single row of household electricity consumption data. */
 export interface HouseholdUsageRow {
-  /** Timestamp. */
+  /** Unix milliseconds — start of the half-hour slot. */
   ts: number;
   /** kWh consumed by a standard household. */
   standard: number;
@@ -35,9 +35,11 @@ export interface HouseholdUsageRow {
   heatPumpBattery: number;
 }
 
-/** A half-open time window `[fromTs, toTs)` in milliseconds. */
+/** A half-open time window `[fromTs, toTs)` in Unix milliseconds. */
 export interface TimeRange {
+  /** Inclusive start (Unix milliseconds). */
   fromTs: number;
+  /** Exclusive end (Unix milliseconds). */
   toTs: number;
 }
 

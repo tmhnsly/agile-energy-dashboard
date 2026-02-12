@@ -42,6 +42,11 @@ interface InsightCardListProps {
   flexEarnings: FlexEarningResult[];
 }
 
+/**
+ * Renders the daily-cost card followed by sorted flex-earning cards.
+ * Events are classified by label (use-more, use-less, other) and sorted
+ * so actionable events appear first.
+ */
 export const InsightCardList = memo(function InsightCardList({
   household,
   dailyCost,
