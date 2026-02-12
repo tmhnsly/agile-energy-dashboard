@@ -5,7 +5,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Hooks Reference
 
-Quick-reference for the custom hooks and key utility functions.
+Custom hooks and key utility functions.
 
 ## useMarketData
 
@@ -13,26 +13,21 @@ Quick-reference for the custom hooks and key utility functions.
 function useMarketData(retryKey?: number): MarketDataState
 ```
 
-**Source:** `src/hooks/useMarketData.ts`
+Fetches prices, flex events, and household usage in parallel. Returns a
+discriminated union:
 
-Fetches [prices, flex events, and household usage](?path=/docs/domain-energy-model--docs)
-in parallel on mount. Returns a discriminated union:
+- `{ status: 'loading' }`
+- `{ status: 'ready', prices, flexEvents, householdUsage }`
+- `{ status: 'error', error }`
 
-- **`loading`** — `{ status: 'loading' }`
-- **`ready`** — `{ status: 'ready', prices: PricePoint[], flexEvents: FlexEvent[], householdUsage: HouseholdUsageRow[] }`
-- **`error`** — `{ status: 'error', error: string }`
-
-**Retry:** increment `retryKey` to re-trigger the fetch (useful for a "try
-again" button after an error).
+Increment `retryKey` to re-fetch after an error.
 
 **Data sources:**
-- `/api/agile-prices` — live Octopus Agile tariff (proxied API)
-- `/data/flexibility_opportunity.json` — static flex event windows
-- `/data/household_usage.csv` — consumption profiles for three household types
+- `/api/agile-prices` — live Octopus Agile tariff
+- `/data/flexibility_opportunity.json` — flex event windows
+- `/data/household_usage.csv` — three household profiles
 
-The hook handles the full parse pipeline internally: `mapAgilePrices`,
-`mapFlexEvents` (with daily-event expansion), and `parseHouseholdUsageCsv`
-(with reference-date anchoring).
+**Source:** `src/hooks/useMarketData.ts`
 
 ---
 
@@ -48,22 +43,11 @@ function useTimeRange(items: { ts: number }[]): {
 }
 ```
 
+Manages a zoomable time window. `activeRange` equals `fullRange` until the
+user zooms or pans. Invalid ranges (non-finite, zero-width) are silently
+ignored.
+
 **Source:** `src/hooks/useTimeRange.ts`
-
-Manages a zoomable [time window](?path=/docs/domain-energy-model--docs) over any
-timestamped dataset.
-
-- **`fullRange`** — derived from the first and last item via `computeFullRange`.
-- **`activeRange`** — the current view; equals `fullRange` when no zoom is active.
-- **`isCustomRange`** — `true` when the user has zoomed or panned.
-- **`setRange(range)`** — apply a new window. Invalid ranges (non-finite,
-  zero-width, or reversed) are silently ignored via `isValidRange`.
-- **`resetRange()`** — clear the selection and return to the full extent.
-
-**Helpers (exported for testing):**
-
-- `computeFullRange(items)` — returns `{ fromTs, toTs }` from first/last element.
-- `isValidRange(range)` — checks for finite, positive-width range.
 
 ---
 
@@ -72,15 +56,6 @@ timestamped dataset.
 ```ts
 function usePriceStats(points: PricePoint[], range: TimeRange): PriceStats
 ```
-
-**Source:** `src/hooks/usePriceStats.ts`
-
-Computes min, max, total, and count for
-[price points](?path=/docs/domain-energy-model--docs) within `range`.
-
-Uses **binary search** (`lowerBound`) to find the slice boundaries — avoids a
-full scan on every call, which matters because this hook runs on every frame
-during drag interactions.
 
 ```ts
 interface PriceStats {
@@ -91,7 +66,10 @@ interface PriceStats {
 }
 ```
 
-The pure computation is exported as `computePriceStats` for unit testing.
+Uses binary search for efficient slicing — runs on every frame during drag
+interactions.
+
+**Source:** `src/hooks/usePriceStats.ts`
 
 ---
 
@@ -106,17 +84,6 @@ function useUsageStats(
 ): UsageStats
 ```
 
-**Source:** `src/hooks/useUsageStats.ts`
-
-[Multi-household](?path=/docs/domain-energy-model--docs) aggregation with cost estimation.
-
-- Accepts a **single key** or an **array of keys**. When multiple keys are
-  provided, totals and cost are summed across all of them.
-- **Cost estimation** joins each usage row to the price data via binary search:
-  `cost = Σ(kWh × price)` for every half-hour slot.
-- **Peak/low** reflect the highest and lowest individual half-hour value across
-  all selected households.
-
 ```ts
 interface UsageStats {
   totalKwh: number;
@@ -127,7 +94,10 @@ interface UsageStats {
 }
 ```
 
-The pure computation is exported as `computeUsageStats` for unit testing.
+Accepts a single key or array of keys. Cost is estimated as
+`Σ(kWh × price)` per slot via binary search price lookup.
+
+**Source:** `src/hooks/useUsageStats.ts`
 
 ---
 
@@ -141,42 +111,13 @@ function findCheapestWindow(
 ): TimeRange | null
 ```
 
+O(n) sliding window over sorted half-hourly data. Skips non-contiguous gaps.
+Returns `null` if no valid window exists for the requested duration.
+
 **Source:** `src/components/Features/MarketPrice/findCheapestWindow.ts`
-
-Finds the cheapest contiguous window of a given duration within a time range.
-
-**Algorithm:** O(n) sliding window over sorted half-hourly data.
-
-1. Narrows data to points within `fullRange`.
-2. Slides a window of `Math.round(durationMs / HALF_HOUR_MS)` points.
-3. Skips windows with **non-contiguous** timestamps (gaps > half-hour) using a
-   span tolerance check.
-4. Tracks the window with the lowest sum.
-
-**Edge cases:**
-- Returns `null` if data is insufficient for the requested duration.
-- Falls back to `fullRange` if the full range is shorter than `durationMs`.
-- Returns `null` if no contiguous window is found within the range.
-
----
-
-## Binary search utilities
-
-**Source:** `src/utils/binarySearch.ts`
-
-Three O(log n) helpers for timestamp-sorted arrays, used throughout the hooks:
-
-- **`lowerBound(arr, target)`** — index of first element with `ts >= target`
-- **`upperBound(arr, target)`** — index past last element with `ts <= target`
-- **`bisectNearest(arr, target)`** — index of element with closest `ts` to target
-
-`lowerBound` and `upperBound` together give a half-open `[start, end)` slice —
-the standard pattern for range queries across the codebase. `bisectNearest` is
-used by chart tooltips to snap to the nearest data point.
 
 ---
 
 **See also:**
 [Energy Model](?path=/docs/domain-energy-model--docs) ·
-[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) ·
-[Chart System](?path=/docs/domain-chart-system--docs)
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs)

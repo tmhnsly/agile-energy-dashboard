@@ -9,70 +9,56 @@ Core data types and conventions used across the dashboard.
 
 ## Settlement periods
 
-All energy data is indexed in **half-hourly settlement periods**, the standard
-interval for UK electricity markets.
+All energy data uses **half-hourly settlement periods** — the standard interval
+for UK electricity markets. Timestamps represent the **start** of a period and
+cover `[ts, ts + 30 min)`.
 
 ```ts
-// src/utils/constants.ts
-export const HALF_HOUR_MS = minutesToMilliseconds(30); // 1_800_000
+const HALF_HOUR_MS = 1_800_000;
 ```
 
-Timestamps always represent the **start** of a settlement period. A price point
-at `ts = 1700000000000` covers the window `[ts, ts + HALF_HOUR_MS)`.
+## Core types
 
-## PricePoint
+### PricePoint
 
-A single half-hourly energy price from the Octopus Agile tariff.
+A single half-hourly price from the Octopus Agile tariff.
 
 ```ts
 interface PricePoint {
-  ts: number;    // Unix-ms start of the settlement period
-  price: number; // pence per kWh, inclusive of VAT
+  ts: number;    // Unix-ms, start of period
+  price: number; // pence/kWh inc. VAT
 }
 ```
 
-Prices are fetched live from `/api/agile-prices` (which proxies the Octopus
-Energy API) and parsed by `mapAgilePrices()` in `energy-mappers.ts`. The mapper
-handles both the bare-array and `{ results: [...] }` envelope formats, and
-normalises common field names (`valid_from`/`timestamp`/`time`/`ts` for the
-timestamp, `value_inc_vat`/`price`/`value`/`rate` for the price).
+Fetched from `/api/agile-prices` and normalised by `mapAgilePrices()`.
 
-## HouseholdUsageRow
+### HouseholdUsageRow
 
-Per-slot electricity consumption for three household profiles.
+Per-slot consumption for three household profiles.
 
 ```ts
 interface HouseholdUsageRow {
   ts: number;
-  standard: number;        // kWh — standard household
-  heatPump: number;        // kWh — heat-pump household
-  heatPumpBattery: number; // kWh — heat-pump + battery household
+  standard: number;        // kWh
+  heatPump: number;        // kWh
+  heatPumpBattery: number; // kWh
 }
 ```
 
-Parsed from a static CSV (`/data/household_usage.csv`) by
-`parseHouseholdUsageCsv()`. Time-only values in the CSV (e.g. `"06:00"`) are
-anchored to a reference date derived from the price data so both datasets share
-the same timeline. See also
-[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) for how flex events
-extend this model.
+Parsed from `/data/household_usage.csv` by `parseHouseholdUsageCsv()`. CSV
+time-only values (e.g. `"06:00"`) are anchored to today (UTC) so the dashboard
+reflects today's prices.
 
-## HouseholdKey & ALL_HOUSEHOLD_KEYS
-
-A derived union type for selecting a household profile:
+### HouseholdKey
 
 ```ts
 const ALL_HOUSEHOLD_KEYS = ['standard', 'heatPump', 'heatPumpBattery'] as const;
 type HouseholdKey = (typeof ALL_HOUSEHOLD_KEYS)[number];
 ```
 
-`ALL_HOUSEHOLD_KEYS` is the single source of truth — components iterate it for
-tabs, selectors, and chart series. The `as const` assertion keeps the type
-narrow so TypeScript can index into `HouseholdUsageRow` safely.
+### TimeRange
 
-## TimeRange
-
-A half-open time window used throughout the app:
+A half-open time window: `[fromTs, toTs)`.
 
 ```ts
 interface TimeRange {
@@ -81,106 +67,37 @@ interface TimeRange {
 }
 ```
 
-The half-open `[fromTs, toTs)` convention means a point at exactly `toTs` is
-**excluded**. This avoids double-counting at range boundaries when slicing
-sorted arrays with `lowerBound`.
-
-## Data loading pipeline
-
-The [`useMarketData`](?path=/docs/domain-hooks-reference--docs) hook orchestrates the full
-loading sequence:
-
-1. **Fetch** — three parallel requests: Agile prices (API), flex events (JSON),
-   household usage (CSV).
-2. **Parse** — `mapAgilePrices` normalises price JSON; `mapFlexEvents` expands
-   daily recurring events across the price-data range; `parseHouseholdUsageCsv`
-   anchors CSV time strings to the first price day.
-3. **Return** — a discriminated union state:
-   `{ status: 'loading' }` → `{ status: 'ready', prices, flexEvents, householdUsage }`
-   or `{ status: 'error', error }`.
-
-Components consume the union with a simple `switch` on `status` to render a
-skeleton, error banner, or data view.
-
----
-
 ## Household themes
 
-**Source:** `src/config/households.ts`
-
-Each `HouseholdKey` maps to a display label and a colour tone that flows through
-the entire UI — buttons, stat cards, chart series, and
-[BentoTile tone remapping](#dashboard-wiring):
+Each household maps to a display label and Radix colour tone that flows through
+the entire UI via BentoTile CSS custom property remapping.
 
 ```ts
-const HOUSEHOLD_THEMES: Record<HouseholdKey, HouseholdTheme> = {
+const HOUSEHOLD_THEMES = {
   standard:        { label: 'Standard',            tone: 'accent' },
   heatPump:        { label: 'Heat Pump',           tone: 'secondary' },
   heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning' },
 };
 ```
 
-The `HOUSEHOLD_THEMES` map is the single source of truth for household display
-names and colours. Changing a tone here updates every component that renders
-that household.
+**Source:** `src/config/households.ts`
 
----
+## Data loading
+
+`useMarketData()` fetches prices, flex events, and usage in parallel, returning
+a discriminated union: `loading` → `ready` or `error`. Components switch on
+`status` to render skeletons, error states, or data views.
 
 ## API route
 
+`/api/agile-prices` proxies the Octopus Energy Agile tariff. Product code and
+region are hardcoded (non-secret public defaults). ISR revalidates every 15
+minutes.
+
 **Source:** `src/app/api/agile-prices/route.ts`
-
-The `/api/agile-prices` endpoint proxies the Octopus Energy Agile tariff API.
-
-- **Product:** `OCTOPUS_PRODUCT_CODE` env var (default: `AGILE-24-10-01`)
-- **Region:** `OCTOPUS_REGION` env var (default: `L` — South East England)
-- **Window:** yesterday → day-after-tomorrow (UTC)
-- **Caching:** ISR with 15-minute revalidation (`revalidate = 900`)
-- **Timeout:** 10-second abort signal for upstream requests
-- **Error codes:** 504 for timeouts/network, upstream status code for HTTP
-  errors, 502 for invalid JSON
-
----
-
-## Format utilities
-
-**Source:** `src/utils/format.ts`
-
-Formatting functions used across stat cards, tooltips, and chart labels. All
-timestamp formatters use `UTCDate` for timezone safety and return `"—"` for
-non-finite inputs.
-
-- **`formatTime(ts)`** → `"14:30"` — time only (`HH:mm`)
-- **`formatDateTime(ts)`** → `"09 Mar, 14:30"` — date and time
-- **`formatDayShort(ts)`** → `"09 Mar"` — date only
-- **`formatPricePerKwh(price)`** → `"22.4p/kWh"` — one decimal place
-- **`formatKwhValue(kwh)`** → `"1.23 kWh"` — two decimal places
-- **`formatCostPence(pence)`** → `"42.5p"` or `"£1.43"` — switches to
-  pounds above 100p, drops trailing `.0` for round values
-- **`formatDuration(fromTs, toTs)`** → `"6h 00m"` or `"45m"` — compact
-  duration, omits hours when zero
-
----
-
-## Dashboard wiring
-
-**Source:** `src/components/Features/DashboardShell/DashboardShell.tsx`
-
-The `DashboardShell` is the top-level data orchestrator:
-
-1. A single `useMarketData()` call fetches all data.
-2. Data fans out to four `BentoTile` panels: MarketPrice, HouseholdUsage,
-   FlexInsights, and ShiftSimulator.
-3. A shared `household` state drives both FlexInsights and ShiftSimulator.
-   The simulator tile uses `key={household}` to force a full remount on
-   household change, resetting its internal selection state.
-4. Each tile's `tone` is dynamically bound to `HOUSEHOLD_THEMES[household].tone`,
-   so changing the household re-colours the entire tile and all its children
-   via CSS custom property remapping on `BentoTile`.
 
 ---
 
 **See also:**
 [Hooks Reference](?path=/docs/domain-hooks-reference--docs) ·
-[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs) ·
-[Chart System](?path=/docs/domain-chart-system--docs)
+[Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs)

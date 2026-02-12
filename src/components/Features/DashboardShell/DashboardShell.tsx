@@ -23,6 +23,26 @@ import {
 
 import styles from "./DashboardShell.module.scss";
 
+function TileError({
+  message,
+  detail,
+  onRetry,
+}: {
+  message: string;
+  detail: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <div className={styles.error}>
+      <p>{message}</p>
+      {detail && <p className={styles.errorDetail}>{detail}</p>}
+      <button className={styles.retryBtn} onClick={onRetry}>
+        Retry
+      </button>
+    </div>
+  );
+}
+
 /**
  * Client component that calls `useMarketData()` once and fans data out
  * to the market-price, household-usage, flex-insights, and shift-simulator
@@ -43,7 +63,7 @@ export const DashboardShell = () => {
     setHousehold(key);
   }, []);
 
-  const errorMessage = marketData.status === "error" ? marketData.error : null;
+  const errorDetail = marketData.status === "error" ? marketData.error : null;
 
   return (
     <BentoGrid>
@@ -53,15 +73,7 @@ export const DashboardShell = () => {
         skeleton={<MarketPriceSkeleton />}
       >
         {marketData.status === "error" ? (
-          <div className={styles.error}>
-            <p>Failed to load market data.</p>
-            {errorMessage && (
-              <p className={styles.errorDetail}>{errorMessage}</p>
-            )}
-            <button className={styles.retryBtn} onClick={handleRetry}>
-              Retry
-            </button>
-          </div>
+          <TileError message="Failed to load market data." detail={errorDetail} onRetry={handleRetry} />
         ) : marketData.status === "ready" ? (
           <MarketPricePanel
             prices={marketData.prices}
@@ -76,15 +88,7 @@ export const DashboardShell = () => {
         skeleton={<HouseholdUsageSkeleton />}
       >
         {marketData.status === "error" ? (
-          <div className={styles.error}>
-            <p>Failed to load usage data.</p>
-            {errorMessage && (
-              <p className={styles.errorDetail}>{errorMessage}</p>
-            )}
-            <button className={styles.retryBtn} onClick={handleRetry}>
-              Retry
-            </button>
-          </div>
+          <TileError message="Failed to load usage data." detail={errorDetail} onRetry={handleRetry} />
         ) : marketData.status === "ready" ? (
           <HouseholdUsagePanel
             usage={marketData.householdUsage}
@@ -101,15 +105,7 @@ export const DashboardShell = () => {
         skeleton={<ShiftSimulatorSkeleton />}
       >
         {marketData.status === "error" ? (
-          <div className={styles.error}>
-            <p>Failed to load simulator.</p>
-            {errorMessage && (
-              <p className={styles.errorDetail}>{errorMessage}</p>
-            )}
-            <button className={styles.retryBtn} onClick={handleRetry}>
-              Retry
-            </button>
-          </div>
+          <TileError message="Failed to load simulator." detail={errorDetail} onRetry={handleRetry} />
         ) : marketData.status === "ready" ? (
           <ShiftSimulator
             usage={marketData.householdUsage}
@@ -126,15 +122,7 @@ export const DashboardShell = () => {
         skeleton={<FlexInsightsSkeleton />}
       >
         {marketData.status === "error" ? (
-          <div className={styles.error}>
-            <p>Failed to load insights data.</p>
-            {errorMessage && (
-              <p className={styles.errorDetail}>{errorMessage}</p>
-            )}
-            <button className={styles.retryBtn} onClick={handleRetry}>
-              Retry
-            </button>
-          </div>
+          <TileError message="Failed to load insights data." detail={errorDetail} onRetry={handleRetry} />
         ) : marketData.status === "ready" ? (
           <FlexInsightsPanel
             prices={marketData.prices}

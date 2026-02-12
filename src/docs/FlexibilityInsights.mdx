@@ -5,223 +5,94 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Flexibility & Shifting
 
-How flex events, earnings computation, and the shift simulator work.
+How flex events, earnings, and the shift simulator work.
 
 ## FlexEvent
 
-A demand-side flexibility event — a window where the grid operator or supplier
-incentivises households to **reduce or shift** their electricity usage.
+A demand-side flexibility event — a window where the grid operator incentivises
+households to reduce or shift their usage.
 
 ```ts
 interface FlexEvent {
   id: string;
-  startTs: number;       // start of the event window (Unix-ms)
-  endTs: number;         // end of the event window (Unix-ms)
+  startTs: number;       // start of window (Unix-ms)
+  endTs: number;         // end of window (Unix-ms)
   label?: string;        // e.g. "turn down"
   pricePerKwh?: number;  // incentive price in £/kWh
-  minFlexKwh?: number;   // minimum flexibility the event requires
-  maxFlexKwh?: number;   // maximum flexibility the event allows
+  minFlexKwh?: number;
+  maxFlexKwh?: number;
 }
 ```
 
-Events are loaded from `/data/flexibility_opportunity.json` and parsed by
-`mapFlexEvents()`. Time-only start/end values (e.g. `"18:00"`) are treated as
-**daily recurring** and expanded into one instance per day within the price-data
-range.
+Events are loaded from `/data/flexibility_opportunity.json`. Time-only
+start/end values (e.g. `"18:00"`) are expanded into one instance per day
+within the price-data range. Only events overlapping the usage day (today)
+are shown in Flex Insights.
 
-### Constraints
+## Flex earnings
 
-- `pricePerKwh` is in **£/kWh** (not pence) — earnings are converted to pence
-  during computation.
-- `minFlexKwh` and `maxFlexKwh` define the clamping range. If the event data is
-  malformed (`min > max`), `max` is treated as the hard ceiling to avoid
-  over-promising.
+`computeFlexEarnings` sums a household's kWh within each event window, clamps
+to `[minFlexKwh, maxFlexKwh]`, and computes earnings as
+`shiftableKwh × pricePerKwh × 100` (£ → pence). Events without `pricePerKwh`
+are skipped.
 
-## computeFlexEarnings
+## Event classification
 
-Calculates potential earnings for participating in flex events.
+The `InsightCardList` classifies events by label:
 
-```
-computeFlexEarnings(flexEvents, usage, household) → FlexEarningResult[]
-```
+- **"turn down"** / **"reduce"** → use less
+- **"turn up"** / **"increase"** → use more
+- Everything else → general flex opportunity
 
-For each event that has a `pricePerKwh`:
-
-1. **Sum** the household's kWh within `[startTs, endTs)` using binary search to
-   find the slice boundaries.
-2. **Clamp** to `[minFlexKwh, maxFlexKwh]` — the effective shiftable amount.
-3. **Compute** earnings: `shiftableKwh × pricePerKwh × 100` (converting £ to
-   pence).
-
-Returns a `FlexEarningResult` per qualifying event:
-
-```ts
-interface FlexEarningResult {
-  event: FlexEvent;
-  shiftableKwh: number;  // kWh that could be shifted (clamped)
-  earningsPence: number;  // potential earnings in pence
-}
-```
-
-## computeDailyCost
-
-Sums the total estimated cost in pence for a household over the full usage array.
-
-```
-computeDailyCost(usage, prices, household) → number
-```
-
-For every half-hour row: `cost += kWh × lookupPrice(prices, ts)`. This is the
-foundation of both `simulateShift` (called twice — before and after
-modification) and `FlexInsightsPanel` (called once per
-[household type](?path=/docs/domain-energy-model--docs) to build the daily cost
-comparison).
-
-**Source:** `src/components/Features/FlexInsights/computeFlexInsights.ts`
-
-## sumPeriodUsage
-
-Sums the household's kWh across a set of half-hour timestamps.
-
-```
-sumPeriodUsage(usage, household, slotTimestamps) → number
-```
-
-Used by `simulateShift` to determine the available energy in a period, and by
-the `ShiftSimulator` to set the slider maximum.
+A daily cost comparison card always appears first.
 
 ---
 
-## simulateShift
+## Shift Simulator
 
-Models the cost impact of moving energy between two time periods.
+Models the cost impact of moving energy between time periods.
+
+### Time groups
+
+The day is split into four 6-hour periods (12 half-hour slots each):
+
+| Period | Range | Slots |
+|--------|-------|-------|
+| Morning | 06:00–12:00 | 12–23 |
+| Afternoon | 12:00–18:00 | 24–35 |
+| Peak | 18:00–00:00 | 36–47 |
+| Night | 00:00–06:00 | 0–11 |
+
+### simulateShift
 
 ```
 simulateShift(usage, prices, household, fromSlots, toSlots, kwhToShift) → ShiftResult
 ```
 
-`fromSlots` and `toSlots` are arrays of half-hour timestamps covering the
-source and destination periods (e.g. all 12 slots in "Morning 06:00–12:00").
+1. Strips any overlapping timestamps (shifting within the same slot is a no-op).
+2. Removes energy from the from-period **proportionally** to each slot's share.
+3. Distributes the shifted energy **evenly** across to-period slots.
+4. Returns `{ originalCostPence, newCostPence, savingPence }`.
 
-1. Computes the **original** daily cost (`computeDailyCost`).
-2. Creates a modified usage array:
-   - **Removal** is proportional — each from-slot loses energy in proportion to
-     its share of the period's total usage, preserving the consumption shape.
-   - **Addition** is even — the shifted kWh are split equally across all to-slots.
-   - The total removed is clamped to what the from-period actually has.
-3. Computes the **new** daily cost.
-4. Returns the delta:
+Positive `savingPence` = saves money. Negative = costs more.
 
-```ts
-interface ShiftResult {
-  originalCostPence: number;
-  newCostPence: number;
-  savingPence: number; // originalCostPence − newCostPence
-}
-```
+### UI behaviour
 
-A positive `savingPence` means the shift saves money; negative means it costs
-more.
+The simulator has three states driven by `fromIdx` and `toIdx`:
 
-## lookupPrice
+- **Idle** — no selection. All buttons show the household colour as outlines.
+- **One selected** — the selected button is filled (`soft`). The opposite row
+  shows colour-coded hints: green outline = saves money, red outline = costs
+  more, greyed out = negligible or same period.
+- **Complete** — both selected. Buttons show the outcome colour. Slider is
+  enabled and defaults to the maximum shiftable amount. The same period is
+  disabled on the opposite row.
 
-[Binary-search](?path=/docs/domain-hooks-reference--docs) price lookup used by both
-`computeDailyCost` and `computeFlexEarnings`:
-
-1. Find the insertion point for `ts` in the sorted price array.
-2. If an exact match exists, return that price.
-3. Otherwise fall back to the **preceding** slot's price.
-4. If `ts` is before all price data, use the first available price.
-
-## ShiftSimulator state machine
-
-The `ShiftSimulator` component uses a three-state machine driven by two
-nullable indices (`fromIdx`, `toIdx`):
-
-### IDLE (`fromIdx = null, toIdx = null`)
-
-- All time-period buttons show the household colour in `outline` variant.
-- Slider is disabled, no result is displayed.
-
-### ONE_SELECTED (one of `fromIdx` / `toIdx` is set)
-
-- The selected button renders as `soft` in the household colour.
-- The **opposite** row shows hint colours computed by `computeHints`:
-  - **Green (success)** — shifting here would save money → `soft` variant.
-  - **Red (error)** — shifting here would cost more → `ghost` variant.
-  - **Grey (mono)** — negligible difference → disabled.
-  - Same slot as selected → disabled (can't shift to yourself).
-- Slider remains disabled, no result yet.
-
-### COMPLETE (`fromIdx` and `toIdx` both set)
-
-- Both selected buttons render in the **outcome** colour (success/error/mono).
-- All unselected buttons revert to `mono outline`.
-- Slider is enabled — adjusting it live-updates the `ShiftResult`.
-- The result area shows: `originalCost → newCost` and the saving/extra cost.
-
-Clicking an already-selected button **deselects** it, transitioning back to
-ONE_SELECTED or IDLE.
-
-## computeHints
-
-Previews savings for every potential pairing before the user commits:
-
-```
-computeHints(usage, prices, household, baseTs, selectedIdx, selectedSide, kwhToShift)
-  → { color: ButtonColor; disabled: boolean }[]
-```
-
-For each time-period slot, runs `simulateShift` against the already-selected
-slot and classifies the result:
-
-- **> 0.05p** saving → `success` colour, enabled
-- **< −0.05p** (costs more) → `error` colour, enabled
-- **negligible** difference → `mono` colour, disabled
-- **same slot** as selected → `mono` colour, disabled
-
-The 0.05p threshold (`SAVING_THRESHOLD`) prevents highlighting trivially small
-differences.
-
----
-
-## Event classification
-
-**Source:** `src/components/Features/FlexInsights/InsightCardList/InsightCardList.tsx`
-
-The `InsightCardList` classifies flex events by their `label` text to determine
-the icon, verb, and display order:
-
-- Labels containing **"turn down"** or **"reduce"** → `use-less` (down-triangle
-  icon, "Use less")
-- Labels containing **"turn up"** or **"increase"** → `use-more` (up-triangle
-  icon, "Use more")
-- Everything else → `other` (bolt icon, "Flex opportunity")
-
-Cards are sorted: `use-more` first, then `use-less`, then `other`. A "Daily
-cost" card always appears first.
-
----
-
-## Time groups
-
-**Source:** `src/components/Features/FlexInsights/ShiftSimulator/ShiftSimulator.tsx`
-
-The `ShiftSimulator` divides the day into four 6-hour periods, each covering
-12 half-hour slots:
-
-- **Morning** (06:00–12:00) — slots 12–23
-- **Afternoon** (12:00–18:00) — slots 24–35
-- **Peak** (18:00–00:00) — slots 36–47
-- **Night** (00:00–06:00) — slots 0–11
-
-Each slot index is a half-hour offset from midnight. The `periodSlots()`
-helper converts a group into an array of timestamps:
-`baseTs + slotIndex × HALF_HOUR_MS` for every slot in the range.
+**Source:** `src/components/Features/FlexInsights/computeFlexInsights.ts`,
+`src/components/Features/FlexInsights/ShiftSimulator/ShiftSimulator.tsx`
 
 ---
 
 **See also:**
 [Energy Model](?path=/docs/domain-energy-model--docs) ·
-[Hooks Reference](?path=/docs/domain-hooks-reference--docs) ·
-[Chart System](?path=/docs/domain-chart-system--docs)
+[Hooks Reference](?path=/docs/domain-hooks-reference--docs)

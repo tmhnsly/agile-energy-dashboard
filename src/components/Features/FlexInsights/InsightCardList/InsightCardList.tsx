@@ -6,8 +6,9 @@ import {
   TbTriangleFilled,
   TbBoltFilled,
 } from 'react-icons/tb';
-import type { HouseholdKey, FlexEarningResult } from '@/types/energy';
+import type { FlexEarningResult, HouseholdKey } from '@/types/energy';
 import type { StatCardTone } from '@/components/UI/StatCard/StatCard';
+import { HOUSEHOLD_THEMES } from '@/config/households';
 import { formatCostPence, formatTime } from '@/utils/format';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import styles from './InsightCardList.module.scss';
@@ -38,16 +39,16 @@ const TYPE_ORDER: Record<EventType, number> = { 'use-more': 0, 'use-less': 1, ot
 interface InsightCardListProps {
   household: HouseholdKey;
   dailyCost: number;
-  dailyCostTone: StatCardTone;
   flexEarnings: FlexEarningResult[];
 }
 
 export const InsightCardList = memo(function InsightCardList({
   household,
   dailyCost,
-  dailyCostTone,
   flexEarnings,
 }: InsightCardListProps) {
+  const { label: householdLabel, tone: householdTone } = HOUSEHOLD_THEMES[household];
+
   const sorted = useMemo(() => {
     return [...flexEarnings].sort((a, b) => {
       const ta = TYPE_ORDER[classifyEvent(a.event.label)];
@@ -61,10 +62,10 @@ export const InsightCardList = memo(function InsightCardList({
   return (
     <div className={styles.cards} data-count={Math.min(count, 4)}>
       <StatCard
-        label="Daily cost"
+        label={`${householdLabel} daily cost`}
         value={formatCostPence(dailyCost)}
         icon={<TbBoltFilled />}
-        tone={dailyCostTone}
+        tone={householdTone}
       />
 
       {sorted.map((earning) => {

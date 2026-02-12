@@ -33,9 +33,18 @@ export const FlexInsightsPanel = ({
     [usage, prices],
   );
 
+  // Only include flex events that overlap with the usage time range.
+  // Usage is a single day; flex events may be expanded across multiple days.
+  const relevantEvents = useMemo(() => {
+    if (usage.length === 0) return [];
+    const usageFrom = usage[0].ts;
+    const usageTo = usage[usage.length - 1].ts;
+    return flexEvents.filter(e => e.startTs <= usageTo && e.endTs > usageFrom);
+  }, [flexEvents, usage]);
+
   const flexEarnings = useMemo(
-    () => computeFlexEarnings(flexEvents, usage, household),
-    [flexEvents, usage, household],
+    () => computeFlexEarnings(relevantEvents, usage, household),
+    [relevantEvents, usage, household],
   );
 
   const rangeSummary = useMemo(() => {
@@ -77,7 +86,6 @@ export const FlexInsightsPanel = ({
       <InsightCardList
         household={household}
         dailyCost={dailyCosts[household]}
-        dailyCostTone={HOUSEHOLD_THEMES[household].tone}
         flexEarnings={flexEarnings}
       />
     </div>

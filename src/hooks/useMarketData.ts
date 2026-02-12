@@ -74,8 +74,9 @@ export function useMarketData(retryKey = 0): MarketDataState {
         const rangeTo = prices.length > 0 ? prices[prices.length - 1].ts : Date.now();
         const flexEvents = mapFlexEvents(flexJson, rangeFrom, rangeTo);
 
-        // Household CSV still uses a single reference day
-        const refDay = startOfDay(new UTCDate(rangeFrom));
+        // Anchor the static usage CSV to today (UTC) so the dashboard
+        // shows today's date and costs use today's prices.
+        const refDay = startOfDay(new UTCDate());
         const householdUsage = parseHouseholdUsageCsv(csvText, refDay);
 
         setState({ status: 'ready', prices, flexEvents, householdUsage });
