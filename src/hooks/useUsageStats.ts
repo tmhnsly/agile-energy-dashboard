@@ -8,10 +8,15 @@ import type {
   UsageStats,
   HouseholdKey,
 } from '@/types/energy';
-import { lowerBound } from '@/utils/binarySearch';
+import { lowerBound, upperBound } from '@/utils/binarySearch';
+import { lookupPrice } from '@/utils/lookupPrice';
 
 /**
  * Pure computation — exported for unit testing.
+ *
+ * Range is inclusive on both ends: [fromTs, toTs]. Uses lowerBound for
+ * the start and upperBound for the end so that elements whose timestamp
+ * equals fromTs or toTs are both included.
  *
  * Accepts one or more household keys. When multiple keys are provided,
  * totals and cost are summed across all of them, and peak/low reflect
@@ -28,7 +33,7 @@ export function computeUsageStats(
 ): UsageStats {
   const keys = Array.isArray(households) ? households : [households];
   const start = lowerBound(usage, range.fromTs);
-  const end = lowerBound(usage, range.toTs);
+  const end = upperBound(usage, range.toTs);
 
   if (start >= end || keys.length === 0) {
     return { totalKwh: 0, estimatedCostPence: 0, peak: null, low: null, count: 0 };
@@ -42,14 +47,7 @@ export function computeUsageStats(
   for (let i = start; i < end; i++) {
     const row = usage[i];
 
-    // Find the matching price once per row
-    const priceIndex = lowerBound(prices, row.ts);
-    let price = 0;
-    if (priceIndex < prices.length && prices[priceIndex].ts === row.ts) {
-      price = prices[priceIndex].price;
-    } else if (priceIndex > 0) {
-      price = prices[priceIndex - 1].price;
-    }
+    const price = lookupPrice(prices, row.ts);
 
     for (const key of keys) {
       const kwh = row[key];

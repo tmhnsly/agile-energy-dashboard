@@ -45,7 +45,8 @@ function useTimeRange(items: { ts: number }[]): {
 
 Manages a zoomable time window. `activeRange` equals `fullRange` until the
 user zooms or pans. Invalid ranges (non-finite, zero-width) are silently
-ignored.
+ignored. Ranges are inclusive on both ends — `fullRange.toTs` is the
+timestamp of the last data point, not one past it.
 
 **Source:** `src/hooks/useTimeRange.ts`
 
@@ -67,7 +68,7 @@ interface PriceStats {
 ```
 
 Uses binary search for efficient slicing — runs on every frame during drag
-interactions.
+interactions. Range is inclusive on both ends: `[fromTs, toTs]`.
 
 **Source:** `src/hooks/usePriceStats.ts`
 
@@ -94,8 +95,9 @@ interface UsageStats {
 }
 ```
 
-Accepts a single key or array of keys. Cost is estimated as
-`Σ(kWh × price)` per slot via binary search price lookup.
+Accepts a single key or array of keys. Range is inclusive on both ends:
+`[fromTs, toTs]`. Cost is estimated as `Σ(kWh × price)` per slot via
+binary search price lookup.
 
 **Source:** `src/hooks/useUsageStats.ts`
 

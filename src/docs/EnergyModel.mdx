@@ -58,27 +58,40 @@ type HouseholdKey = (typeof ALL_HOUSEHOLD_KEYS)[number];
 
 ### TimeRange
 
-A half-open time window: `[fromTs, toTs)`.
+An inclusive time window: `[fromTs, toTs]`.
 
 ```ts
 interface TimeRange {
   fromTs: number; // inclusive
-  toTs: number;   // exclusive
+  toTs: number;   // inclusive
 }
 ```
 
+Both `computeFullRange` (which sets `toTs` to the last data point) and chart
+selections (which snap to the nearest data point) produce inclusive ranges.
+Consumer functions use `lowerBound` for the start and `upperBound` for the
+end to include elements at both boundaries.
+
+> **Note:** `FlexEvent.startTs` / `endTs` use half-open `[startTs, endTs)`
+> semantics — this is separate from `TimeRange`.
+
 ## Household themes
 
-Each household maps to a display label and Radix colour tone that flows through
-the entire UI via BentoTile CSS custom property remapping.
+Each household maps to a display label, Radix colour tone, and CSS custom
+property variables for stroke and fill. The tone flows through the entire UI
+via BentoTile CSS custom property remapping.
 
 ```ts
 const HOUSEHOLD_THEMES = {
-  standard:        { label: 'Standard',            tone: 'accent' },
-  heatPump:        { label: 'Heat Pump',           tone: 'secondary' },
-  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning' },
+  standard:        { label: 'Standard',            tone: 'accent',    strokeVar: 'var(--accent-solid)',    fillVar: 'var(--accent-solid)' },
+  heatPump:        { label: 'Heat Pump',           tone: 'secondary', strokeVar: 'var(--secondary-solid)', fillVar: 'var(--secondary-solid)' },
+  heatPumpBattery: { label: 'Heat Pump + Battery', tone: 'warning',   strokeVar: 'var(--warning-solid)',   fillVar: 'var(--warning-solid)' },
 };
 ```
+
+A companion `TONE_VARS` map covers all five `ChartTone` values (`accent`,
+`secondary`, `positive`, `negative`, `warning`) and is used by chart components
+for series stroke and tooltip swatch colours.
 
 **Source:** `src/config/households.ts`
 

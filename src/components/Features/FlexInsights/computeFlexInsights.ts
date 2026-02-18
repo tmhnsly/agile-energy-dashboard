@@ -7,19 +7,7 @@ import type {
   ShiftResult,
 } from '@/types/energy';
 import { lowerBound } from '@/utils/binarySearch';
-
-/**
- * Look up the price for a given usage row timestamp.
- * Uses binary search — matches exact ts, falls back to the preceding slot,
- * or uses the first available price if the timestamp is before all price data.
- */
-function lookupPrice(prices: PricePoint[], ts: number): number {
-  if (prices.length === 0) return 0;
-  const priceIndex = lowerBound(prices, ts);
-  if (priceIndex < prices.length && prices[priceIndex].ts === ts) return prices[priceIndex].price;
-  if (priceIndex > 0) return prices[priceIndex - 1].price;
-  return prices[0].price;
-}
+import { lookupPrice } from '@/utils/lookupPrice';
 
 /**
  * Compute total estimated cost in pence for a household over the full usage array.
@@ -39,7 +27,11 @@ export function computeDailyCost(
 
 /**
  * For each flex event with `pricePerKwh`, sum the household's usage within
- * [startTs, endTs), clamp to [minFlexKwh, maxFlexKwh], and compute earnings.
+ * the event window [startTs, endTs).
+ *
+ * Note: flex events use half-open boundaries (the slot at endTs is not
+ * part of the event). This is intentionally different from TimeRange
+ * which is inclusive on both ends.
  */
 export function computeFlexEarnings(
   flexEvents: FlexEvent[],

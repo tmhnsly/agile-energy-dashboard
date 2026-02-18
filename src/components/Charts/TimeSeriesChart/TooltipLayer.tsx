@@ -1,6 +1,7 @@
 import { memo } from 'react';
-import type { TooltipData, ChartTone } from '@/types/chart';
+import type { TooltipData } from '@/types/chart';
 import { formatDateTime } from '@/utils/format';
+import { TONE_VARS } from '@/config/households';
 import styles from './TimeSeriesChart.module.scss';
 
 /** Radius of the dot drawn at the hovered data point. */
@@ -54,14 +55,6 @@ interface TooltipContentProps {
   formatTooltipValue: (v: number) => string;
 }
 
-/** Maps series tone tokens to CSS custom-property stroke colours. */
-const TONE_COLOR: Record<ChartTone, string> = {
-  accent: 'var(--accent-solid)',
-  secondary: 'var(--secondary-solid)',
-  positive: 'var(--success-solid)',
-  negative: 'var(--error-solid)',
-  warning: 'var(--warning-solid)',
-};
 
 /**
  * Renders the tooltip popup content: timestamp, series values, and an
@@ -88,7 +81,7 @@ export const TooltipContent = memo(function TooltipContent({
               <span className={styles.tooltipRow}>
                 <span
                   className={styles.tooltipSwatch}
-                  style={{ backgroundColor: TONE_COLOR[v.tone ?? 'accent'] }}
+                  style={{ backgroundColor: TONE_VARS[v.tone ?? 'accent'] }}
                   aria-hidden="true"
                 />
                 <span className={styles.tooltipLabel}>{v.label}</span>

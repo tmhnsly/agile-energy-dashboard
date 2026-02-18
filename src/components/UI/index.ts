@@ -5,5 +5,6 @@ export type { ClearSelectionButtonProps } from './ClearSelectionButton/ClearSele
 export { Skeleton } from './Skeleton/Skeleton';
 export { Spinner } from './Spinner/Spinner';
 export { StatCard } from './StatCard/StatCard';
+export { Slider } from './Slider/Slider';
 export { StatsBar } from './StatsBar/StatsBar';
 export type { StatsBarCard, StatsBarProps } from './StatsBar/StatsBar';

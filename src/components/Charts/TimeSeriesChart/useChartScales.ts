@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { scaleTime, scaleLinear } from '@visx/scale';
 import type { TimeRange } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
+import { defaultFormatYTick } from '../utils';
 
 /** Estimated width of a single character for y-axis label measurement. */
 const CHAR_WIDTH_PX = 7.5;
@@ -20,10 +21,6 @@ export type ChartMargin = { top: number; right: number; bottom: number; left: nu
 
 function estimateTextWidth(text: string): number {
   return text.length * CHAR_WIDTH_PX;
-}
-
-function defaultFormatYTick(v: number): string {
-  return String(v);
 }
 
 export function computeYDomain(series: ChartSeries[]): [number, number] {

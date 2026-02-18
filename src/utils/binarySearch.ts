@@ -3,6 +3,12 @@
  *
  * All functions expect `arr` sorted ascending by `ts`. O(log n).
  * Used to efficiently slice data for a visible time range.
+ *
+ * Slicing pattern for an inclusive range [from, to]:
+ *
+ *   const start = lowerBound(arr, from); // first index where ts >= from
+ *   const end   = upperBound(arr, to);   // first index where ts >  to
+ *   for (let i = start; i < end; i++) …  // iterates all elements in [from, to]
  */
 
 /**
@@ -21,10 +27,12 @@ export function lowerBound(arr: { ts: number }[], target: number): number {
 }
 
 /**
- * Index past the last element with `ts <= target`.
+ * Index past the last element with `ts <= target`
+ * (i.e. first index where `ts > target`).
  * Returns `0` if every element is after `target`.
  *
- * Use with `lowerBound` to get a half-open `[start, end)` slice.
+ * Pair with `lowerBound` to slice an inclusive range [from, to]:
+ *   arr.slice(lowerBound(arr, from), upperBound(arr, to))
  */
 export function upperBound(arr: { ts: number }[], target: number): number {
   let lo = 0;

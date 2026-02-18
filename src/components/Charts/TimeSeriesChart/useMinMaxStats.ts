@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import type { TimeRange } from '@/types/energy';
 import type { ChartDataPoint } from '@/types/chart';
-import { lowerBound } from '@/utils/binarySearch';
+import { lowerBound, upperBound } from '@/utils/binarySearch';
 
 /**
  * Scans the primary series data within `displayRange` and returns the
- * data points with the minimum and maximum values.  Used to position
- * the min/max markers that update live during drag.
+ * data points with the minimum and maximum values. Range is inclusive
+ * on both ends: [fromTs, toTs]. Used to position the min/max markers
+ * that update live during drag.
  */
 export function computeMinMax(
   data: ChartDataPoint[],
@@ -15,7 +16,7 @@ export function computeMinMax(
 ): { min: ChartDataPoint | null; max: ChartDataPoint | null } {
   if (!show) return { min: null, max: null };
   const start = lowerBound(data, range.fromTs);
-  const end = lowerBound(data, range.toTs);
+  const end = upperBound(data, range.toTs);
   if (start >= end) return { min: null, max: null };
   let min = data[start];
   let max = data[start];

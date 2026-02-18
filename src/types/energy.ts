@@ -35,11 +35,11 @@ export interface HouseholdUsageRow {
   heatPumpBattery: number;
 }
 
-/** A half-open time window `[fromTs, toTs)` in Unix milliseconds. */
+/** An inclusive time window `[fromTs, toTs]` in Unix milliseconds. */
 export interface TimeRange {
   /** Inclusive start (Unix milliseconds). */
   fromTs: number;
-  /** Exclusive end (Unix milliseconds). */
+  /** Inclusive end (Unix milliseconds). */
   toTs: number;
 }
 

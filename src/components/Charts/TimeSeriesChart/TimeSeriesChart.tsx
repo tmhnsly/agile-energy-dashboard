@@ -16,6 +16,7 @@ import {
   formatDuration,
 } from '@/utils/format';
 import { clamp } from '@/utils/math';
+import { TONE_VARS } from '@/config/households';
 import { BandsLayer } from './BandsLayer';
 import { SelectionOverlay } from './SelectionOverlay';
 import { FocusIndicator } from './FocusIndicator';
@@ -23,6 +24,7 @@ import { MinMaxMarkers } from './MinMaxMarkers';
 import { TooltipCrosshair, TooltipContent } from './TooltipLayer';
 import type { TooltipData } from '@/types/chart';
 import { bisectNearest } from '@/utils/binarySearch';
+import { defaultFormatYTick } from '../utils';
 import { useChartInteraction } from '../hooks/useChartInteraction';
 import { useChartKeyboardNav } from '../hooks/useChartKeyboardNav';
 import type { ChartRange } from '../hooks/useChartInteraction';
@@ -51,10 +53,6 @@ function snapToFiveMinutes(ts: number): number {
   return Math.round(ts / FIVE_MINUTE_MS) * FIVE_MINUTE_MS;
 }
 
-function defaultFormatYTick(v: number): string {
-  return String(v);
-}
-
 function defaultFormatTooltipValue(v: number): string {
   return v.toFixed(1);
 }
@@ -77,14 +75,6 @@ const AXIS_LEFT_TICK_LABEL_PROPS = {
 
 const EMPTY_BANDS: ChartBand[] = [];
 
-/** Maps series tone tokens to CSS custom-property stroke colours. */
-const TONE_STROKE: Record<string, string> = {
-  accent: 'var(--accent-solid)',
-  secondary: 'var(--secondary-solid)',
-  positive: 'var(--success-solid)',
-  negative: 'var(--error-solid)',
-  warning: 'var(--warning-solid)',
-};
 
 export interface TimeSeriesChartProps {
   series: ChartSeries[];
@@ -411,7 +401,7 @@ export const TimeSeriesChart = ({
 
           {/* Series lines */}
           {series.map((s) => {
-            const stroke = TONE_STROKE[s.tone ?? 'accent'] ?? TONE_STROKE.accent;
+            const stroke = TONE_VARS[s.tone ?? 'accent'];
             return (
               <LinePath
                 key={s.id}

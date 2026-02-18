@@ -211,16 +211,8 @@ export function useChartKeyboardNav({
 
   const focusedIndexRef = useRef(focusedIndex);
   useEffect(() => { focusedIndexRef.current = focusedIndex; }, [focusedIndex]);
-
-  /* Defer parent onSelect calls so they don't fire inside a setState updater */
-  const pendingSelectRef = useRef<[number, number] | null>(null);
-  useEffect(() => {
-    if (pendingSelectRef.current) {
-      const [from, to] = pendingSelectRef.current;
-      pendingSelectRef.current = null;
-      onSelectRef.current(from, to);
-    }
-  });
+  const selectionStartRef = useRef(selectionStart);
+  useEffect(() => { selectionStartRef.current = selectionStart; }, [selectionStart]);
 
   const dismissKeyboard = useCallback(() => {
     setIsKeyboardActive(false);
@@ -235,129 +227,61 @@ export function useChartKeyboardNav({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (dataLength === 0) return;
-      const lastIndex = dataLength - 1;
+      const state: KeyNavState = {
+        focusedIndex: focusedIndexRef.current,
+        selectionStart: selectionStartRef.current,
+        anchor: anchorRef.current,
+      };
 
-      let handled = true;
+      const result = processKeyDown(state, {
+        key: e.key,
+        shiftKey: e.shiftKey,
+        dataLength,
+      });
 
-      switch (e.key) {
-        case 'ArrowRight': {
-          setIsKeyboardActive(true);
-          if (e.shiftKey) {
-            setFocusedIndex((prev) => {
-              const next = Math.min(prev + 1, lastIndex);
-              const anchor = anchorRef.current ?? prev;
-              anchorRef.current = anchor;
-              const fromIdx = Math.min(anchor, next);
-              const toIdx = Math.max(anchor, next);
-              pendingSelectRef.current = [fromIdx, toIdx];
-              setAnnouncement(formatSelectionRef.current(fromIdx, toIdx));
-              return next;
-            });
-          } else {
-            anchorRef.current = null;
-            setFocusedIndex((prev) => {
-              const next = Math.min(prev + 1, lastIndex);
-              setAnnouncement(formatPointRef.current(next));
-              return next;
-            });
-          }
-          break;
-        }
+      if (!result.handled) return;
 
-        case 'ArrowLeft': {
-          setIsKeyboardActive(true);
-          if (e.shiftKey) {
-            setFocusedIndex((prev) => {
-              const next = Math.max(prev - 1, 0);
-              const anchor = anchorRef.current ?? prev;
-              anchorRef.current = anchor;
-              const fromIdx = Math.min(anchor, next);
-              const toIdx = Math.max(anchor, next);
-              pendingSelectRef.current = [fromIdx, toIdx];
-              setAnnouncement(formatSelectionRef.current(fromIdx, toIdx));
-              return next;
-            });
-          } else {
-            anchorRef.current = null;
-            setFocusedIndex((prev) => {
-              const next = Math.max(prev - 1, 0);
-              setAnnouncement(formatPointRef.current(next));
-              return next;
-            });
-          }
-          break;
-        }
+      e.preventDefault();
+      setIsKeyboardActive(true);
 
-        case 'Home': {
-          setIsKeyboardActive(true);
-          anchorRef.current = null;
-          setFocusedIndex(0);
-          setAnnouncement(formatPointRef.current(0));
-          break;
-        }
+      // Apply state updates (sync refs for rapid keystrokes)
+      setFocusedIndex(result.next.focusedIndex);
+      focusedIndexRef.current = result.next.focusedIndex;
+      setSelectionStart(result.next.selectionStart);
+      selectionStartRef.current = result.next.selectionStart;
+      anchorRef.current = result.next.anchor;
 
-        case 'End': {
-          setIsKeyboardActive(true);
-          anchorRef.current = null;
-          setFocusedIndex(lastIndex);
-          setAnnouncement(formatPointRef.current(lastIndex));
-          break;
-        }
-
-        case ' ': {
-          setIsKeyboardActive(true);
-          if (selectionStart == null) {
-            // First press — place the start boundary
-            setFocusedIndex((prev) => {
-              setSelectionStart(prev);
+      // Announce
+      if (result.announce) {
+        switch (result.announce.type) {
+          case 'point':
+            setAnnouncement(formatPointRef.current(result.announce.index));
+            break;
+          case 'selection':
+            setAnnouncement(formatSelectionRef.current(result.announce.from, result.announce.to));
+            break;
+          case 'custom':
+            if (result.announce.text.startsWith('range-start:')) {
+              const idx = result.next.focusedIndex;
               setAnnouncement(
-                `Range start set at ${formatPointRef.current(prev)}. Navigate to end point and press Space again.`,
+                `Range start set at ${formatPointRef.current(idx)}. Navigate to end point and press Space again.`,
               );
-              return prev;
-            });
-          } else {
-            // Second press — commit the selection
-            setFocusedIndex((prev) => {
-              const fromIdx = Math.min(selectionStart, prev);
-              const toIdx = Math.max(selectionStart, prev);
-              pendingSelectRef.current = [fromIdx, toIdx];
-              setAnnouncement(formatSelectionRef.current(fromIdx, toIdx));
-              setSelectionStart(null);
-              anchorRef.current = null;
-              return prev;
-            });
-          }
-          break;
+            } else {
+              setAnnouncement(result.announce.text);
+            }
+            break;
         }
-
-        case 'Escape': {
-          setIsKeyboardActive(true);
-          anchorRef.current = null;
-          setSelectionStart(null);
-          onResetRef.current();
-          setAnnouncement('Selection cleared');
-          break;
-        }
-
-        case 'Enter': {
-          if (anchorRef.current != null) {
-            setIsKeyboardActive(true);
-            setAnnouncement('Selection confirmed');
-            anchorRef.current = null;
-          }
-          break;
-        }
-
-        default:
-          handled = false;
       }
 
-      if (handled) {
-        e.preventDefault();
+      // Fire callbacks
+      if (result.select) {
+        onSelectRef.current(result.select[0], result.select[1]);
+      }
+      if (result.reset) {
+        onResetRef.current();
       }
     },
-    [dataLength, selectionStart],
+    [dataLength],
   );
 
   return {
