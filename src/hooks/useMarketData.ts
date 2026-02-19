@@ -42,9 +42,14 @@ export type MarketDataState = MarketDataLoading | MarketDataError | MarketDataRe
  */
 export function useMarketData(retryKey = 0): MarketDataState {
   const [state, setState] = useState<MarketDataState>({ status: 'loading' });
+  const [prevRetryKey, setPrevRetryKey] = useState(retryKey);
+
+  if (prevRetryKey !== retryKey) {
+    setPrevRetryKey(retryKey);
+    setState({ status: 'loading' });
+  }
 
   useEffect(() => {
-    setState({ status: 'loading' });
     let cancelled = false;
 
     async function load() {
