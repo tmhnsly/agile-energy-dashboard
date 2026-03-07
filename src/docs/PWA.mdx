@@ -27,9 +27,12 @@ PWA support is powered by [Serwist](https://serwist.pages.dev/) (a maintained
 Workbox successor) via its `@serwist/next` integration.
 
 1. **Build time** — `@serwist/next` wraps the Next.js webpack config to compile
-   `src/sw.ts` into `public/sw.js` and inject a precache manifest.
+   `src/sw.ts` into `public/sw.js` and inject a precache manifest. The
+   `/~offline` page is added to the precache via `additionalPrecacheEntries`
+   with a content-based revision hash so the fallback is always available.
 2. **Runtime** — the service worker precaches app shell assets and applies
-   runtime caching strategies for data and images.
+   runtime caching strategies for data and images. Navigation preload is
+   disabled (not supported in Safari / iOS).
 3. **Dev mode** — the service worker is **disabled** in development
    (`process.env.NODE_ENV === "development"`) so hot-reload works normally. Use
    `pnpm dev:pwa` (webpack dev server) to test SW behaviour locally.

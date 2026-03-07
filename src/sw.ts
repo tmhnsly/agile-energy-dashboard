@@ -16,7 +16,7 @@ const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
-  navigationPreload: true,
+  navigationPreload: false,
   runtimeCaching: [
     // Static data files (JSON/CSV in /data/) — long-lived, rarely change
     {
