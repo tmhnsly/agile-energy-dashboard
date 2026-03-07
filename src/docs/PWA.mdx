@@ -91,12 +91,13 @@ continues to be served. If they navigate to a page that hasn't been cached, the
 ## Theme sync
 
 `ThemeColorSync` is a render-nothing client component mounted inside
-`Providers`. It watches `next-themes`' `resolvedTheme` and updates
-`<meta name="theme-color">` so the browser chrome (address bar, status bar)
-matches the current theme:
+`Providers`. It reads the computed `--app-bg` CSS variable (Radix `slate-1`)
+and updates `<meta name="theme-color">` so the browser chrome (address bar,
+status bar) always matches the design-system background for the active theme.
 
-- Dark → `#111113`
-- Light → `#fcfcfd`
+On mount it replaces the server-rendered media-query meta tags with a single
+authoritative tag controlled by `next-themes`' resolved theme, avoiding
+conflicts when the user's system preference differs from their in-app choice.
 
 ---
 
