@@ -2,8 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { useMarketData } from "@/hooks/useMarketData";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { BentoTile } from "@/components/Layout";
 import { BentoGrid } from "@/components/Layout";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import type { HouseholdKey } from "@/types/energy";
 import { HOUSEHOLD_THEMES } from "@/config/households";
 import {
@@ -52,6 +54,7 @@ export const DashboardShell = () => {
   const [retryKey, setRetryKey] = useState(0);
   const marketData = useMarketData(retryKey);
   const isLoading = marketData.status === "loading";
+  const isOnline = useNetworkStatus();
 
   const [household, setHousehold] = useState<HouseholdKey>("standard");
 
@@ -66,7 +69,9 @@ export const DashboardShell = () => {
   const errorDetail = marketData.status === "error" ? marketData.error : null;
 
   return (
-    <BentoGrid>
+    <>
+      {!isOnline && <OfflineBanner />}
+      <BentoGrid>
       <BentoTile
         span="wide"
         loading={isLoading}
@@ -134,5 +139,6 @@ export const DashboardShell = () => {
         ) : null}
       </BentoTile>
     </BentoGrid>
+    </>
   );
 };

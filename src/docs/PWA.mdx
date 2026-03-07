@@ -1,0 +1,128 @@
+{/* src/docs/PWA.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Infrastructure/PWA" />
+
+# Progressive Web App (PWA)
+
+The dashboard is a fully installable PWA with offline support, giving users a
+native-app experience on any device.
+
+## What you get
+
+- **Installability** — "Add to Home Screen" on mobile and desktop via the web
+  app manifest.
+- **Offline support** — cached pages and data remain accessible when the
+  network drops.
+- **Background caching** — static data and API responses are cached with
+  strategy-appropriate TTLs.
+- **Theme sync** — the browser chrome colour tracks the current light / dark
+  theme.
+
+---
+
+## Architecture
+
+PWA support is powered by [Serwist](https://serwist.pages.dev/) (a maintained
+Workbox successor) via its `@serwist/next` integration.
+
+1. **Build time** — `@serwist/next` wraps the Next.js webpack config to compile
+   `src/sw.ts` into `public/sw.js` and inject a precache manifest.
+2. **Runtime** — the service worker precaches app shell assets and applies
+   runtime caching strategies for data and images.
+3. **Dev mode** — the service worker is **disabled** in development
+   (`process.env.NODE_ENV === "development"`) so hot-reload works normally. Use
+   `pnpm dev:pwa` (webpack dev server) to test SW behaviour locally.
+
+---
+
+## Caching strategies
+
+| Resource | Strategy | Cache name | TTL / limit |
+|---|---|---|---|
+| App shell (JS, CSS, HTML) | **Precache** | `serwist-precache` | Versioned at build |
+| `/data/*` (JSON, CSV) | **CacheFirst** | `static-data` | 30 days, max 32 entries |
+| `/api/*` | **StaleWhileRevalidate** | `api-data` | 1 hour, max 32 entries |
+| Fonts | **CacheFirst** | `fonts` | 1 year, max 16 entries |
+| Images | **StaleWhileRevalidate** | `images` | 30 days, max 64 entries |
+| Everything else | Serwist `defaultCache` | various | Serwist defaults |
+
+---
+
+## Manifest & icons
+
+`src/app/manifest.ts` exports a typed Next.js metadata route that generates
+`/manifest.webmanifest` at build time. Key fields:
+
+- `id: "/"` — stable PWA identity, independent of `start_url` changes.
+- `display: "standalone"` — hides the browser chrome when installed.
+- `background_color` / `theme_color` — set to the dark theme base (`#111113`).
+
+### Icon inventory
+
+| File | Size | Purpose |
+|---|---|---|
+| `public/icons/icon-192.png` | 192 × 192 | Standard icon |
+| `public/icons/icon-512.png` | 512 × 512 | Splash / store listing |
+| `public/icons/icon-maskable-192.png` | 192 × 192 | Adaptive icon (maskable) |
+| `public/icons/icon-maskable-512.png` | 512 × 512 | Adaptive icon (maskable) |
+| `src/app/apple-icon.png` | — | Apple touch icon (Next.js metadata) |
+
+---
+
+## Offline experience
+
+Three pieces work together:
+
+1. **`src/app/~offline/page.tsx`** — a full-page fallback served by the service
+   worker when a navigation request fails and no cached page is available.
+2. **`useNetworkStatus` hook** — returns `true` / `false` based on
+   `navigator.onLine`, updating reactively via `useSyncExternalStore`.
+3. **`OfflineBanner` component** — conditionally rendered in the dashboard shell
+   when `useNetworkStatus()` returns `false`. Shows a top-of-page warning
+   strip: *"You're offline — showing cached data"*.
+
+When the user goes offline mid-session, the banner appears and cached API data
+continues to be served. If they navigate to a page that hasn't been cached, the
+`~offline` fallback page is shown instead.
+
+---
+
+## Theme sync
+
+`ThemeColorSync` is a render-nothing client component mounted inside
+`Providers`. It watches `next-themes`' `resolvedTheme` and updates
+`<meta name="theme-color">` so the browser chrome (address bar, status bar)
+matches the current theme:
+
+- Dark → `#111113`
+- Light → `#fcfcfd`
+
+---
+
+## Build scripts
+
+| Script | Runner | Service worker |
+|---|---|---|
+| `pnpm dev` | Turbopack | **Disabled** — fastest DX |
+| `pnpm dev:pwa` | Webpack | **Enabled** — test SW locally |
+| `pnpm build` | Webpack | **Enabled** — production build |
+
+`dev:pwa` exists because Serwist's Next.js plugin requires webpack (Turbopack
+support is not yet available).
+
+---
+
+## Key files
+
+| Path | Purpose |
+|---|---|
+| `src/sw.ts` | Service worker source (Serwist config, caching rules, fallbacks) |
+| `src/app/manifest.ts` | Web app manifest (Next.js metadata route) |
+| `src/app/~offline/page.tsx` | Offline fallback page |
+| `src/app/apple-icon.png` | Apple touch icon |
+| `public/icons/` | PWA icons (standard + maskable) |
+| `src/hooks/useNetworkStatus.ts` | Online / offline reactive hook |
+| `src/components/OfflineBanner/` | Offline warning banner component |
+| `src/components/ThemeColorSync/` | Meta theme-color sync component |
+| `next.config.ts` | Serwist / Next.js integration |

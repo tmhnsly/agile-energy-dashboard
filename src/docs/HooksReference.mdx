@@ -120,6 +120,21 @@ Returns `null` if no valid window exists for the requested duration.
 
 ---
 
+## useNetworkStatus
+
+```ts
+function useNetworkStatus(): boolean
+```
+
+Returns `true` when the browser is online, `false` when offline. Uses
+`useSyncExternalStore` with the `online` / `offline` window events so the
+value updates instantly when connectivity changes. Returns `true` during
+server-side rendering.
+
+**Source:** `src/hooks/useNetworkStatus.ts`
+
+---
+
 **See also:**
 [Energy Model](?path=/docs/domain-energy-model--docs) ·
 [Flexibility & Shifting](?path=/docs/domain-flexibility--shifting--docs)

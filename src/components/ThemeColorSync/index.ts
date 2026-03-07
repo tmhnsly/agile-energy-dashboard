@@ -1,0 +1,1 @@
+export { ThemeColorSync } from './ThemeColorSync';
