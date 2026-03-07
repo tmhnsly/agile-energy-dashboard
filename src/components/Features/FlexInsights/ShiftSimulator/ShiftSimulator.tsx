@@ -69,7 +69,7 @@ function computeHints(
 
     return {
       color: tone,
-      disabled: tone === 'mono',
+      disabled: false,
     };
   });
 }

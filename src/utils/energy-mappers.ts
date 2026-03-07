@@ -1,15 +1,12 @@
-import {
-  parseISO,
-  setHours,
-  setMinutes,
-  setSeconds,
-  setMilliseconds,
-  startOfDay,
-  addDays,
-} from 'date-fns';
-import { UTCDate } from '@date-fns/utc';
+import { parseISO } from 'date-fns';
 import Papa from 'papaparse';
 import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
+
+/** Midnight UTC for a given timestamp. Plain UTC math — no Date subclass needed. */
+function utcStartOfDay(ts: number): Date {
+  const d = new Date(ts);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
 
 // ---------------------------------------------------------------------------
 // Agile prices
@@ -93,8 +90,8 @@ export function mapFlexEvents(
   const items = extractFlexItems(rawJson);
   const events: FlexEvent[] = [];
 
-  const firstDay = startOfDay(new UTCDate(rangeFromTs));
-  const lastDay = startOfDay(new UTCDate(rangeToTs));
+  const firstDay = utcStartOfDay(rangeFromTs);
+  const lastDay = utcStartOfDay(rangeToTs);
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
@@ -137,7 +134,7 @@ export function mapFlexEvents(
             maxFlexKwh,
           });
         }
-        day = addDays(day, 1);
+        day = new Date(day.getTime() + 86_400_000);
       }
     } else {
       const startTs = anchorTimeToDate(startRaw, firstDay);
@@ -183,13 +180,15 @@ function anchorTimeToDate(
   }
 
   // Time-only string e.g. "18:00" or "18:30"
+  // Uses explicit UTC methods to avoid reliance on UTCDate class extension,
+  // which can break on iOS Safari due to built-in class inheritance issues.
   const match = raw.match(/^(\d{1,2}):(\d{2})$/);
   if (match) {
-    let d: Date = new UTCDate(referenceDate.getTime());
-    d = setHours(d, parseInt(match[1], 10));
-    d = setMinutes(d, parseInt(match[2], 10));
-    d = setSeconds(d, 0);
-    d = setMilliseconds(d, 0);
+    const d = new Date(referenceDate.getTime());
+    d.setUTCHours(parseInt(match[1], 10));
+    d.setUTCMinutes(parseInt(match[2], 10));
+    d.setUTCSeconds(0);
+    d.setUTCMilliseconds(0);
     return d.getTime();
   }
 

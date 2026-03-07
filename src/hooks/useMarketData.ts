@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { startOfDay } from 'date-fns';
-import { UTCDate } from '@date-fns/utc';
 import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
 import {
   mapAgilePrices,
@@ -74,14 +72,20 @@ export function useMarketData(retryKey = 0): MarketDataState {
 
         const prices = mapAgilePrices(priceJson);
 
+        if (prices.length === 0) {
+          throw new Error('No price data available — the upstream API may be temporarily unavailable');
+        }
+
         // Flex events use the full price range so time-only events repeat per day
-        const rangeFrom = prices.length > 0 ? prices[0].ts : Date.now();
-        const rangeTo = prices.length > 0 ? prices[prices.length - 1].ts : Date.now();
+        const rangeFrom = prices[0].ts;
+        const rangeTo = prices[prices.length - 1].ts;
         const flexEvents = mapFlexEvents(flexJson, rangeFrom, rangeTo);
 
         // Anchor the static usage CSV to today (UTC) so the dashboard
         // shows today's date and costs use today's prices.
-        const refDay = startOfDay(new UTCDate());
+        // Uses explicit UTC to avoid cross-browser Date subclass issues.
+        const now = new Date();
+        const refDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         const householdUsage = parseHouseholdUsageCsv(csvText, refDay);
 
         setState({ status: 'ready', prices, flexEvents, householdUsage });
