@@ -1,9 +1,10 @@
 {
   "buildCommand": "pnpm build-storybook && pnpm build",
-  "rewrites": [
+  "redirects": [
     {
       "source": "/storybook",
-      "destination": "/storybook/index.html"
+      "destination": "/storybook/",
+      "statusCode": 301
     }
   ]
 }

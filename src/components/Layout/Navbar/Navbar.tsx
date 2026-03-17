@@ -19,7 +19,7 @@ export const Navbar = ({ title, children, className }: NavbarProps) => {
         <div className={styles.actions}>
           {children}
           <a
-            href="/storybook"
+            href="/storybook/"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navLink}
