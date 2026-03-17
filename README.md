@@ -2,7 +2,7 @@
 
 A real-time energy dashboard visualising Octopus Energy's Agile tariff prices alongside household consumption data. Includes load-shifting simulation, flexibility insights, and responsive data visualisations with a polished design system.
 
-**[Live demo](https://agile-energy-dashboard.vercel.app/)** · **[Storybook](https://agile-energy-dashboard.vercel.app/storybook/index.html)**
+**[Live demo](https://agile-energy-dashboard.vercel.app/)** · **[Storybook](https://agile-energy-dashboard.vercel.app/storybook)**
 
 ## Tech stack
 

@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "storybook": "storybook dev -p 6006 --no-open",
-    "build-storybook": "storybook build -o storybook-static && rm -rf public/storybook && mv storybook-static public/storybook && node scripts/fix-storybook-paths.mjs"
+    "build-storybook": "storybook build -o storybook-static && rm -rf public/storybook && mv storybook-static public/storybook"
   },
   "dependencies": {
     "@date-fns/utc": "^2.1.1",

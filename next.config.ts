@@ -17,6 +17,7 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
+  trailingSlash: true,
   sassOptions: {
     loadPaths: [path.join(process.cwd(), "src", "styles")],
   },
