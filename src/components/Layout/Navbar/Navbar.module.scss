@@ -48,7 +48,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--avatar-size);
+  min-width: var(--avatar-size);
   height: var(--avatar-size);
   padding: 0;
   border-radius: var(--radius-squircle);
@@ -69,4 +69,15 @@
     outline: 2px solid var(--accent-border);
     outline-offset: 2px;
   }
+}
+
+.navActionLabel {
+  @include type.typography(card-title);
+  font-size: var(--text-sm);
+  padding-right: var(--space-2);
+}
+
+.navActionWithLabel {
+  gap: var(--space-1);
+  padding-left: var(--space-2);
 }

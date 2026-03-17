@@ -56,7 +56,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <Navbar title={SITE_NAME}>
-            <NavAction as="a" href="/storybook" target="_blank" rel="noopener noreferrer" aria-label="Storybook">
+            <NavAction as="a" href="/storybook" target="_blank" rel="noopener noreferrer" aria-label="Storybook" label="Storybook">
               <TbBook aria-hidden="true" />
             </NavAction>
             <NavAction aria-label="User menu">
