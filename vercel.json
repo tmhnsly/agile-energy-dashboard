@@ -1,3 +1,9 @@
 {
-  "buildCommand": "pnpm build-storybook && pnpm build"
+  "buildCommand": "pnpm build-storybook && pnpm build",
+  "rewrites": [
+    {
+      "source": "/storybook",
+      "destination": "/storybook/index.html"
+    }
+  ]
 }
