@@ -9,7 +9,7 @@ const prefersDark =
 const theme = create({
   base: prefersDark ? 'dark' : 'light',
   brandTitle: SITE_NAME,
-  brandImage: prefersDark ? '/shuffle-logo-dark.svg' : '/shuffle-logo.svg',
+  brandImage: prefersDark ? '/agile-energy-logo-dark.svg' : '/agile-energy-logo.svg',
   brandTarget: '_self',
   fontBase: '"Inter", system-ui, sans-serif',
   fontCode: 'monospace',

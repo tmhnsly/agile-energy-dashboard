@@ -1,10 +1,30 @@
-# ⚡ Shuffle Energy
+# ⚡ Agile Energy
 
-Real-time Agile tariff dashboard with household consumption tracking, flexibility insights, and load-shifting simulation.
+A real-time energy dashboard built with Next.js, visualising Octopus Energy's Agile tariff prices alongside household consumption data. Features load-shifting simulation, flexibility insights, and responsive data visualisations — all with a polished design system.
 
-**Production:** [shuffle-tech-test.vercel.app](https://shuffle-tech-test.vercel.app/)
+This is a portfolio project demonstrating frontend engineering with a focus on data visualisation, responsive design, and developer experience.
 
 ---
+
+## Features
+
+- **Market Price chart** — live Agile tariff rates over time with shaded flex-event windows. Duration presets (6h, 12h, 24h) jump to the cheapest contiguous window. Drag to select a custom time range; stat cards update to reflect the selection.
+- **Household Usage chart** — overlays consumption for selectable household profiles (Standard, Heat Pump, Heat Pump + Battery). Drag to select a time range for detailed stats.
+- **Flex Insights** — daily cost breakdown and potential earnings from participating in flexibility events. Switch household profiles to compare.
+- **Shift Simulator** — pick "from" and "to" time periods to see the cost impact of moving usage. Green = savings, red = costs more. Adjustable energy slider.
+
+## Tech stack
+
+| Category | Tech |
+|----------|------|
+| **Framework** | [Next.js 16](https://nextjs.org/docs) — App Router, API routes, ISR |
+| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) — strict mode |
+| **Styling** | [Sass](https://sass-lang.com/documentation/) — SCSS modules, container queries |
+| **Components** | [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) — primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
+| **Charts** | [visx](https://airbnb.io/visx/docs) |
+| **Icons** | [Tabler Icons](https://tabler.io/icons) via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
+| **Docs** | [Storybook 10](https://storybook.js.org/docs) — component library + design system |
+| **Testing** | [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) |
 
 ## Getting started
 
@@ -19,19 +39,6 @@ pnpm install
 | `pnpm build` | Production build |
 | `pnpm lint` | Lint |
 | `npx vitest run` | Unit + browser tests |
-
-## Tech stack
-
-| Category | Tech |
-|----------|------|
-| **Framework** | [Next.js 16](https://nextjs.org/docs) — App Router, API routes, ISR |
-| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) — strict mode |
-| **Styling** | [Sass](https://sass-lang.com/documentation/) — SCSS modules, container queries |
-| **Components** | [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) — primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
-| **Charts** | [visx](https://airbnb.io/visx/docs) |
-| **Icons** | [Tabler Icons](https://tabler.io/icons) via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
-| **Docs** | [Storybook 10](https://storybook.js.org/docs) — component library + design system |
-| **Testing** | [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) |
 
 ## Project structure
 
@@ -66,20 +73,13 @@ DashboardShell
        └─ Shift Simulator     simulateShift()
 ```
 
-## Assumptions
+## Data sources
 
-- **Prices** come from the Octopus Energy Agile tariff API, in pence/kWh including VAT. The product code and region are hardcoded in `/api/agile-prices` — change them there if needed.
-- **Household usage** is loaded from a static CSV (`/data/household_usage.csv`) with half-hourly kWh values for three profiles: Standard, Heat Pump, and Heat Pump + Battery. Time-only values in the CSV are anchored to today (UTC) so the dashboard reflects today's prices.
-- **Flex events** are loaded from `/data/flexibility_opportunity.json`. Events with time-only start/end values are treated as daily recurring and expanded across the price range. Only events overlapping the usage day are shown in Flex Insights.
+- **Prices** come from the [Octopus Energy Agile tariff API](https://octopus.energy/), in pence/kWh including VAT. The product code and region are configured in `/api/agile-prices`.
+- **Household usage** is loaded from a static CSV (`/data/household_usage.csv`) with half-hourly kWh values for three profiles: Standard, Heat Pump, and Heat Pump + Battery. Time-only values are anchored to today (UTC) so the dashboard reflects current prices.
+- **Flex events** are loaded from `/data/flexibility_opportunity.json`. Events with time-only start/end values are treated as daily recurring and expanded across the price range.
 - **All timestamps** represent the start of a half-hour settlement period. A price at `ts` covers `[ts, ts + 30 min)`.
-
-## Interpreting the visualisations
-
-- **Market Price chart** — shows the Agile tariff over time. Shaded bands mark flex-event windows. The duration preset buttons (6h, 12h, 24h) jump to the cheapest contiguous window for that duration. Drag to select a custom time range; stat cards update to reflect the selection.
-- **Household Usage chart** — overlays consumption for the selected household profiles. Switch profiles with the selector buttons. Drag to select a time range to see stats for that period.
-- **Flex Insights** — shows the selected household's daily cost and what you could earn by participating in flex events (turning usage up or down when asked). Switch household with the selector to compare.
-- **Shift Simulator** — pick a "from" and "to" time period to see what happens to your daily cost if you move usage between them. Green hints = saves money, red hints = costs more. The slider adjusts how much energy to shift.
 
 ## Storybook
 
-`pnpm storybook` serves component docs and design system guides covering colours, typography, spacing, surfaces, and domain models.
+`pnpm storybook` serves component docs and design system guides covering colours, typography, spacing, surfaces, and domain models. Storybook is also available online — see the repo description for the link.
