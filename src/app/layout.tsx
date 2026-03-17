@@ -3,6 +3,8 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Layout";
+import { NavAction } from "@/components/Layout/Navbar/NavAction";
+import { TbBook, TbUser } from "react-icons/tb";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/config/site";
@@ -53,7 +55,14 @@ export default function RootLayout({
     >
       <body>
         <Providers>
-          <Navbar title={SITE_NAME} />
+          <Navbar title={SITE_NAME}>
+            <NavAction as="a" href="/storybook/index.html" target="_blank" rel="noopener noreferrer" aria-label="Storybook">
+              <TbBook aria-hidden="true" />
+            </NavAction>
+            <NavAction aria-label="User menu">
+              <TbUser aria-hidden="true" />
+            </NavAction>
+          </Navbar>
           {children}
           <SpeedInsights />
         </Providers>
