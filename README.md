@@ -1,44 +1,58 @@
-# ⚡ Agile Energy
+# Agile Energy Dashboard
 
-A real-time energy dashboard built with Next.js, visualising Octopus Energy's Agile tariff prices alongside household consumption data. Features load-shifting simulation, flexibility insights, and responsive data visualisations — all with a polished design system.
+A real-time energy dashboard visualising Octopus Energy's Agile tariff prices alongside household consumption data. Includes load-shifting simulation, flexibility insights, and responsive data visualisations with a polished design system.
 
-This is a portfolio project demonstrating frontend engineering with a focus on data visualisation, responsive design, and developer experience.
-
----
-
-## Features
-
-- **Market Price chart** — live Agile tariff rates over time with shaded flex-event windows. Duration presets (6h, 12h, 24h) jump to the cheapest contiguous window. Drag to select a custom time range; stat cards update to reflect the selection.
-- **Household Usage chart** — overlays consumption for selectable household profiles (Standard, Heat Pump, Heat Pump + Battery). Drag to select a time range for detailed stats.
-- **Flex Insights** — daily cost breakdown and potential earnings from participating in flexibility events. Switch household profiles to compare.
-- **Shift Simulator** — pick "from" and "to" time periods to see the cost impact of moving usage. Green = savings, red = costs more. Adjustable energy slider.
+**[Live demo](https://agile-energy-dashboard.vercel.app/)** · **[Storybook](https://agile-energy-dashboard.vercel.app/storybook)**
 
 ## Tech stack
 
-| Category | Tech |
-|----------|------|
-| **Framework** | [Next.js 16](https://nextjs.org/docs) — App Router, API routes, ISR |
-| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) — strict mode |
-| **Styling** | [Sass](https://sass-lang.com/documentation/) — SCSS modules, container queries |
-| **Components** | [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) — primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
+| | |
+|---|---|
+| **Framework** | [Next.js 16](https://nextjs.org/docs) · App Router, API routes, ISR |
+| **Language** | [TypeScript](https://www.typescriptlang.org/docs/) · strict mode |
+| **Styling** | [Sass](https://sass-lang.com/documentation/) · SCSS modules, container queries |
+| **Components** | [Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction) · primitives + [Colors](https://www.radix-ui.com/colors/docs/overview/installation) |
 | **Charts** | [visx](https://airbnb.io/visx/docs) |
 | **Icons** | [Tabler Icons](https://tabler.io/icons) via [react-icons](https://react-icons.github.io/react-icons/icons/tb/) |
-| **Docs** | [Storybook 10](https://storybook.js.org/docs) — component library + design system |
+| **Docs** | [Storybook 10](https://storybook.js.org/docs) · component library + design system |
 | **Testing** | [Vitest](https://vitest.dev/guide/) + [Playwright](https://playwright.dev/docs/intro) |
 
 ## Getting started
 
 ```bash
 pnpm install
+pnpm dev          # localhost:3000
 ```
 
-| Command | |
-|---------|---|
-| `pnpm dev` | [localhost:3000](http://localhost:3000) |
-| `pnpm storybook` | [localhost:6006](http://localhost:6006) |
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start dev server |
 | `pnpm build` | Production build |
 | `pnpm lint` | Lint |
+| `pnpm storybook` | Component docs at localhost:6006 |
 | `npx vitest run` | Unit + browser tests |
+
+## Features
+
+- **Market Price chart** — live Agile tariff rates with shaded flex-event windows. Duration presets (6h, 12h, 24h) jump to the cheapest contiguous window. Drag-select a custom time range to update stat cards.
+- **Household Usage chart** — consumption overlay for selectable profiles (Standard, Heat Pump, Heat Pump + Battery). Drag-select for detailed stats.
+- **Flex Insights** — daily cost breakdown and potential earnings from flexibility events. Switch profiles to compare.
+- **Shift Simulator** — pick "from" and "to" periods to see the cost impact of moving usage. Adjustable energy slider.
+
+## Architecture
+
+```
+DashboardShell
+  └─ useMarketData()              ← parallel fetch
+       ├─ /api/agile-prices              (ISR, 15 min)
+       ├─ flexibility_opportunity.json
+       └─ household_usage.csv
+  └─ BentoGrid
+       ├─ Market Price             usePriceStats() · findCheapestWindow()
+       ├─ Household Usage          useUsageStats() · profile switcher
+       ├─ Flex Insights            computeFlexEarnings() · daily cost
+       └─ Shift Simulator          simulateShift()
+```
 
 ## Project structure
 
@@ -58,28 +72,12 @@ src/
 └── utils/            Formatters, data mappers, helpers
 ```
 
-## Architecture
-
-```
-DashboardShell
-  └─ useMarketData()       ← parallel fetch
-       ├─ /api/agile-prices       (ISR, 15 min)
-       ├─ flexibility_opportunity.json
-       └─ household_usage.csv
-  └─ BentoGrid
-       ├─ Market Price        usePriceStats() · findCheapestWindow()
-       ├─ Household Usage     useUsageStats() · profile switcher
-       ├─ Flex Insights       computeFlexEarnings() · daily cost
-       └─ Shift Simulator     simulateShift()
-```
-
 ## Data sources
 
-- **Prices** come from the [Octopus Energy Agile tariff API](https://octopus.energy/), in pence/kWh including VAT. The product code and region are configured in `/api/agile-prices`.
-- **Household usage** is loaded from a static CSV (`/data/household_usage.csv`) with half-hourly kWh values for three profiles: Standard, Heat Pump, and Heat Pump + Battery. Time-only values are anchored to today (UTC) so the dashboard reflects current prices.
-- **Flex events** are loaded from `/data/flexibility_opportunity.json`. Events with time-only start/end values are treated as daily recurring and expanded across the price range.
-- **All timestamps** represent the start of a half-hour settlement period. A price at `ts` covers `[ts, ts + 30 min)`.
+| Source | Detail |
+|---|---|
+| **Prices** | [Octopus Energy Agile tariff API](https://octopus.energy/) — pence/kWh inc. VAT. Product code and region configured in `/api/agile-prices`. |
+| **Household usage** | Static CSV (`/data/household_usage.csv`) — half-hourly kWh for three profiles. Time values anchored to today (UTC) to align with current prices. |
+| **Flex events** | `/data/flexibility_opportunity.json` — time-only start/end values treated as daily recurring and expanded across the price range. |
 
-## Storybook
-
-`pnpm storybook` serves component docs and design system guides covering colours, typography, spacing, surfaces, and domain models. Storybook is also available online — see the repo description for the link.
+All timestamps represent the start of a half-hour settlement period — a price at `ts` covers `[ts, ts + 30 min)`.

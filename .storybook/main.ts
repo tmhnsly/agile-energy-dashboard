@@ -21,6 +21,7 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
   },
   viteFinal: async (config) => {
+    config.base = '/storybook/';
     config.css = {
       ...config.css,
       preprocessorOptions: {

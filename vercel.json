@@ -1,0 +1,3 @@
+{
+  "buildCommand": "pnpm build-storybook && pnpm build"
+}

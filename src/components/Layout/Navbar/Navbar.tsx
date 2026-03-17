@@ -1,4 +1,4 @@
-import { TbBoltFilled, TbUser } from 'react-icons/tb';
+import { TbBoltFilled, TbBook, TbUser } from 'react-icons/tb';
 import { cx } from '@/utils/cx';
 import styles from './Navbar.module.scss';
 
@@ -18,6 +18,16 @@ export const Navbar = ({ title, children, className }: NavbarProps) => {
         </div>
         <div className={styles.actions}>
           {children}
+          <a
+            href="/storybook"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.navLink}
+            aria-label="Storybook"
+          >
+            <TbBook aria-hidden="true" />
+            <span className={styles.navLinkLabel}>Storybook</span>
+          </a>
           <button className={styles.avatar} aria-label="User menu">
             <TbUser aria-hidden="true" />
           </button>
