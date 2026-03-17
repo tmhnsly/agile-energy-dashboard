@@ -3,6 +3,11 @@
  *
  * All animation presets live here so timing, easing, and distances
  * stay consistent across the project and can be tuned in one place.
+ *
+ * Usage guide:
+ *   import { reveal, swap, crossfade, drawLine } from '@/config/motion';
+ *
+ * See the "Design System / Motion" Storybook page for interactive examples.
  */
 import type { Transition, Variants } from 'motion/react';
 
@@ -15,12 +20,19 @@ export const ease = {
   outBack: [0.34, 1.3, 0.64, 1] as const,
 };
 
+/** CSS-ready easing string for use in SCSS / inline styles. */
+export const easeCss = {
+  out: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+};
+
 /* ── Duration (seconds) ─────────────────────────────────────────── */
 
 export const duration = {
   fast: 0.2,
   normal: 0.4,
   slow: 0.6,
+  /** SVG line draw animation. */
+  drawLine: 1,
 };
 
 /* ── Stagger (seconds between siblings) ─────────────────────────── */
@@ -28,6 +40,8 @@ export const duration = {
 export const stagger = {
   tight: 0.06,
   normal: 0.1,
+  /** Between chart series lines. */
+  series: 0.15,
 };
 
 /* ── Reveal presets (viewport-triggered entrance) ───────────────── */
@@ -75,5 +89,13 @@ export const swap = {
 
 export const crossfade = {
   exit: { opacity: 0 },
-  transition: { duration: 0.35 } satisfies Transition,
+  transition: { duration: duration.normal } satisfies Transition,
+};
+
+/* ── Draw line (SVG stroke-dashoffset animation) ────────────────── */
+
+export const drawLine = {
+  duration: duration.drawLine,
+  stagger: stagger.series,
+  ease: easeCss.out,
 };

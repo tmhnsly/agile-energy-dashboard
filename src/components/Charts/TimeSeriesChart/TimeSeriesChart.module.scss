@@ -82,7 +82,7 @@
 .seriesLineAnimated {
   stroke-dasharray: var(--line-length);
   stroke-dashoffset: var(--line-length);
-  animation: drawLine 1s var(--line-delay, 0s) cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: drawLine var(--draw-line-duration, 1s) var(--line-delay, 0s) var(--ease-out) forwards;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;

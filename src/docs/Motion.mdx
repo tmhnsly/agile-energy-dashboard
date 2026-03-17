@@ -1,0 +1,274 @@
+{/* src/docs/Motion.mdx */}
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design System/Motion" />
+
+export const TokenRow = ({ token, value, desc }) => (
+  <tr>
+    <td><code>{token}</code></td>
+    <td><code>{value}</code></td>
+    <td>{desc}</td>
+  </tr>
+);
+
+export const EasingDemo = ({ label, curve, cssVar }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+    <div style={{
+      width: 48, height: 48, borderRadius: 8,
+      background: 'var(--accent-bg)',
+      border: '1px solid var(--accent-border-subtle)',
+      animation: `motionDemoSlide 2s ${cssVar} infinite alternate`,
+    }} />
+    <div>
+      <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{label}</div>
+      <code style={{ fontSize: '0.75rem', color: 'var(--mono-text-low-contrast)' }}>{curve}</code>
+    </div>
+  </div>
+);
+
+export const RevealDemo = ({ label, transform, delay = 0 }) => (
+  <div style={{
+    padding: '1.25rem', borderRadius: '0.75rem',
+    background: 'var(--mono-subtle-bg)',
+    border: '1px solid var(--mono-border-subtle)',
+    animation: `motionDemoReveal 0.6s ${delay}s cubic-bezier(0.25, 0.1, 0.25, 1) both`,
+    fontSize: '0.875rem', fontWeight: 500,
+  }}>
+    {label}
+  </div>
+);
+
+export const LineDrawDemo = () => (
+  <svg width="100%" height="60" viewBox="0 0 400 60" style={{ overflow: 'visible' }}>
+    <path
+      d="M 0 50 Q 50 10, 100 30 T 200 20 T 300 40 T 400 15"
+      fill="none"
+      stroke="var(--accent-solid)"
+      strokeWidth="2.5"
+      strokeDasharray="600"
+      strokeDashoffset="600"
+      style={{ animation: 'motionDemoDrawLine 1.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards' }}
+    />
+  </svg>
+);
+
+<style>{`
+  @keyframes motionDemoSlide {
+    from { transform: translateX(0); }
+    to { transform: translateX(120px); }
+  }
+  @keyframes motionDemoReveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes motionDemoDrawLine {
+    to { stroke-dashoffset: 0; }
+  }
+`}</style>
+
+# Motion
+
+All animations are configured in **`src/config/motion.ts`** and mirrored as CSS custom properties in **`src/styles/theme/motion.scss`**. This keeps timing, easing, and distances consistent and tuneable from a single source.
+
+Animations respect `prefers-reduced-motion` automatically — Motion.js handles this for JS-driven animations, and CSS animations use a `@media` query fallback.
+
+---
+
+## Easing
+
+<table>
+  <thead><tr><th>Name</th><th>Value</th><th>Use</th></tr></thead>
+  <tbody>
+    <TokenRow token="ease.out" value="cubic-bezier(0.25, 0.1, 0.25, 1)" desc="Smooth deceleration. Default for all entrances." />
+    <TokenRow token="ease.outBack" value="cubic-bezier(0.34, 1.3, 0.64, 1)" desc="Gentle overshoot. For playful or emphasised reveals." />
+  </tbody>
+</table>
+
+**CSS variable:** `var(--ease-out)`
+
+<EasingDemo label="ease.out" curve="cubic-bezier(0.25, 0.1, 0.25, 1)" cssVar="cubic-bezier(0.25, 0.1, 0.25, 1)" />
+
+---
+
+## Duration
+
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+  <tbody>
+    <TokenRow token="duration.fast" value="0.2s" desc="Swaps, toggles, micro-interactions" />
+    <TokenRow token="duration.normal" value="0.4s" desc="Reveals, crossfades, entrance transitions" />
+    <TokenRow token="duration.slow" value="0.6s" desc="Reserved for large/dramatic entrances" />
+    <TokenRow token="duration.drawLine" value="1s" desc="SVG chart line draw animation" />
+  </tbody>
+</table>
+
+**CSS variables:** `var(--duration-fast)`, `var(--duration-normal)`, `var(--duration-slow)`, `var(--draw-line-duration)`
+
+---
+
+## Stagger
+
+Delay between sibling elements animating in sequence.
+
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+  <tbody>
+    <TokenRow token="stagger.tight" value="0.06s" desc="Compact lists, stat cards" />
+    <TokenRow token="stagger.normal" value="0.1s" desc="Grid tiles, card groups" />
+    <TokenRow token="stagger.series" value="0.15s" desc="Chart series lines" />
+  </tbody>
+</table>
+
+---
+
+## Presets
+
+### Reveal (viewport-triggered entrance)
+
+Elements animate in when they scroll into view. Triggers once, never replays.
+
+```tsx
+import { reveal, stagger } from '@/config/motion';
+
+<motion.div
+  variants={reveal.fadeUp}
+  initial="hidden"
+  whileInView="visible"
+  viewport={reveal.viewport}
+  transition={reveal.transition(index * stagger.normal)}
+/>
+```
+
+**Variants available:**
+
+| Variant | Effect |
+|---------|--------|
+| `reveal.fadeUp` | Opacity 0 → 1, Y +20px → 0 |
+| `reveal.fade` | Opacity only |
+| `reveal.scaleUp` | Opacity + scale 0.95 → 1 |
+
+<div style={{ display: 'grid', gap: '0.5rem', marginTop: '1rem' }}>
+  <RevealDemo label="reveal.fadeUp — tile 1" delay={0} />
+  <RevealDemo label="reveal.fadeUp — tile 2 (staggered)" delay={0.1} />
+  <RevealDemo label="reveal.fadeUp — tile 3 (staggered)" delay={0.2} />
+</div>
+
+**Used by:** `BentoTile`
+
+---
+
+### Swap (content enter/exit in place)
+
+For replacing content within a container — results, state changes.
+
+```tsx
+import { swap } from '@/config/motion';
+
+<AnimatePresence mode="wait">
+  <motion.div
+    key={uniqueKey}
+    initial={swap.enter}
+    animate={swap.visible}
+    exit={swap.exit}
+    transition={swap.transition}
+  />
+</AnimatePresence>
+```
+
+| Property | Value |
+|----------|-------|
+| Enter | opacity: 0, scale: 0.95, y: +6 |
+| Visible | opacity: 1, scale: 1, y: 0 |
+| Exit | opacity: 0, scale: 0.95, y: -6 |
+| Duration | 0.2s (fast) |
+
+**Used by:** `ShiftSimulator` result display
+
+---
+
+### Crossfade (skeleton to content)
+
+Skeleton overlays the content as an absolute-positioned layer, then fades out when loading completes. Content is already laid out underneath — no layout shift.
+
+```tsx
+import { crossfade } from '@/config/motion';
+
+<AnimatePresence initial={false}>
+  {loading && (
+    <motion.div
+      key="skeleton"
+      className={styles.skeletonOverlay}
+      exit={crossfade.exit}
+      transition={crossfade.transition}
+    >
+      {skeleton}
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+| Property | Value |
+|----------|-------|
+| Exit | opacity: 0 |
+| Duration | 0.4s (normal) |
+
+**Used by:** `BentoTile` loading state
+
+---
+
+### Draw line (SVG chart animation)
+
+Chart series lines draw themselves left-to-right using `stroke-dashoffset`. Pure CSS animation — no Motion.js needed.
+
+<LineDrawDemo />
+
+```tsx
+import { drawLine } from '@/config/motion';
+
+// Applied via CSS custom properties on the SVG path:
+style={{
+  '--line-length': pathLength,
+  '--line-delay': `${index * drawLine.stagger}s`,
+  '--draw-line-duration': `${drawLine.duration}s`,
+}}
+```
+
+The CSS animation references these variables:
+
+```scss
+.seriesLineAnimated {
+  stroke-dasharray: var(--line-length);
+  stroke-dashoffset: var(--line-length);
+  animation: drawLine var(--draw-line-duration) var(--line-delay) var(--ease-out) forwards;
+}
+```
+
+| Property | Value |
+|----------|-------|
+| Duration | 1s |
+| Stagger | 0.15s between series |
+| Easing | ease.out |
+
+**Used by:** `TimeSeriesChart` series lines
+
+---
+
+## CSS custom properties
+
+All motion tokens are available as CSS custom properties for use in SCSS or inline styles:
+
+```scss
+// In any SCSS file:
+animation: myAnim var(--duration-normal) var(--ease-out);
+transition: opacity var(--duration-fast) var(--ease-out);
+```
+
+---
+
+## Adding a new animation
+
+1. Define timing/easing values in `src/config/motion.ts`
+2. If CSS-only, mirror the values as custom properties in `src/styles/theme/motion.scss`
+3. Import from `@/config/motion` in your component
+4. Use `prefers-reduced-motion` media query for CSS animations, Motion.js handles it automatically for JS
+5. Update this page with the new preset

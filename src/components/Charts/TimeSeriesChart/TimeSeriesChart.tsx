@@ -2,6 +2,7 @@
 
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { FIVE_MINUTE_MS } from '@/utils/constants';
+import { drawLine } from '@/config/motion';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { LinePath } from '@visx/shape';
@@ -69,6 +70,7 @@ function AnimatedLinePath({
         stroke,
         '--line-length': length != null ? length : undefined,
         '--line-delay': `${delay}s`,
+        '--draw-line-duration': `${drawLine.duration}s`,
       } as React.CSSProperties}
     />
   );
@@ -449,7 +451,7 @@ export const TimeSeriesChart = ({
                 xScale={xScale}
                 yScale={yScale}
                 stroke={stroke}
-                delay={i * 0.15}
+                delay={i * drawLine.stagger}
               />
             );
           })}
