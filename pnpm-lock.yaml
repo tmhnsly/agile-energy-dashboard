@@ -99,9 +99,6 @@ importers:
       '@storybook/addon-docs':
         specifier: ^10.2.8
         version: 10.2.8(@types/react@19.2.11)(esbuild@0.27.3)(rollup@4.57.1)(storybook@10.2.8(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@6.4.1(@types/node@20.19.31)(sass@1.97.3))
-      '@storybook/addon-toolbars':
-        specifier: ^9.0.8
-        version: 9.0.8
       '@storybook/addon-vitest':
         specifier: ^10.2.8
         version: 10.2.8(@vitest/browser-playwright@4.0.18)(@vitest/browser@4.0.18(vite@6.4.1(@types/node@20.19.31)(sass@1.97.3))(vitest@4.0.18))(@vitest/runner@4.0.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.2.8(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.18)
@@ -1505,9 +1502,6 @@ packages:
     resolution: {integrity: sha512-cEoWqQrLzrxOwZFee5zrD4cYrdEWKV80POb7jUZO0r5vfl2DuslIr3n/+RfLT52runCV4aZcFEfOfP/IWHNPxg==}
     peerDependencies:
       storybook: ^10.2.8
-
-  '@storybook/addon-toolbars@9.0.8':
-    resolution: {integrity: sha512-Vgr+TxEXQiaYp1SpUnO8AZamZk4um+QTbj0egQfBLuHMWPtrMRyXgtum4Xnw6Dox83TgG237YTYZHExWV/MnSQ==}
 
   '@storybook/addon-vitest@10.2.8':
     resolution: {integrity: sha512-D+9QWBqURAlS9+js9fvBToe7RzhIM9/ep/q8lunpVvcTkbOxh5++cYWBD8PVqmzZ+U432w9h2UwPuxPsWD/loQ==}
@@ -5002,8 +4996,6 @@ snapshots:
       - rollup
       - vite
       - webpack
-
-  '@storybook/addon-toolbars@9.0.8': {}
 
   '@storybook/addon-vitest@10.2.8(@vitest/browser-playwright@4.0.18)(@vitest/browser@4.0.18(vite@6.4.1(@types/node@20.19.31)(sass@1.97.3))(vitest@4.0.18))(@vitest/runner@4.0.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.2.8(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.18)':
     dependencies:
