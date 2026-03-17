@@ -70,6 +70,26 @@
   stroke-width: var(--chart-stroke-thick);
 }
 
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: var(--line-length);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.seriesLineAnimated {
+  stroke-dasharray: var(--line-length);
+  stroke-dashoffset: var(--line-length);
+  animation: drawLine 1s var(--line-delay, 0s) cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
 .minMarker {
   fill: var(--success-solid);
   stroke: var(--mono-app-bg);

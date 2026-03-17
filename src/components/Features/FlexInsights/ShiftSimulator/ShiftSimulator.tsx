@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { swap } from '@/config/motion';
 import { TbMoonStars, TbSunrise, TbSun, TbSunset2 } from 'react-icons/tb';
 import type { HouseholdUsageRow, PricePoint, HouseholdKey } from '@/types/energy';
 import { HALF_HOUR_MS } from '@/utils/constants';
@@ -324,24 +326,40 @@ export const ShiftSimulator = ({
       </div>
 
       <div className={styles.resultArea}>
-        {result ? (
-          <div className={styles.savingStack}>
-            <span className={styles.savingBreakdown}>
-              {formatCostPence(result.originalCostPence)} → {formatCostPence(result.newCostPence)}
-            </span>
-            <span className={styles.savingValue} data-tone={savingTone}>
-              {result.savingPence > SAVING_THRESHOLD
-                ? `Save ${formatCostPence(result.savingPence)}`
-                : result.savingPence < -SAVING_THRESHOLD
-                  ? `Extra ${formatCostPence(Math.abs(result.savingPence))}`
-                  : 'No difference'}
-            </span>
-          </div>
-        ) : (
-          <p className={styles.savingPlaceholder}>
-            Select a time period to see potential savings.
-          </p>
-        )}
+        <AnimatePresence mode="wait">
+          {result ? (
+            <motion.div
+              key={`${fromIdx}-${toIdx}`}
+              className={styles.savingStack}
+              initial={swap.enter}
+              animate={swap.visible}
+              exit={swap.exit}
+              transition={swap.transition}
+            >
+              <span className={styles.savingBreakdown}>
+                {formatCostPence(result.originalCostPence)} → {formatCostPence(result.newCostPence)}
+              </span>
+              <span className={styles.savingValue} data-tone={savingTone}>
+                {result.savingPence > SAVING_THRESHOLD
+                  ? `Save ${formatCostPence(result.savingPence)}`
+                  : result.savingPence < -SAVING_THRESHOLD
+                    ? `Extra ${formatCostPence(Math.abs(result.savingPence))}`
+                    : 'No difference'}
+              </span>
+            </motion.div>
+          ) : (
+            <motion.p
+              key="placeholder"
+              className={styles.savingPlaceholder}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: swap.transition.duration }}
+            >
+              Select a time period to see potential savings.
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <ClearSelectionButton

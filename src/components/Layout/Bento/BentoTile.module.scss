@@ -3,11 +3,13 @@
 
 .tile {
   @include surface.glass-panel;
+  position: relative;
   border-radius: var(--radius-card);
   padding: var(--card-padding-compact);
   min-height: var(--tile-min-height);
   container-type: inline-size;
   container-name: tile;
+  overflow: hidden;
 
   --radius-inner: max(var(--radius-1), calc(var(--radius-card) - var(--card-padding-compact)));
 
@@ -103,6 +105,13 @@
     --mono-text: var(--warning-text);
     --mono-text-low-contrast: var(--warning-text-low-contrast);
   }
+}
+
+.skeletonOverlay {
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  z-index: 1;
 }
 
 .skelFallback {

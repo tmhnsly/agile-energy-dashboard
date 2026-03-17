@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { FIVE_MINUTE_MS } from '@/utils/constants';
 import { Group } from '@visx/group';
 import { AxisBottom, AxisLeft } from '@visx/axis';
@@ -33,6 +33,46 @@ import { useMinMaxStats } from './useMinMaxStats';
 import { useDayBoundaries } from './useDayBoundaries';
 import type { ChartMargin } from './useChartScales';
 import styles from './TimeSeriesChart.module.scss';
+
+/** Draws a line that animates in via stroke-dashoffset on first render. */
+function AnimatedLinePath({
+  data,
+  xScale,
+  yScale,
+  stroke,
+  delay,
+}: {
+  data: { ts: number; value: number }[];
+  xScale: (d: Date) => number;
+  yScale: (v: number) => number;
+  stroke: string;
+  delay: number;
+}) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const [length, setLength] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (pathRef.current) {
+      setLength(pathRef.current.getTotalLength());
+    }
+  }, [data, xScale, yScale]);
+
+  return (
+    <LinePath
+      innerRef={pathRef}
+      data={data}
+      x={(d) => xScale(new Date(d.ts))}
+      y={(d) => yScale(d.value)}
+      curve={curveMonotoneX}
+      className={`${styles.seriesLine} ${length != null ? styles.seriesLineAnimated : ''}`}
+      style={{
+        stroke,
+        '--line-length': length != null ? length : undefined,
+        '--line-delay': `${delay}s`,
+      } as React.CSSProperties}
+    />
+  );
+}
 
 /** Maximum number of x-axis tick labels. */
 const MAX_X_TICKS = 8;
@@ -400,17 +440,16 @@ export const TimeSeriesChart = ({
           />
 
           {/* Series lines */}
-          {series.map((s) => {
+          {series.map((s, i) => {
             const stroke = TONE_VARS[s.tone ?? 'accent'];
             return (
-              <LinePath
+              <AnimatedLinePath
                 key={s.id}
                 data={s.data}
-                x={(d) => xScale(new Date(d.ts))}
-                y={(d) => yScale(d.value)}
-                curve={curveMonotoneX}
-                className={styles.seriesLine}
-                style={{ stroke }}
+                xScale={xScale}
+                yScale={yScale}
+                stroke={stroke}
+                delay={i * 0.15}
               />
             );
           })}
