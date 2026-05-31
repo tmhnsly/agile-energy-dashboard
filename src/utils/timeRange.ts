@@ -1,21 +1,24 @@
 import type { TimeRange } from '@/types/energy';
-import { lowerBound, upperBound } from '@/utils/binarySearch';
+import { lowerBound } from '@/utils/binarySearch';
 
 /**
- * The half-open index window `[start, end)` of a ts-sorted array that covers
- * the **inclusive** `TimeRange` `[fromTs, toTs]`.
+ * The index window `[start, end)` of a ts-sorted array that covers the
+ * **half-open** `TimeRange` `[fromTs, toTs)`.
  *
- * Uses `lowerBound` for the start and `upperBound` for the end so elements
- * whose timestamp equals `fromTs` or `toTs` are both included. This is the one
- * place the inclusive-range contract lives — callers iterate `[start, end)`
- * (or `.slice(start, end)`) instead of re-deriving the bounds with raw
- * binary search and risking an off-by-one.
+ * Uses `lowerBound` for both bounds, so an element whose timestamp equals
+ * `fromTs` is included while one equal to `toTs` is excluded. This makes a
+ * range of width `N · step` cover exactly `N` slot-starts regardless of where
+ * it begins — the property that keeps a fixed-duration window (e.g. the
+ * cheapest 6h) counting the same number of slots no matter the sub-step
+ * offset. This is the one place the half-open-range contract lives — callers
+ * iterate `[start, end)` (or `.slice(start, end)`) instead of re-deriving the
+ * bounds with raw binary search and risking an off-by-one.
  */
 export function rangeIndices(
   arr: { ts: number }[],
   range: TimeRange,
 ): { start: number; end: number } {
-  return { start: lowerBound(arr, range.fromTs), end: upperBound(arr, range.toTs) };
+  return { start: lowerBound(arr, range.fromTs), end: lowerBound(arr, range.toTs) };
 }
 
 /**

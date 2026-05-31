@@ -5,22 +5,37 @@ import { rangeIndices, windowOverlapsRange } from './timeRange';
 const pts = (...ts: number[]) => ts.map((t) => ({ ts: t }));
 
 // ---------------------------------------------------------------------------
-// rangeIndices — the half-open index window [start, end) covering an
-// INCLUSIVE TimeRange [fromTs, toTs]. Owns the inclusive-range contract.
+// rangeIndices — the half-open index window [start, end) covering the
+// half-open TimeRange [fromTs, toTs). A slot whose ts === toTs is EXCLUDED,
+// so a length-(N·step) range always contains exactly N slot-starts regardless
+// of sub-step offset. Owns the half-open-range contract.
 // ---------------------------------------------------------------------------
 
 describe('rangeIndices', () => {
   const arr = pts(0, 10, 20, 30, 40);
 
-  it('includes elements equal to fromTs and toTs (inclusive both ends)', () => {
+  it('includes fromTs but excludes a slot sitting exactly at toTs', () => {
     const { start, end } = rangeIndices(arr, { fromTs: 10, toTs: 30 });
     expect(start).toBe(1); // ts=10 included
-    expect(end).toBe(4); // ts=30 included, end is exclusive index
+    expect(end).toBe(3); // ts=30 excluded — end is exclusive index
+    expect(arr.slice(start, end).map((p) => p.ts)).toEqual([10, 20]);
+  });
+
+  it('includes a slot at toTs only when toTs is past it', () => {
+    const { start, end } = rangeIndices(arr, { fromTs: 10, toTs: 31 });
     expect(arr.slice(start, end).map((p) => p.ts)).toEqual([10, 20, 30]);
   });
 
-  it('covers the whole array when the range spans it', () => {
+  it('covers the whole array when the range spans past the last element', () => {
     expect(rangeIndices(arr, { fromTs: -5, toTs: 100 })).toEqual({ start: 0, end: 5 });
+  });
+
+  it('counts a fixed number of slots regardless of sub-step offset', () => {
+    // A width-20 half-open range over step-10 data always spans 2 slot-starts.
+    for (const offset of [0, 1, 5, 9]) {
+      const { start, end } = rangeIndices(arr, { fromTs: offset, toTs: offset + 20 });
+      expect(end - start).toBe(2);
+    }
   });
 
   it('returns an empty window when the range is entirely before the data', () => {
@@ -31,6 +46,11 @@ describe('rangeIndices', () => {
   it('returns an empty window when the range is entirely after the data', () => {
     const { start, end } = rangeIndices(arr, { fromTs: 50, toTs: 60 });
     expect(start).toBe(end);
+  });
+
+  it('returns an empty window for a zero-width range', () => {
+    const { start, end } = rangeIndices(arr, { fromTs: 20, toTs: 20 });
+    expect(start).toBe(end); // [20, 20) contains no slot
   });
 });
 

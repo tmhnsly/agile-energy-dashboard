@@ -142,6 +142,13 @@ export interface TimeSeriesChartProps {
   ariaDescription?: string;
   /** Show min/max markers on the primary series. Default: true */
   showMinMaxMarkers?: boolean;
+  /**
+   * Width of one data bucket (ms). Keyboard selections are inclusive of the
+   * end slot, so its `toTs` is padded by this amount to stay correct under the
+   * half-open range slicing. Defaults to the spacing between the first two
+   * data points.
+   */
+  bucketMs?: number;
 }
 
 export const TimeSeriesChart = ({
@@ -160,6 +167,7 @@ export const TimeSeriesChart = ({
   ariaLabel = 'Time series chart',
   ariaDescription,
   showMinMaxMarkers = true,
+  bucketMs,
 }: TimeSeriesChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const overlayRef = useRef<SVGRectElement>(null);
@@ -183,6 +191,13 @@ export const TimeSeriesChart = ({
   );
 
   const primaryData = useMemo(() => series[0]?.data ?? [], [series]);
+
+  // Bucket width used to pad an inclusive keyboard selection's end so the last
+  // selected slot is still counted under the half-open range slicing.
+  const resolvedBucketMs = useMemo(
+    () => bucketMs ?? (primaryData.length >= 2 ? primaryData[1].ts - primaryData[0].ts : 0),
+    [bucketMs, primaryData],
+  );
 
   const { margin, innerWidth, innerHeight, xScale, yScale, yTicks } = useChartScales({
     series,
@@ -222,9 +237,12 @@ export const TimeSeriesChart = ({
     dataLength: primaryData.length,
     onSelect: useCallback(
       (fromIdx: number, toIdx: number) => {
-        onRangeChange({ fromTs: primaryData[fromIdx].ts, toTs: primaryData[toIdx].ts });
+        onRangeChange({
+          fromTs: primaryData[fromIdx].ts,
+          toTs: primaryData[toIdx].ts + resolvedBucketMs,
+        });
       },
-      [primaryData, onRangeChange],
+      [primaryData, onRangeChange, resolvedBucketMs],
     ),
     onReset: useCallback(
       () => onRangeChange(fullRange),

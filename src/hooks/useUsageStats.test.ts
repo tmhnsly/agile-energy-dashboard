@@ -28,17 +28,18 @@ const prices: PricePoint[] = [
 ];
 
 // ── Range semantics ──────────────────────────────────────────────────
-// Ranges are inclusive on both ends: [fromTs, toTs].
-// This matches how computeFullRange (first → last timestamp) and the
-// chart selection (snap to nearest data point) produce ranges.
+// Ranges are HALF-OPEN: [fromTs, toTs). A slot whose ts === toTs is NOT
+// counted. computeFullRange pads its end by one bucket (last.ts + 30min),
+// so a range covering N slots ends at the start of the (N+1)th slot.
 // ─────────────────────────────────────────────────────────────────────
 
+const FULL = { fromTs: usage[0].ts, toTs: usage[3].ts + HALF_HOUR_MS };
+
 describe('computeUsageStats', () => {
-  describe('range semantics — inclusive [fromTs, toTs]', () => {
-    it('includes all slots when range spans first to last timestamp', () => {
-      // This is the range computeFullRange produces: fromTs = slot 0, toTs = slot 3
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
-      const result = computeUsageStats(usage, prices, range, 'standard');
+  describe('range semantics — half-open [fromTs, toTs)', () => {
+    it('includes all slots when range covers the padded full extent', () => {
+      // This is the range computeFullRange produces: [slot 0, slot 3 + 30min)
+      const result = computeUsageStats(usage, prices, FULL, 'standard');
 
       expect(result.count).toBe(4);
       expect(result.totalKwh).toBeCloseTo(
@@ -46,9 +47,9 @@ describe('computeUsageStats', () => {
       );
     });
 
-    it('includes both endpoints of a sub-range', () => {
-      // Range from slot 1 to slot 2 — both should be counted
-      const range = { fromTs: usage[1].ts, toTs: usage[2].ts };
+    it('counts a sub-range up to (not including) its end slot', () => {
+      // [slot 1, slot 2 + 30min) covers slots 1 and 2.
+      const range = { fromTs: usage[1].ts, toTs: usage[2].ts + HALF_HOUR_MS };
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       expect(result.count).toBe(2);
@@ -57,7 +58,7 @@ describe('computeUsageStats', () => {
 
     it('excludes elements outside the range', () => {
       // Range covers slots 1–2; slot 0 and slot 3 must not contribute
-      const range = { fromTs: usage[1].ts, toTs: usage[2].ts };
+      const range = { fromTs: usage[1].ts, toTs: usage[2].ts + HALF_HOUR_MS };
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       const allKwh = usage[0].standard + usage[1].standard + usage[2].standard + usage[3].standard;
@@ -65,8 +66,8 @@ describe('computeUsageStats', () => {
       expect(result.totalKwh).toBeCloseTo(allKwh - usage[0].standard - usage[3].standard);
     });
 
-    it('handles single-slot range (fromTs === toTs)', () => {
-      const range = { fromTs: usage[2].ts, toTs: usage[2].ts };
+    it('counts a single slot for a one-bucket-wide range', () => {
+      const range = { fromTs: usage[2].ts, toTs: usage[2].ts + HALF_HOUR_MS };
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       expect(result.count).toBe(1);
@@ -84,7 +85,7 @@ describe('computeUsageStats', () => {
 
   describe('cost calculation', () => {
     it('computes cost as sum of kWh × price for each slot', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       // cost = 0.5×20 + 0.8×25 + 0.3×15 + 1.0×30 = 10 + 20 + 4.5 + 30 = 64.5
@@ -98,14 +99,14 @@ describe('computeUsageStats', () => {
 
   describe('peak and low tracking', () => {
     it('finds the peak row', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       expect(result.peak).toEqual({ kwh: 1.0, ts: usage[3].ts });
     });
 
     it('finds the low row', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, 'standard');
 
       expect(result.low).toEqual({ kwh: 0.3, ts: usage[2].ts });
@@ -114,7 +115,7 @@ describe('computeUsageStats', () => {
 
   describe('household variants', () => {
     it('works for heatPump household', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, 'heatPump');
 
       expect(result.totalKwh).toBeCloseTo(
@@ -125,7 +126,7 @@ describe('computeUsageStats', () => {
     });
 
     it('sums across multiple household keys', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, ['standard', 'heatPump']);
 
       const expectedKwh = usage.reduce(
@@ -136,7 +137,7 @@ describe('computeUsageStats', () => {
     });
 
     it('finds peak across multiple keys', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, ['standard', 'heatPump']);
 
       // heatPump slot 3 (1.5) is the highest individual value
@@ -144,7 +145,7 @@ describe('computeUsageStats', () => {
     });
 
     it('sums cost across multiple keys', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const single1 = computeUsageStats(usage, prices, range, 'standard');
       const single2 = computeUsageStats(usage, prices, range, 'heatPump');
       const multi = computeUsageStats(usage, prices, range, ['standard', 'heatPump']);
@@ -178,7 +179,7 @@ describe('computeUsageStats', () => {
     });
 
     it('handles empty keys array', () => {
-      const range = { fromTs: usage[0].ts, toTs: usage[3].ts };
+      const range = FULL;
       const result = computeUsageStats(usage, prices, range, []);
 
       expect(result.count).toBe(0);
@@ -192,7 +193,7 @@ describe('computeUsageStats', () => {
         { ts: BASE - HALF_HOUR_MS, standard: 1.0, heatPump: 0, heatPumpBattery: 0 },
         ...usage,
       ];
-      const range = { fromTs: earlyUsage[0].ts, toTs: earlyUsage[0].ts };
+      const range = { fromTs: earlyUsage[0].ts, toTs: earlyUsage[0].ts + HALF_HOUR_MS };
       const result = computeUsageStats(earlyUsage, prices, range, 'standard');
 
       // 1.0 kWh × 20p (first available price) = 20p, not 0p

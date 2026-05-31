@@ -5,6 +5,7 @@ import { TbTriangleFilled, TbBoltFilled } from 'react-icons/tb';
 import { ParentSize } from '@visx/responsive';
 import { ALL_HOUSEHOLD_KEYS, type HouseholdUsageRow, type PricePoint, type TimeRange, type HouseholdKey } from '@/types/energy';
 import type { ChartSeries } from '@/types/chart';
+import { HALF_HOUR_MS } from '@/utils/constants';
 import { HOUSEHOLD_THEMES } from '@/config/households';
 import { useTimeRange } from '@/hooks/useTimeRange';
 import { useUsageStats } from '@/hooks/useUsageStats';
@@ -45,7 +46,7 @@ export const HouseholdUsagePanel = ({
   );
 
   const { fullRange, activeRange, isCustomRange, setRange, resetRange } =
-    useTimeRange(usage);
+    useTimeRange(usage, HALF_HOUR_MS);
 
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
   const displayRange = previewRange ?? activeRange;
@@ -115,6 +116,7 @@ export const HouseholdUsagePanel = ({
               series={chartSeries}
               fullRange={fullRange}
               activeRange={activeRange}
+              bucketMs={HALF_HOUR_MS}
               onRangeChange={setRange}
               onRangePreview={setPreviewRange}
               width={width}

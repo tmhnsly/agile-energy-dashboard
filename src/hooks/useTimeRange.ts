@@ -3,12 +3,25 @@
 import { useMemo, useState, useCallback } from 'react';
 import type { TimeRange } from '@/types/energy';
 
-/** Derive the full extent from the first and last timestamped item. */
-export function computeFullRange(items: { ts: number }[]): TimeRange {
+/**
+ * Derive the full extent as a half-open range `[fromTs, toTs)`.
+ *
+ * `toTs` is the END of the last bucket (`last.ts + bucketMs`), not its start,
+ * so the final slot is still counted under the half-open slicing in
+ * `rangeIndices` and the extent's width equals real wall-clock time (e.g. 48
+ * half-hourly slots → 24h). `bucketMs` is inferred from the first gap between
+ * items when omitted; a lone item stays unpadded since no width can be known.
+ */
+export function computeFullRange(
+  items: { ts: number }[],
+  bucketMs?: number,
+): TimeRange {
   if (items.length === 0) return { fromTs: 0, toTs: 0 };
+  const last = items[items.length - 1].ts;
+  const step = bucketMs ?? (items.length >= 2 ? items[1].ts - items[0].ts : 0);
   return {
     fromTs: items[0].ts,
-    toTs: items[items.length - 1].ts,
+    toTs: last + step,
   };
 }
 
@@ -33,10 +46,10 @@ export function isValidRange(range: TimeRange): boolean {
  * - `setRange(range)` — apply a new selection.
  * - `resetRange()` — clear the selection and return to the full extent.
  */
-export function useTimeRange(items: { ts: number }[]) {
+export function useTimeRange(items: { ts: number }[], bucketMs?: number) {
   const fullRange: TimeRange = useMemo(
-    () => computeFullRange(items),
-    [items],
+    () => computeFullRange(items, bucketMs),
+    [items, bucketMs],
   );
 
   const [activeRange, setActiveRange] = useState<TimeRange | null>(null);

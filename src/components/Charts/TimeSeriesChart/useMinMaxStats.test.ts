@@ -22,12 +22,13 @@ const data: ChartDataPoint[] = [
 ];
 
 // ── Range semantics ──────────────────────────────────────────────────
-// Ranges are inclusive on both ends: [fromTs, toTs].
+// Ranges are HALF-OPEN: [fromTs, toTs). A slot whose ts === toTs is NOT
+// scanned, so callers pad the end by one bucket to include the last slot.
 // ─────────────────────────────────────────────────────────────────────
 
 describe('computeMinMax', () => {
-  it('finds min and max over full data extent', () => {
-    const range: TimeRange = { fromTs: data[0].ts, toTs: data[3].ts };
+  it('finds min and max over the padded full extent', () => {
+    const range: TimeRange = { fromTs: data[0].ts, toTs: data[3].ts + HALF_HOUR_MS };
     const result = computeMinMax(data, range, true);
 
     expect(result.min).toEqual({ ts: data[2].ts, value: 2 });
@@ -35,7 +36,7 @@ describe('computeMinMax', () => {
   });
 
   it('returns nulls when showMinMaxMarkers is false', () => {
-    const range: TimeRange = { fromTs: data[0].ts, toTs: data[3].ts };
+    const range: TimeRange = { fromTs: data[0].ts, toTs: data[3].ts + HALF_HOUR_MS };
     const result = computeMinMax(data, range, false);
 
     expect(result).toEqual({ min: null, max: null });
@@ -48,18 +49,18 @@ describe('computeMinMax', () => {
     expect(result).toEqual({ min: null, max: null });
   });
 
-  it('handles single point (both min and max)', () => {
+  it('handles single point covered by a one-bucket range', () => {
     const single: ChartDataPoint[] = [{ ts: BASE, value: 7 }];
-    const range: TimeRange = { fromTs: single[0].ts, toTs: single[0].ts };
+    const range: TimeRange = { fromTs: single[0].ts, toTs: single[0].ts + HALF_HOUR_MS };
     const result = computeMinMax(single, range, true);
 
     expect(result.min).toEqual({ ts: BASE, value: 7 });
     expect(result.max).toEqual({ ts: BASE, value: 7 });
   });
 
-  it('includes both endpoints of a sub-range', () => {
-    // Range covers slots 1–2; slot 0 and slot 3 should be excluded
-    const subRange: TimeRange = { fromTs: data[1].ts, toTs: data[2].ts };
+  it('scans slots up to (not including) the end slot', () => {
+    // [slot 1, slot 2 + 30min) covers slots 1 and 2; slots 0 and 3 excluded.
+    const subRange: TimeRange = { fromTs: data[1].ts, toTs: data[2].ts + HALF_HOUR_MS };
     const result = computeMinMax(data, subRange, true);
 
     expect(result.min).toEqual({ ts: data[2].ts, value: 2 });

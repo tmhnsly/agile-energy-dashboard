@@ -35,7 +35,7 @@ export const MarketPricePanel = ({
   flexEvents,
 }: MarketPricePanelProps) => {
   const { fullRange, activeRange, isCustomRange, setRange, resetRange } =
-    useTimeRange(prices);
+    useTimeRange(prices, HALF_HOUR_MS);
   const [previewRange, setPreviewRange] = useState<TimeRange | null>(null);
   const displayRange = previewRange ?? activeRange;
   const stats = usePriceStats(prices, displayRange);
@@ -139,7 +139,7 @@ export const MarketPricePanel = ({
               label: 'Total',
               value: stats.total != null ? formatCostPence(stats.total) : '—',
               subValue: stats.count > 0
-                ? formatKwhValue((displayRange.toTs - displayRange.fromTs) / HALF_HOUR_MS)
+                ? formatKwhValue(stats.count)
                 : '\u00A0',
               icon: <TbBoltFilled aria-hidden="true" style={{ color: 'var(--mono-solid)' }} />,
               tone: 'neutral',
@@ -156,6 +156,7 @@ export const MarketPricePanel = ({
               bands={chartBands}
               fullRange={fullRange}
               activeRange={activeRange}
+              bucketMs={HALF_HOUR_MS}
               onRangeChange={setRange}
               onRangePreview={setPreviewRange}
               width={width}
@@ -174,11 +175,16 @@ export const MarketPricePanel = ({
       </div>
 
       <div className={styles.chartControls}>
-        <DurationPresetBar
-          activePreset={activePreset}
-          onPresetSelect={handlePresetSelect}
-        />
-        <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
+        <div className={styles.presetRow}>
+          <DurationPresetBar
+            activePreset={activePreset}
+            onPresetSelect={handlePresetSelect}
+          />
+          <ClearSelectionButton disabled={!isCustomRange} onClick={resetRange} />
+        </div>
+        <p className={styles.presetHint}>
+          Jump to the cheapest 6-, 12-, or 24-hour window in the prices shown.
+        </p>
       </div>
     </div>
   );
