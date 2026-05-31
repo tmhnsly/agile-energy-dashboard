@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
 import Papa from 'papaparse';
-import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
+import type { PricePoint, FlexEvent, FlexCategory, HouseholdUsageRow } from '@/types/energy';
 import { HALF_HOUR_MS } from '@/utils/constants';
 
 /** Midnight UTC for a given timestamp. Plain UTC math — no Date subclass needed. */
@@ -114,11 +114,25 @@ function parsePrice(item: unknown): number | null {
 // ---------------------------------------------------------------------------
 
 /**
+ * Resolve a flex event's category from its free-text label.
+ *
+ * "turn down" / "reduce" → use-less; "turn up" / "increase" → use-more;
+ * everything else → other. Done once here at intake so downstream consumers
+ * switch on `FlexEvent.category` rather than re-matching the label.
+ */
+export function classifyFlexEvent(label?: string): FlexCategory {
+  const lower = label?.toLowerCase() ?? '';
+  if (lower.includes('turn down') || lower.includes('reduce')) return 'use-less';
+  if (lower.includes('turn up') || lower.includes('increase')) return 'use-more';
+  return 'other';
+}
+
+/**
  * Parse raw flex-event JSON into sorted `FlexEvent[]`.
  *
  * Time-only strings (e.g. `"18:00"`) are treated as daily recurring events
  * and expanded into one instance per day within the price-data range.
- * Full ISO timestamps are used as-is.
+ * Full ISO timestamps are used as-is. Each event is classified at intake.
  */
 export function mapFlexEvents(
   rawJson: unknown,
@@ -142,6 +156,7 @@ export function mapFlexEvents(
       typeof record.event_type === 'string'
         ? record.event_type.replace(/_/g, ' ')
         : undefined;
+    const category = classifyFlexEvent(label);
 
     const pricePerKwh = typeof record.price_per_kWh === 'number' ? record.price_per_kWh : undefined;
     const minFlexKwh = typeof record.min_flexibility_kWh === 'number' ? record.min_flexibility_kWh : undefined;
@@ -167,6 +182,7 @@ export function mapFlexEvents(
             startTs,
             endTs,
             label,
+            category,
             pricePerKwh,
             minFlexKwh,
             maxFlexKwh,
@@ -178,7 +194,7 @@ export function mapFlexEvents(
       const startTs = anchorTimeToDate(startRaw, firstDay);
       const endTs = anchorTimeToDate(endRaw, firstDay);
       if (startTs !== null && endTs !== null) {
-        events.push({ id: `flex-${i}`, startTs, endTs, label, pricePerKwh, minFlexKwh, maxFlexKwh });
+        events.push({ id: `flex-${i}`, startTs, endTs, label, category, pricePerKwh, minFlexKwh, maxFlexKwh });
       }
     }
   }

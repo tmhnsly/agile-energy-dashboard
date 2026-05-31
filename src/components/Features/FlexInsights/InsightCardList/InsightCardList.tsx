@@ -6,24 +6,15 @@ import {
   TbTriangleFilled,
   TbBoltFilled,
 } from 'react-icons/tb';
-import type { FlexEarningResult, HouseholdKey } from '@/types/energy';
+import type { FlexEarningResult, FlexCategory, HouseholdKey } from '@/types/energy';
 import type { StatCardTone } from '@/components/UI/StatCard/StatCard';
 import { HOUSEHOLD_THEMES } from '@/config/households';
 import { formatCostPence, formatTime } from '@/utils/format';
 import { StatCard } from '@/components/UI/StatCard/StatCard';
 import styles from './InsightCardList.module.scss';
 
-type EventType = 'use-more' | 'use-less' | 'other';
-
-function classifyEvent(label?: string): EventType {
-  const lower = label?.toLowerCase() ?? '';
-  if (lower.includes('turn down') || lower.includes('reduce')) return 'use-less';
-  if (lower.includes('turn up') || lower.includes('increase')) return 'use-more';
-  return 'other';
-}
-
-function eventAppearance(type: EventType): { icon: ReactNode; verb: string; tone: StatCardTone } {
-  switch (type) {
+function eventAppearance(category: FlexCategory): { icon: ReactNode; verb: string; tone: StatCardTone } {
+  switch (category) {
     case 'use-less':
       return { icon: <TbTriangleInvertedFilled />, verb: 'Use less', tone: 'positive' };
     case 'use-more':
@@ -33,8 +24,8 @@ function eventAppearance(type: EventType): { icon: ReactNode; verb: string; tone
   }
 }
 
-/** Sort order: use-more first, then use-less, then other. */
-const TYPE_ORDER: Record<EventType, number> = { 'use-more': 0, 'use-less': 1, other: 2 };
+/** Display order: use-more first, then use-less, then other. */
+const CATEGORY_ORDER: Record<FlexCategory, number> = { 'use-more': 0, 'use-less': 1, other: 2 };
 
 interface InsightCardListProps {
   household: HouseholdKey;
@@ -55,11 +46,9 @@ export const InsightCardList = memo(function InsightCardList({
   const { label: householdLabel, tone: householdTone } = HOUSEHOLD_THEMES[household];
 
   const sorted = useMemo(() => {
-    return [...flexEarnings].sort((a, b) => {
-      const ta = TYPE_ORDER[classifyEvent(a.event.label)];
-      const tb = TYPE_ORDER[classifyEvent(b.event.label)];
-      return ta - tb;
-    });
+    return [...flexEarnings].sort(
+      (a, b) => CATEGORY_ORDER[a.event.category] - CATEGORY_ORDER[b.event.category],
+    );
   }, [flexEarnings]);
 
   const count = 1 + sorted.length;
@@ -74,8 +63,7 @@ export const InsightCardList = memo(function InsightCardList({
       />
 
       {sorted.map((earning) => {
-        const type = classifyEvent(earning.event.label);
-        const { icon, verb, tone } = eventAppearance(type);
+        const { icon, verb, tone } = eventAppearance(earning.event.category);
         return (
           <StatCard
             key={earning.event.id}

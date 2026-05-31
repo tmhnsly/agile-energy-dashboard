@@ -46,8 +46,9 @@ interface HouseholdUsageRow {
 ```
 
 Parsed from `/data/household_usage.csv` by `parseHouseholdUsageCsv()`. CSV
-time-only values (e.g. `"06:00"`) are anchored to today (UTC) so the dashboard
-reflects today's prices.
+time-only values (e.g. `"06:00"`) are anchored by `resolveUsageAnchor()` to a
+day the price feed actually covers — today when fully published, otherwise the
+most recent complete day — so every slot maps to a real price.
 
 ### HouseholdKey
 
@@ -103,11 +104,14 @@ a discriminated union: `loading` → `ready` or `error`. Components switch on
 
 ## API route
 
-`/api/agile-prices` proxies the Octopus Energy Agile tariff. Product code and
-region are hardcoded (non-secret public defaults). ISR revalidates every 15
-minutes.
+`/api/agile-prices` proxies the Octopus Energy Agile tariff. The current Agile
+product is discovered from the Octopus product list (`selectAgileProductCode`),
+falling back to a known code; the region is fixed (L). When the upstream is
+unreachable it serves a bundled real-price snapshot (`source: 'snapshot'`,
+flagged in the UI by `SampleDataBanner`) so the dashboard always renders. ISR
+revalidates every 15 minutes.
 
-**Source:** `src/app/api/agile-prices/route.ts`
+**Source:** `src/app/api/agile-prices/route.ts`, `src/utils/octopus.ts`
 
 ---
 

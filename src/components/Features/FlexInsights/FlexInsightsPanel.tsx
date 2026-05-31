@@ -6,6 +6,7 @@ import { ALL_HOUSEHOLD_KEYS } from '@/types/energy';
 import { Button } from '@/components/UI/Button/Button';
 import { HOUSEHOLD_THEMES } from '@/config/households';
 import { formatDateTime } from '@/utils/format';
+import { windowOverlapsRange } from '@/utils/timeRange';
 import { computeFlexEarnings, computeDailyCost } from './computeFlexInsights';
 import { InsightCardList } from './InsightCardList/InsightCardList';
 import styles from './FlexInsightsPanel.module.scss';
@@ -37,13 +38,12 @@ export const FlexInsightsPanel = ({
     [usage, prices],
   );
 
-  // Only include flex events that overlap with the usage time range.
+  // Only include flex events whose (half-open) window overlaps the usage span.
   // Usage is a single day; flex events may be expanded across multiple days.
   const relevantEvents = useMemo(() => {
     if (usage.length === 0) return [];
-    const usageFrom = usage[0].ts;
-    const usageTo = usage[usage.length - 1].ts;
-    return flexEvents.filter(e => e.startTs <= usageTo && e.endTs > usageFrom);
+    const span = { fromTs: usage[0].ts, toTs: usage[usage.length - 1].ts };
+    return flexEvents.filter((e) => windowOverlapsRange(e, span));
   }, [flexEvents, usage]);
 
   const flexEarnings = useMemo(

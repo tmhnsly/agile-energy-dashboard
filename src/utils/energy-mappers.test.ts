@@ -4,6 +4,7 @@ import { HALF_HOUR_MS } from '@/utils/constants';
 import type { PricePoint } from '@/types/energy';
 import { simulateShift } from '@/components/Features/FlexInsights/computeFlexInsights';
 import {
+  classifyFlexEvent,
   mapAgilePrices,
   mapFlexEvents,
   parseHouseholdUsageCsv,
@@ -155,6 +156,44 @@ describe('mapFlexEvents', () => {
     expect(events[0].pricePerKwh).toBeUndefined();
     expect(events[0].minFlexKwh).toBeUndefined();
     expect(events[0].maxFlexKwh).toBeUndefined();
+  });
+
+  it('assigns a category derived from the label at intake', () => {
+    const raw = [
+      { event_type: 'demand_turn_down', start_time: '18:00', end_time: '19:30' },
+      { event_type: 'demand_turn_up', start_time: '02:00', end_time: '04:00' },
+      { start_time: '10:00', end_time: '11:00' },
+    ];
+    const events = mapFlexEvents(raw, dayStart, dayEnd);
+    const category = Object.fromEntries(events.map((e) => [e.label ?? 'none', e.category]));
+    expect(category['demand turn down']).toBe('use-less');
+    expect(category['demand turn up']).toBe('use-more');
+    expect(category['none']).toBe('other');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// classifyFlexEvent
+//
+// The use-less / use-more / other meaning of a flex event is a domain fact,
+// resolved once at intake instead of re-derived by the card UI matching the
+// free-text label.
+// ---------------------------------------------------------------------------
+
+describe('classifyFlexEvent', () => {
+  it('classifies turn-down / reduce labels as use-less', () => {
+    expect(classifyFlexEvent('demand turn down')).toBe('use-less');
+    expect(classifyFlexEvent('Reduce your usage')).toBe('use-less');
+  });
+
+  it('classifies turn-up / increase labels as use-more', () => {
+    expect(classifyFlexEvent('demand turn up')).toBe('use-more');
+    expect(classifyFlexEvent('Increase demand')).toBe('use-more');
+  });
+
+  it('classifies unknown or missing labels as other', () => {
+    expect(classifyFlexEvent('grid balancing')).toBe('other');
+    expect(classifyFlexEvent(undefined)).toBe('other');
   });
 });
 

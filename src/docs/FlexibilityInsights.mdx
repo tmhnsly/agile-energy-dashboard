@@ -15,9 +15,10 @@ households to reduce or shift their usage.
 ```ts
 interface FlexEvent {
   id: string;
-  startTs: number;       // start of window (Unix-ms)
+  startTs: number;       // start of window (Unix-ms, half-open [start, end))
   endTs: number;         // end of window (Unix-ms)
   label?: string;        // e.g. "turn down"
+  category: FlexCategory; // 'use-less' | 'use-more' | 'other'
   pricePerKwh?: number;  // incentive price in £/kWh
   minFlexKwh?: number;
   maxFlexKwh?: number;
@@ -26,8 +27,9 @@ interface FlexEvent {
 
 Events are loaded from `/data/flexibility_opportunity.json`. Time-only
 start/end values (e.g. `"18:00"`) are expanded into one instance per day
-within the price-data range. Only events overlapping the usage day (today)
-are shown in Flex Insights.
+within the price-data range. Each event's `category` is resolved once at
+intake by `classifyFlexEvent()`. Only events whose (half-open) window overlaps
+the usage day are shown in Flex Insights (`windowOverlapsRange`).
 
 ## Flex earnings
 
@@ -38,13 +40,16 @@ are skipped.
 
 ## Event classification
 
-The `InsightCardList` classifies events by label:
+`classifyFlexEvent()` resolves each event's `category` at intake, from the
+label:
 
-- **"turn down"** / **"reduce"** → use less
-- **"turn up"** / **"increase"** → use more
-- Everything else → general flex opportunity
+- **"turn down"** / **"reduce"** → `use-less`
+- **"turn up"** / **"increase"** → `use-more`
+- Everything else → `other` (general flex opportunity)
 
-A daily cost comparison card always appears first.
+`InsightCardList` switches on `event.category` for icon, verb, and sort order —
+it no longer re-matches the label. A daily cost comparison card always appears
+first.
 
 ---
 
@@ -76,6 +81,15 @@ simulateShift(usage, prices, household, fromSlots, toSlots, kwhToShift) → Shif
 
 Positive `savingPence` = saves money. Negative = costs more.
 
+### Settlement day & view-model
+
+The simulator runs on a `SettlementDay` (`settlementDay.ts`) — usage + prices
+bound to one midnight-anchored grid that owns the time-group slot windows and a
+`fullyPriced` coverage check, and exposes `groupUsage` / `simulateGroupShift` /
+`dailyCost`. All button tones, slider bounds, and the outcome are computed by
+the pure `shiftSimulatorView()` over that day; the React component holds only
+the selection state and renders the resulting view-model.
+
 ### UI behaviour
 
 The simulator has three states driven by `fromIdx` and `toIdx`:
@@ -89,6 +103,7 @@ The simulator has three states driven by `fromIdx` and `toIdx`:
   disabled on the opposite row.
 
 **Source:** `src/components/Features/FlexInsights/computeFlexInsights.ts`,
+`settlementDay.ts`, `shiftSimulatorView.ts`,
 `src/components/Features/FlexInsights/ShiftSimulator/ShiftSimulator.tsx`
 
 ---

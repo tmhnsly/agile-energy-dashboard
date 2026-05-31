@@ -6,6 +6,12 @@ export interface PricePoint {
   price: number;
 }
 
+/**
+ * What a flex event asks of the household. Resolved once at intake from the
+ * raw label so consumers switch on a typed value instead of matching strings.
+ */
+export type FlexCategory = 'use-less' | 'use-more' | 'other';
+
 /** A demand-side flexibility event window (e.g. "turn down" or "shift load"). */
 export interface FlexEvent {
   id: string;
@@ -15,6 +21,8 @@ export interface FlexEvent {
   endTs: number;
   /** Event type, e.g. "turn down". */
   label?: string;
+  /** Whether the event asks the household to use less, use more, or neither. */
+  category: FlexCategory;
   /** Incentive price in £/kWh for participating in this event. */
   pricePerKwh?: number;
   /** Minimum flexibility in kWh the event requires. */

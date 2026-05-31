@@ -10,12 +10,14 @@ export const mockFlexEvents: FlexEvent[] = [
     startTs: BASE_DATE + 4 * HALF_HOUR_MS,  // 02:00
     endTs: BASE_DATE + 8 * HALF_HOUR_MS,    // 04:00
     label: 'demand turn up',
+    category: 'use-more',
   },
   {
     id: 'flex-1',
     startTs: BASE_DATE + 36 * HALF_HOUR_MS, // 18:00
     endTs: BASE_DATE + 39 * HALF_HOUR_MS,   // 19:30
     label: 'demand turn down',
+    category: 'use-less',
   },
 ];
 

@@ -8,15 +8,12 @@ import type {
   UsageStats,
   HouseholdKey,
 } from '@/types/energy';
-import { lowerBound, upperBound } from '@/utils/binarySearch';
+import { rangeIndices } from '@/utils/timeRange';
 import { lookupPrice } from '@/utils/lookupPrice';
 
 /**
- * Pure computation — exported for unit testing.
- *
- * Range is inclusive on both ends: [fromTs, toTs]. Uses lowerBound for
- * the start and upperBound for the end so that elements whose timestamp
- * equals fromTs or toTs are both included.
+ * Pure computation — exported for unit testing. Range is the inclusive
+ * `TimeRange`; `rangeIndices` owns the slicing.
  *
  * Accepts one or more household keys. When multiple keys are provided,
  * totals and cost are summed across all of them, and peak/low reflect
@@ -32,8 +29,7 @@ export function computeUsageStats(
   households: HouseholdKey | HouseholdKey[],
 ): UsageStats {
   const keys = Array.isArray(households) ? households : [households];
-  const start = lowerBound(usage, range.fromTs);
-  const end = upperBound(usage, range.toTs);
+  const { start, end } = rangeIndices(usage, range);
 
   if (start >= end || keys.length === 0) {
     return { totalKwh: 0, estimatedCostPence: 0, peak: null, low: null, count: 0 };
@@ -75,7 +71,6 @@ export function useUsageStats(
 ): UsageStats {
   return useMemo(
     () => computeUsageStats(usage, prices, range, households),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [usage, prices, range, households],
   );
 }

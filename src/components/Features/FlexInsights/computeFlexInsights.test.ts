@@ -66,6 +66,7 @@ describe('computeFlexEarnings', () => {
       startTs: slot(0),
       endTs: slot(2),        // 00:00–01:00, covers slots 0 and 1
       label: 'turn down',
+      category: 'use-less',
       pricePerKwh: 1.5,
       minFlexKwh: 0,
       maxFlexKwh: 10,
@@ -84,6 +85,7 @@ describe('computeFlexEarnings', () => {
       id: 'e1',
       startTs: slot(0),
       endTs: slot(2),
+      category: 'other',
       pricePerKwh: 2.0,
       maxFlexKwh: 1.0,
     }];
@@ -98,6 +100,7 @@ describe('computeFlexEarnings', () => {
       id: 'e1',
       startTs: slot(0),
       endTs: slot(1),         // only slot 0 — standard = 1.0 kWh
+      category: 'other',
       pricePerKwh: 1.0,
       minFlexKwh: 2.0,
       maxFlexKwh: 5.0,
@@ -113,6 +116,7 @@ describe('computeFlexEarnings', () => {
       startTs: slot(0),
       endTs: slot(1),
       label: 'no price',
+      category: 'other',
     }];
 
     expect(computeFlexEarnings(events, usage, 'standard')).toEqual([]);
