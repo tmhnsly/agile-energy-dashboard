@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { expect } from 'storybook/test';
 
 import { BentoGrid } from './BentoGrid';
 import { BentoTile, type BentoTileProps } from './BentoTile';
@@ -273,5 +274,46 @@ export const DenseAutoFlow: Story = {
         <Tile label="D" />
       </>
     ),
+  },
+};
+
+/** A tall skeleton, ~320 px — well above the tile's `--tile-min-height`. */
+function TallSkeleton() {
+  return (
+    <div
+      data-testid="tall-skeleton"
+      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}
+    >
+      <Skeleton width="60%" height="1.5rem" radius="small" />
+      <Skeleton width="100%" height="6rem" radius="small" />
+      <Skeleton width="100%" height="6rem" radius="small" />
+      <Skeleton width="40%" height="2.5rem" radius="pill" />
+    </div>
+  );
+}
+
+/**
+ * Regression (skeleton clipping): when a tile is `loading` and its real
+ * children are `null` — exactly how the dashboard renders during the initial
+ * fetch — the skeleton must still drive the tile's height. A previous version
+ * rendered the skeleton as an absolute overlay with children always mounted,
+ * so a null-children tile collapsed to `--tile-min-height` and clipped the
+ * skeleton to a thin strip. The play function asserts the tile grows to fit.
+ */
+export const LoadingFillsTile: Story = {
+  args: {
+    children: (
+      <BentoTile span="wide" loading skeleton={<TallSkeleton />}>
+        {null}
+      </BentoTile>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const tile = canvasElement.querySelector<HTMLElement>('[data-loading="true"]');
+    const skeleton = canvasElement.querySelector<HTMLElement>('[data-testid="tall-skeleton"]');
+    await expect(tile).not.toBeNull();
+    await expect(skeleton).not.toBeNull();
+    // The tile must grow to the skeleton's height, not clip it to min-height.
+    await expect(tile!.clientHeight).toBeGreaterThanOrEqual(skeleton!.scrollHeight - 4);
   },
 };

@@ -107,11 +107,11 @@
   }
 }
 
-.skeletonOverlay {
-  position: absolute;
-  inset: 0;
-  padding: inherit;
-  z-index: 1;
+/* Skeleton and content render here in normal flow (one at a time, swapped by
+ * AnimatePresence) so the tile sizes to whichever is present — the skeleton is
+ * no longer an absolute overlay that the tile's min-height would clip. */
+.layer {
+  min-width: 0;
 }
 
 .skelFallback {

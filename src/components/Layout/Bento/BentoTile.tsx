@@ -43,19 +43,28 @@ export const BentoTile = ({
       viewport={reveal.viewport}
       transition={reveal.transition(index * stagger.normal)}
     >
-      <AnimatePresence initial={false}>
-        {loading && (
+      <AnimatePresence initial={false} mode="wait">
+        {loading ? (
           <motion.div
             key="skeleton"
-            className={styles.skeletonOverlay}
+            className={styles.layer}
             exit={crossfade.exit}
             transition={crossfade.transition}
           >
             {skeleton ?? <div className={styles.skelFallback} />}
           </motion.div>
+        ) : (
+          <motion.div
+            key="content"
+            className={styles.layer}
+            initial={crossfade.exit}
+            animate={{ opacity: 1 }}
+            transition={crossfade.transition}
+          >
+            {children}
+          </motion.div>
         )}
       </AnimatePresence>
-      {children}
     </motion.div>
   );
 };
