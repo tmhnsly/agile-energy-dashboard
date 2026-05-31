@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "@/styles/globals.scss";
 import { Providers } from "./providers";
-import { Navbar } from "@/components/Layout";
+import { Navbar, ThemeToggle } from "@/components/Layout";
 import { NavAction } from "@/components/Layout/Navbar/NavAction";
 import { TbBook, TbUser } from "react-icons/tb";
 import { Analytics } from "@vercel/analytics/next";
@@ -59,6 +59,7 @@ export default function RootLayout({
             <NavAction as="a" href="/storybook" target="_blank" rel="noopener noreferrer" aria-label="Storybook" label="Storybook">
               <TbBook aria-hidden="true" />
             </NavAction>
+            <ThemeToggle />
             <NavAction aria-label="User menu">
               <TbUser aria-hidden="true" />
             </NavAction>
