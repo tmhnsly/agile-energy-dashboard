@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { UTCDate } from '@date-fns/utc';
+import { HALF_HOUR_MS } from '@/utils/constants';
+import type { PricePoint } from '@/types/energy';
+import { simulateShift } from '@/components/Features/FlexInsights/computeFlexInsights';
 import {
   mapAgilePrices,
   mapFlexEvents,
   parseHouseholdUsageCsv,
+  resolveUsageAnchor,
 } from './energy-mappers';
 
 // ---------------------------------------------------------------------------
@@ -209,5 +213,101 @@ describe('parseHouseholdUsageCsv', () => {
 
     const rows = parseHouseholdUsageCsv(csv, refDay);
     expect(rows[0].ts).toBeLessThan(rows[1].ts);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveUsageAnchor
+//
+// Regression: the Shift Simulator reported "No difference" for every shift
+// whenever the usage day fell outside the price range, because lookupPrice
+// then returns a flat edge price for every slot. The anchor must always land
+// on a day the price feed covers so usage maps to real, varying prices.
+// ---------------------------------------------------------------------------
+
+describe('resolveUsageAnchor', () => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  /** Build a contiguous run of half-hourly prices starting at `startTs`. */
+  const priceRun = (startTs: number, count: number): PricePoint[] =>
+    Array.from({ length: count }, (_, i) => ({
+      ts: startTs + i * HALF_HOUR_MS,
+      // Vary by slot so a flat fallback is detectable: 10p..40p sawtooth.
+      price: 10 + ((i * 7) % 31),
+    }));
+
+  /** True when all 48 slots of `dayStart` lie within the price range. */
+  const fullyCovered = (prices: PricePoint[], dayStart: number): boolean =>
+    dayStart >= prices[0].ts &&
+    dayStart + 47 * HALF_HOUR_MS <= prices[prices.length - 1].ts;
+
+  it('anchors to today when the feed fully covers today', () => {
+    const today = Date.UTC(2026, 4, 31);
+    const now = new Date(Date.UTC(2026, 4, 31, 12, 0)); // midday
+    // Yesterday + today, both complete (96 slots).
+    const prices = priceRun(today - DAY_MS, 96);
+
+    const anchor = resolveUsageAnchor(prices, now);
+    expect(anchor.getTime()).toBe(today);
+    expect(fullyCovered(prices, anchor.getTime())).toBe(true);
+  });
+
+  it('falls back to the most recent complete day when today is only partial', () => {
+    // Mirrors the live feed: yesterday full, today only published to 21:30.
+    const today = Date.UTC(2026, 4, 31);
+    const now = new Date(Date.UTC(2026, 4, 31, 22, 0));
+    const prices = priceRun(today - DAY_MS, 48 + 44); // 48 + slots 00:00..21:30
+
+    const anchor = resolveUsageAnchor(prices, now);
+    expect(anchor.getTime()).toBe(today - DAY_MS); // yesterday, fully covered
+    expect(fullyCovered(prices, anchor.getTime())).toBe(true);
+  });
+
+  it('never anchors to a day the feed cannot cover (e.g. retired product)', () => {
+    // Prices are weeks stale relative to `now` — the deprecation scenario.
+    const now = new Date(Date.UTC(2026, 4, 31, 12, 0));
+    const stale = Date.UTC(2026, 4, 1);
+    const prices = priceRun(stale, 96); // two complete stale days
+
+    const anchor = resolveUsageAnchor(prices, now);
+    expect(anchor.getTime()).toBeLessThan(Date.UTC(2026, 4, 31));
+    expect(fullyCovered(prices, anchor.getTime())).toBe(true);
+  });
+
+  it('returns today and does not throw for an empty feed', () => {
+    const now = new Date(Date.UTC(2026, 4, 31, 9, 30));
+    expect(resolveUsageAnchor([], now).getTime()).toBe(Date.UTC(2026, 4, 31));
+  });
+
+  it('falls back to the first price day when the feed is under a day long', () => {
+    const now = new Date(Date.UTC(2026, 4, 31, 12, 0));
+    const start = Date.UTC(2026, 4, 30, 6, 0); // 6am, only 10 slots
+    const prices = priceRun(start, 10);
+
+    const anchor = resolveUsageAnchor(prices, now);
+    expect(anchor.getTime()).toBe(Date.UTC(2026, 4, 30)); // start-of-day of feed
+  });
+
+  it('keeps the Shift Simulator non-flat when the feed lags the clock', () => {
+    // End-to-end regression for the reported bug: clock says today, but the
+    // feed only covers yesterday. After anchoring, an expensive→cheap shift
+    // must produce a real saving — not "No difference".
+    const today = Date.UTC(2026, 4, 31);
+    const now = new Date(today + 12 * 60 * 60 * 1000);
+    const prices = priceRun(today - DAY_MS, 48); // yesterday only
+
+    const anchor = resolveUsageAnchor(prices, now);
+    const csv = [
+      'Time,Standard_Household,HeatPump_Household,HeatPump_Battery_Household',
+      '02:00,2,2,2', // slot 4 — priced 38p in the sawtooth
+      '00:30,1,1,1', // slot 1 — priced 17p
+    ].join('\n');
+    const usage = parseHouseholdUsageCsv(csv, anchor);
+
+    const expensive = [anchor.getTime() + 4 * HALF_HOUR_MS];
+    const cheap = [anchor.getTime() + 1 * HALF_HOUR_MS];
+    const result = simulateShift(usage, prices, 'standard', expensive, cheap, 2);
+
+    expect(result.savingPence).toBeGreaterThan(0); // would be 0 before the fix
   });
 });

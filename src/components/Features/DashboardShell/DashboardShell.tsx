@@ -6,6 +6,7 @@ import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { BentoTile } from "@/components/Layout";
 import { BentoGrid } from "@/components/Layout";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 import type { HouseholdKey } from "@/types/energy";
 import { HOUSEHOLD_THEMES } from "@/config/households";
 import {
@@ -67,10 +68,13 @@ export const DashboardShell = () => {
   }, []);
 
   const errorDetail = marketData.status === "error" ? marketData.error : null;
+  const usingSampleData =
+    marketData.status === "ready" && marketData.priceSource === "snapshot";
 
   return (
     <>
       {!isOnline && <OfflineBanner />}
+      {isOnline && usingSampleData && <SampleDataBanner />}
       <BentoGrid>
       <BentoTile
         span="wide"

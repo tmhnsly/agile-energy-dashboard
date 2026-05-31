@@ -1,11 +1,49 @@
 import { parseISO } from 'date-fns';
 import Papa from 'papaparse';
 import type { PricePoint, FlexEvent, HouseholdUsageRow } from '@/types/energy';
+import { HALF_HOUR_MS } from '@/utils/constants';
 
 /** Midnight UTC for a given timestamp. Plain UTC math — no Date subclass needed. */
 function utcStartOfDay(ts: number): Date {
   const d = new Date(ts);
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+/** Last half-hour slot of a 24-hour profile (00:00 → 23:30 = 47 slots). */
+const LAST_SLOT_OFFSET_MS = 47 * HALF_HOUR_MS;
+
+/**
+ * Choose the UTC start-of-day to anchor the static usage profile to.
+ *
+ * The usage CSV is a 24-hour profile (48 half-hour slots). For daily cost and
+ * the Shift Simulator to be meaningful, every slot must map to a real Agile
+ * price — otherwise `lookupPrice` falls back to the nearest edge price, the
+ * whole day goes flat, and shifting load between periods shows no cost
+ * difference (the simulator just reports "No difference" for everything).
+ *
+ * The Agile feed does not always cover `now`'s full day: prices for the day
+ * may not be published yet, the day may be only partially settled, an ISR
+ * cache may be stale, or the hardcoded tariff product may eventually be
+ * retired. So rather than trusting `now`, we anchor to a day the price data
+ * actually covers: today when it is fully covered (so the dashboard shows
+ * today), otherwise the most recent fully-covered day. Falls back to the first
+ * day in range when the feed is thinner than a single day.
+ */
+export function resolveUsageAnchor(prices: PricePoint[], now: Date): Date {
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  if (prices.length === 0) return new Date(today);
+
+  const minTs = prices[0].ts;
+  const maxTs = prices[prices.length - 1].ts;
+
+  // Latest midnight whose full day of slots still fits inside the price range.
+  const latestCoveredDay = utcStartOfDay(maxTs - LAST_SLOT_OFFSET_MS).getTime();
+
+  // Prefer today, but never anchor past the latest fully-covered day.
+  const anchor = Math.min(today, latestCoveredDay);
+
+  // Guard against price feeds shorter than a single day.
+  return anchor >= minTs ? new Date(anchor) : utcStartOfDay(minTs);
 }
 
 // ---------------------------------------------------------------------------

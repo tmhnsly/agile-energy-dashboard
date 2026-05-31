@@ -6,6 +6,7 @@ import {
   mapAgilePrices,
   mapFlexEvents,
   parseHouseholdUsageCsv,
+  resolveUsageAnchor,
 } from '@/utils/energy-mappers';
 
 interface MarketDataLoading {
@@ -22,6 +23,8 @@ interface MarketDataReady {
   prices: PricePoint[];
   flexEvents: FlexEvent[];
   householdUsage: HouseholdUsageRow[];
+  /** Whether prices came from the live API or the bundled fallback snapshot. */
+  priceSource: 'live' | 'snapshot';
 }
 
 /** Discriminated union of the three possible fetch states. */
@@ -76,19 +79,26 @@ export function useMarketData(retryKey = 0): MarketDataState {
           throw new Error('No price data available — the upstream API may be temporarily unavailable');
         }
 
+        const priceSource =
+          priceJson && typeof priceJson === 'object' &&
+          (priceJson as { source?: unknown }).source === 'snapshot'
+            ? 'snapshot'
+            : 'live';
+
         // Flex events use the full price range so time-only events repeat per day
         const rangeFrom = prices[0].ts;
         const rangeTo = prices[prices.length - 1].ts;
         const flexEvents = mapFlexEvents(flexJson, rangeFrom, rangeTo);
 
-        // Anchor the static usage CSV to today (UTC) so the dashboard
-        // shows today's date and costs use today's prices.
-        // Uses explicit UTC to avoid cross-browser Date subclass issues.
-        const now = new Date();
-        const refDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        // Anchor the static usage CSV to a day the price feed actually
+        // covers (today when fully published, else the most recent complete
+        // day). This keeps every usage slot mapped to a real price so the
+        // Shift Simulator reflects genuine cost differences rather than
+        // collapsing to a flat "No difference" when prices lag or are stale.
+        const refDay = resolveUsageAnchor(prices, new Date());
         const householdUsage = parseHouseholdUsageCsv(csvText, refDay);
 
-        setState({ status: 'ready', prices, flexEvents, householdUsage });
+        setState({ status: 'ready', prices, flexEvents, householdUsage, priceSource });
       } catch (err) {
         if (cancelled) return;
         setState({
