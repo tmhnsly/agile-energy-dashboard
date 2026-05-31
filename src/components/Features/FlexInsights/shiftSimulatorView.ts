@@ -66,8 +66,6 @@ function outcomeTone(savingPence: number): OutcomeTone {
   return 'mono';
 }
 
-const buttonVariant = (selected: boolean): ButtonVariant => (selected ? 'soft' : 'outline');
-
 const savingToneOf = (tone: OutcomeTone): SavingTone =>
   tone === 'success' ? 'positive' : tone === 'error' ? 'negative' : 'neutral';
 
@@ -92,7 +90,9 @@ function hints(
     const toGroup = side === 'from' ? i : selectedIndex;
     const kWh = Math.min(kwh, day.groupUsage(household, fromGroup));
     const { savingPence } = day.simulateGroupShift(household, fromGroup, toGroup, kWh);
-    return { color: outcomeTone(savingPence), disabled: false };
+    const tone = outcomeTone(savingPence);
+    // No-difference moves are disabled so the user isn't sent clicking dead ends.
+    return { color: tone, disabled: tone === 'mono' };
   });
 }
 
@@ -122,31 +122,40 @@ export function shiftSimulatorView(
       : null;
   const tone: OutcomeTone = result ? outcomeTone(result.savingPence) : 'mono';
 
-  // The opposite row's hints. Note the (intentional) asymmetry preserved from
-  // the original: the to-row uses the clamped amount, the from-row the raw.
+  // Hints for each row, valid once the opposite side is chosen. Shown whether
+  // one or both periods are selected, so a complete selection still previews
+  // what the alternative moves would do. Note the (intentional) asymmetry
+  // preserved from the original: the to-row uses the clamped amount, the
+  // from-row the raw.
   const toHints = fromIndex !== null ? hints(day, household, fromIndex, 'from', clampedKwh) : null;
   const fromHints = toIndex !== null ? hints(day, household, toIndex, 'to', kwhToShift) : null;
 
+  // Selected = filled (soft); alternatives = outline hints; opposite period
+  // disabled. Filled-vs-outline keeps the chosen pair distinct from the hints.
   const fromButtons = TIME_GROUPS.map((_, i): GroupButton => {
-    const selected = i === fromIndex;
-    if (hasBoth) {
-      return { color: selected ? tone : 'mono', variant: buttonVariant(selected), disabled: i === toIndex, pressed: selected };
+    if (i === fromIndex) {
+      return { color: hasBoth ? tone : householdColor, variant: 'soft', disabled: false, pressed: true };
+    }
+    if (i === toIndex) {
+      return { color: 'mono', variant: 'outline', disabled: true, pressed: false };
     }
     if (fromHints) {
-      return { color: fromHints[i].color, variant: buttonVariant(false), disabled: fromHints[i].disabled, pressed: selected };
+      return { color: fromHints[i].color, variant: 'outline', disabled: fromHints[i].disabled, pressed: false };
     }
-    return { color: householdColor, variant: buttonVariant(selected), disabled: false, pressed: selected };
+    return { color: householdColor, variant: 'outline', disabled: false, pressed: false };
   });
 
   const toButtons = TIME_GROUPS.map((_, i): GroupButton => {
-    const selected = i === toIndex;
-    if (hasBoth) {
-      return { color: selected ? tone : 'mono', variant: buttonVariant(selected), disabled: i === fromIndex, pressed: selected };
+    if (i === toIndex) {
+      return { color: hasBoth ? tone : householdColor, variant: 'soft', disabled: false, pressed: true };
+    }
+    if (i === fromIndex) {
+      return { color: 'mono', variant: 'outline', disabled: true, pressed: false };
     }
     if (toHints) {
-      return { color: toHints[i].color, variant: buttonVariant(false), disabled: toHints[i].disabled, pressed: selected };
+      return { color: toHints[i].color, variant: 'outline', disabled: toHints[i].disabled, pressed: false };
     }
-    return { color: householdColor, variant: buttonVariant(selected), disabled: false, pressed: selected };
+    return { color: householdColor, variant: 'outline', disabled: false, pressed: false };
   });
 
   const slider: SliderState = {

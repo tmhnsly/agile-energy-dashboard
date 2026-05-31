@@ -104,7 +104,7 @@ export const ShiftSimulator = ({ usage, prices, household }: ShiftSimulatorProps
       <div className={styles.headerGroup}>
         <h2 className={styles.title}>Shift Simulator</h2>
         <p className={styles.subtitle}>
-          {HOUSEHOLD_THEMES[household].label} — move usage between time periods to see how it affects your daily cost.
+          {HOUSEHOLD_THEMES[household].label} — move usage between time periods to see the impact on your daily cost. Switch energy profile in the Flexibility Insights panel.
         </p>
       </div>
 

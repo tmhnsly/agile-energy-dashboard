@@ -73,4 +73,32 @@ describe('shiftSimulatorView', () => {
     const v = shiftSimulatorView(day, 'standard', { fromIndex: MORNING, toIndex: AFTERNOON, kwhToShift: Infinity });
     expect(v.outcome).toMatchObject({ tone: 'mono', savingTone: 'neutral', label: 'none' });
   });
+
+  it('one selected: a no-difference destination is disabled', () => {
+    // From Morning (20p): → Afternoon (20p) is a wash, → Night (10p) saves.
+    const v = shiftSimulatorView(day, 'standard', { fromIndex: MORNING, toIndex: null, kwhToShift: Infinity });
+    expect(v.toButtons[AFTERNOON]).toMatchObject({ disabled: true }); // no difference → disabled
+    expect(v.toButtons[NIGHT]).toMatchObject({ color: 'success', disabled: false });
+  });
+
+  it('both selected: alternative destinations show subtle outline hints', () => {
+    const v = shiftSimulatorView(day, 'standard', { fromIndex: PEAK, toIndex: NIGHT, kwhToShift: Infinity });
+    // The chosen destination is filled (soft); alternatives are outline hints.
+    expect(v.toButtons[NIGHT]).toMatchObject({ variant: 'soft', pressed: true });
+    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'outline', color: 'success', disabled: false });
+    expect(v.toButtons[MORNING]).toMatchObject({ variant: 'outline', color: 'success' });
+  });
+
+  it('both selected: the from-row also hints alternative sources', () => {
+    const v = shiftSimulatorView(day, 'standard', { fromIndex: PEAK, toIndex: NIGHT, kwhToShift: Infinity });
+    // Holding the destination (Night) fixed: Afternoon → Night saves.
+    expect(v.fromButtons[AFTERNOON]).toMatchObject({ variant: 'outline', color: 'success' });
+    expect(v.fromButtons[PEAK]).toMatchObject({ variant: 'soft', pressed: true });
+  });
+
+  it('both selected: a no-difference alternative is disabled', () => {
+    // From Morning (20p) → Night (10p) chosen; alternative Afternoon (20p) is a wash.
+    const v = shiftSimulatorView(day, 'standard', { fromIndex: MORNING, toIndex: NIGHT, kwhToShift: Infinity });
+    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'outline', disabled: true });
+  });
 });
