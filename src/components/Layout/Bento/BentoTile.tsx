@@ -2,7 +2,7 @@
 
 import { cx } from '@/utils/cx';
 import { motion, AnimatePresence } from 'motion/react';
-import { reveal, stagger, crossfade } from '@/config/motion';
+import { crossfade } from '@/config/motion';
 import styles from './BentoTile.module.scss';
 
 export type BentoTileTone = 'accent' | 'secondary' | 'warning';
@@ -18,8 +18,6 @@ export interface BentoTileProps {
   loading?: boolean;
   /** Custom skeleton to show when loading. Falls back to a default shimmer. */
   skeleton?: React.ReactNode;
-  /** Stagger index for entrance animation. */
-  index?: number;
 }
 
 export const BentoTile = ({
@@ -29,19 +27,13 @@ export const BentoTile = ({
   className,
   loading = false,
   skeleton,
-  index = 0,
 }: BentoTileProps) => {
   return (
-    <motion.div
+    <div
       className={cx(styles.tile, className)}
       data-span={span}
       {...(tone ? { 'data-tone': tone } : {})}
       {...(loading ? { 'aria-busy': 'true', 'data-loading': 'true' } : {})}
-      variants={reveal.fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={reveal.viewport}
-      transition={reveal.transition(index * stagger.normal)}
     >
       <AnimatePresence initial={false} mode="wait">
         {loading ? (
@@ -65,6 +57,6 @@ export const BentoTile = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };

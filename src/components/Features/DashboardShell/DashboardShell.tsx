@@ -80,7 +80,6 @@ export const DashboardShell = () => {
         span="wide"
         loading={isLoading}
         skeleton={<MarketPriceSkeleton />}
-        index={0}
       >
         {marketData.status === "error" ? (
           <TileError message="Failed to load market data." detail={errorDetail} onRetry={handleRetry} />
@@ -96,7 +95,6 @@ export const DashboardShell = () => {
         span="standard"
         loading={isLoading}
         skeleton={<HouseholdUsageSkeleton />}
-        index={1}
       >
         {marketData.status === "error" ? (
           <TileError message="Failed to load usage data." detail={errorDetail} onRetry={handleRetry} />
@@ -114,7 +112,6 @@ export const DashboardShell = () => {
         tone={isLoading ? undefined : HOUSEHOLD_THEMES[household].tone}
         loading={isLoading}
         skeleton={<ShiftSimulatorSkeleton />}
-        index={2}
       >
         {marketData.status === "error" ? (
           <TileError message="Failed to load simulator." detail={errorDetail} onRetry={handleRetry} />
@@ -132,7 +129,6 @@ export const DashboardShell = () => {
         className={styles.insightsTile}
         loading={isLoading}
         skeleton={<FlexInsightsSkeleton />}
-        index={3}
       >
         {marketData.status === "error" ? (
           <TileError message="Failed to load insights data." detail={errorDetail} onRetry={handleRetry} />
