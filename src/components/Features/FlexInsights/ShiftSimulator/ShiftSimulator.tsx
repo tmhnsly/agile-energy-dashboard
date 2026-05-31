@@ -58,6 +58,9 @@ export const ShiftSimulator = ({ usage, prices, household }: ShiftSimulatorProps
 
   const tone = view.outcome?.tone ?? 'mono';
 
+  const fromGroup = fromIdx != null ? TIME_GROUPS[fromIdx] : null;
+  const toGroup = toIdx != null ? TIME_GROUPS[toIdx] : null;
+
   const handleFromChange = useCallback(
     (idx: number) => setFromIdx((prev) => (prev === idx ? null : idx)),
     [],
@@ -199,7 +202,7 @@ export const ShiftSimulator = ({ usage, prices, household }: ShiftSimulatorProps
 
       <div className={styles.resultArea}>
         <AnimatePresence mode="wait">
-          {view.outcome ? (
+          {view.outcome && fromGroup && toGroup ? (
             <motion.div
               key={`${fromIdx}-${toIdx}`}
               className={styles.savingStack}
@@ -208,8 +211,16 @@ export const ShiftSimulator = ({ usage, prices, household }: ShiftSimulatorProps
               exit={swap.exit}
               transition={swap.transition}
             >
-              <span className={styles.savingBreakdown}>
-                {formatCostPence(view.outcome.originalCostPence)} → {formatCostPence(view.outcome.newCostPence)}
+              <span className={styles.periodSummary}>
+                <span className={styles.periodChip}>
+                  <span className={styles.periodIcon} aria-hidden="true">{GROUP_ICONS[fromGroup.key]}</span>
+                  {fromGroup.label}
+                </span>
+                <span className={styles.periodArrow} aria-hidden="true">→</span>
+                <span className={styles.periodChip}>
+                  <span className={styles.periodIcon} aria-hidden="true">{GROUP_ICONS[toGroup.key]}</span>
+                  {toGroup.label}
+                </span>
               </span>
               <span className={styles.savingValue} data-tone={view.outcome.savingTone}>
                 {view.outcome.label === 'save'
@@ -218,7 +229,23 @@ export const ShiftSimulator = ({ usage, prices, household }: ShiftSimulatorProps
                     ? `Extra ${formatCostPence(Math.abs(view.outcome.savingPence))}`
                     : 'No difference'}
               </span>
+              <span className={styles.savingBreakdown}>
+                {formatCostPence(view.outcome.originalCostPence)} → {formatCostPence(view.outcome.newCostPence)}
+              </span>
             </motion.div>
+          ) : fromGroup || toGroup ? (
+            <motion.p
+              key="guidance"
+              className={styles.savingPlaceholder}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: swap.transition.duration }}
+            >
+              {fromGroup
+                ? `Moving ${fromGroup.label} usage — now choose where to move it to.`
+                : `Filling ${toGroup!.label} — now choose where to move usage from.`}
+            </motion.p>
           ) : (
             <motion.p
               key="placeholder"

@@ -32,7 +32,6 @@
   @include type.typography(meta);
   color: var(--mono-text-low-contrast);
   margin: 0;
-  max-width: var(--card-subtitle-measure);
 
   @include cq.large {
     font-size: var(--text-md);
@@ -73,13 +72,6 @@
   --success-text-low-contrast: var(--success-text);
   --error-text-low-contrast: var(--error-text);
 
-  /* Give success/error outline hint buttons a tinted background so the
-     colour is clearly visible in light mode. Outline still has a border,
-     which differentiates hints from soft (selected) buttons. */
-  :global([data-variant="outline"][data-color="success"]:not(:disabled)),
-  :global([data-variant="outline"][data-color="error"]:not(:disabled)) {
-    background-color: var(--_bg);
-  }
 }
 
 
@@ -119,13 +111,40 @@
 
 /* Reserves space so toggling between placeholder and result doesn't shift layout */
 .resultArea {
-  min-height: 3.25rem;
+  min-height: 4.5rem;
   display: flex;
   align-items: flex-start;
 }
 
 .savingStack {
   @include layout.stack(var(--space-1));
+}
+
+/* The chosen move, e.g. "Peak → Night" — the textual anchor for the selection. */
+.periodSummary {
+  @include type.typography(meta);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--mono-text);
+  font-weight: 600;
+}
+
+.periodChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.periodIcon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--mono-solid);
+  font-size: 1.05em;
+}
+
+.periodArrow {
+  color: var(--mono-text-low-contrast);
 }
 
 .savingValue {

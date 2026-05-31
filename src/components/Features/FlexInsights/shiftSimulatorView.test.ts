@@ -27,22 +27,22 @@ const MORNING = idx('morning');
 const AFTERNOON = idx('afternoon');
 
 describe('shiftSimulatorView', () => {
-  it('idle: every group shows the household tone as an outline, slider disabled, no outcome', () => {
+  it('idle: every group shows the household tone as a soft fill, slider disabled, no outcome', () => {
     const v = shiftSimulatorView(day, 'standard', { fromIndex: null, toIndex: null, kwhToShift: Infinity });
     expect(v.hasBoth).toBe(false);
     expect(v.outcome).toBeNull();
     expect(v.slider.disabled).toBe(true);
     for (const b of [...v.fromButtons, ...v.toButtons]) {
-      expect(b).toMatchObject({ color: 'accent', variant: 'outline', disabled: false, pressed: false });
+      expect(b).toMatchObject({ color: 'accent', variant: 'soft', disabled: false, pressed: false });
     }
   });
 
-  it('one selected: the to-row shows save/cost hints and disables the selected period', () => {
+  it('one selected: the picked period is solid, the to-row shows save/cost hints and disables the selected period', () => {
     const v = shiftSimulatorView(day, 'standard', { fromIndex: PEAK, toIndex: null, kwhToShift: Infinity });
     expect(v.outcome).toBeNull();
-    expect(v.fromButtons[PEAK]).toMatchObject({ color: 'accent', variant: 'soft', pressed: true });
+    expect(v.fromButtons[PEAK]).toMatchObject({ color: 'accent', variant: 'solid', pressed: true });
     expect(v.toButtons[PEAK]).toMatchObject({ color: 'mono', disabled: true });
-    expect(v.toButtons[NIGHT].color).toBe('success'); // Peak → Night saves
+    expect(v.toButtons[NIGHT]).toMatchObject({ color: 'success', variant: 'soft' }); // Peak → Night saves
   });
 
   it('complete: a Peak → Night shift is a success outcome with a positive saving', () => {
@@ -50,7 +50,7 @@ describe('shiftSimulatorView', () => {
     expect(v.hasBoth).toBe(true);
     expect(v.outcome).toMatchObject({ tone: 'success', savingTone: 'positive', label: 'save' });
     expect(v.outcome!.savingPence).toBeGreaterThan(0);
-    expect(v.fromButtons[PEAK]).toMatchObject({ color: 'success', pressed: true, disabled: false });
+    expect(v.fromButtons[PEAK]).toMatchObject({ color: 'success', variant: 'solid', pressed: true, disabled: false });
     expect(v.fromButtons[NIGHT].disabled).toBe(true); // the to-period is disabled on the from row
     expect(v.toButtons[PEAK].disabled).toBe(true); // the from-period is disabled on the to row
     expect(v.slider.disabled).toBe(false);
@@ -81,24 +81,24 @@ describe('shiftSimulatorView', () => {
     expect(v.toButtons[NIGHT]).toMatchObject({ color: 'success', disabled: false });
   });
 
-  it('both selected: alternative destinations show subtle outline hints', () => {
+  it('both selected: the chosen pair is solid, alternative destinations show soft hints', () => {
     const v = shiftSimulatorView(day, 'standard', { fromIndex: PEAK, toIndex: NIGHT, kwhToShift: Infinity });
-    // The chosen destination is filled (soft); alternatives are outline hints.
-    expect(v.toButtons[NIGHT]).toMatchObject({ variant: 'soft', pressed: true });
-    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'outline', color: 'success', disabled: false });
-    expect(v.toButtons[MORNING]).toMatchObject({ variant: 'outline', color: 'success' });
+    // The chosen destination is solid (heaviest); alternatives are soft hints.
+    expect(v.toButtons[NIGHT]).toMatchObject({ variant: 'solid', pressed: true });
+    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'soft', color: 'success', disabled: false });
+    expect(v.toButtons[MORNING]).toMatchObject({ variant: 'soft', color: 'success' });
   });
 
   it('both selected: the from-row also hints alternative sources', () => {
     const v = shiftSimulatorView(day, 'standard', { fromIndex: PEAK, toIndex: NIGHT, kwhToShift: Infinity });
     // Holding the destination (Night) fixed: Afternoon → Night saves.
-    expect(v.fromButtons[AFTERNOON]).toMatchObject({ variant: 'outline', color: 'success' });
-    expect(v.fromButtons[PEAK]).toMatchObject({ variant: 'soft', pressed: true });
+    expect(v.fromButtons[AFTERNOON]).toMatchObject({ variant: 'soft', color: 'success' });
+    expect(v.fromButtons[PEAK]).toMatchObject({ variant: 'solid', pressed: true });
   });
 
   it('both selected: a no-difference alternative is disabled', () => {
     // From Morning (20p) → Night (10p) chosen; alternative Afternoon (20p) is a wash.
     const v = shiftSimulatorView(day, 'standard', { fromIndex: MORNING, toIndex: NIGHT, kwhToShift: Infinity });
-    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'outline', disabled: true });
+    expect(v.toButtons[AFTERNOON]).toMatchObject({ variant: 'soft', disabled: true });
   });
 });

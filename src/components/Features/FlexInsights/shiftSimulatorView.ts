@@ -130,32 +130,35 @@ export function shiftSimulatorView(
   const toHints = fromIndex !== null ? hints(day, household, fromIndex, 'from', clampedKwh) : null;
   const fromHints = toIndex !== null ? hints(day, household, toIndex, 'to', kwhToShift) : null;
 
-  // Selected = filled (soft); alternatives = outline hints; opposite period
-  // disabled. Filled-vs-outline keeps the chosen pair distinct from the hints.
+  // Weight ladder: the chosen period on each row is SOLID — the heaviest chip,
+  // tinted by the outcome once both are picked. Every other group is a lighter
+  // SOFT chip: coloured green/red when it's a save/cost hint, neutral household
+  // when idle. Dead-end hints and the opposite period are disabled (muted), so
+  // the ladder reads solid (chosen) ▸ soft (suggestion) ▸ muted (dead-end).
   const fromButtons = TIME_GROUPS.map((_, i): GroupButton => {
     if (i === fromIndex) {
-      return { color: hasBoth ? tone : householdColor, variant: 'soft', disabled: false, pressed: true };
+      return { color: hasBoth ? tone : householdColor, variant: 'solid', disabled: false, pressed: true };
     }
     if (i === toIndex) {
-      return { color: 'mono', variant: 'outline', disabled: true, pressed: false };
+      return { color: 'mono', variant: 'soft', disabled: true, pressed: false };
     }
     if (fromHints) {
-      return { color: fromHints[i].color, variant: 'outline', disabled: fromHints[i].disabled, pressed: false };
+      return { color: fromHints[i].color, variant: 'soft', disabled: fromHints[i].disabled, pressed: false };
     }
-    return { color: householdColor, variant: 'outline', disabled: false, pressed: false };
+    return { color: householdColor, variant: 'soft', disabled: false, pressed: false };
   });
 
   const toButtons = TIME_GROUPS.map((_, i): GroupButton => {
     if (i === toIndex) {
-      return { color: hasBoth ? tone : householdColor, variant: 'soft', disabled: false, pressed: true };
+      return { color: hasBoth ? tone : householdColor, variant: 'solid', disabled: false, pressed: true };
     }
     if (i === fromIndex) {
-      return { color: 'mono', variant: 'outline', disabled: true, pressed: false };
+      return { color: 'mono', variant: 'soft', disabled: true, pressed: false };
     }
     if (toHints) {
-      return { color: toHints[i].color, variant: 'outline', disabled: toHints[i].disabled, pressed: false };
+      return { color: toHints[i].color, variant: 'soft', disabled: toHints[i].disabled, pressed: false };
     }
-    return { color: householdColor, variant: 'outline', disabled: false, pressed: false };
+    return { color: householdColor, variant: 'soft', disabled: false, pressed: false };
   });
 
   const slider: SliderState = {
