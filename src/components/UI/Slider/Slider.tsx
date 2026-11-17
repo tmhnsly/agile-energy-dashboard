@@ -37,7 +37,7 @@ export const Slider = ({
 
   // Build tick positions as percentage offsets (Math.round avoids
   // floating-point drift that would drop the last tick).
-  let ticks: number[] = [];
+  const ticks: number[] = [];
   if (tickInterval && range > 0) {
     const count = Math.round(range / tickInterval);
     if (count > 0 && count <= 20) {

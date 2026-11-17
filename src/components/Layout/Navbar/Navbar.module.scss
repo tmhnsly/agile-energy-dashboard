@@ -51,7 +51,9 @@
   min-width: var(--avatar-size);
   height: var(--avatar-size);
   padding: 0;
-  border-radius: var(--radius-squircle);
+  // A fixed radius (the squircle ratio of the button height), not a percentage,
+  // so a wider labelled action gets exactly the same corners as the icon buttons.
+  border-radius: calc(var(--avatar-size) * 0.22);
   background-color: var(--mono-subtle-bg);
   border: 1px solid var(--mono-border-subtle);
   color: var(--mono-solid);
@@ -80,5 +82,4 @@
 .navActionWithLabel {
   gap: var(--space-1);
   padding-left: var(--space-2);
-  border-radius: var(--radius-pill);
 }
